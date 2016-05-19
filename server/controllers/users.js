@@ -1,18 +1,21 @@
 var mongoose = require("mongoose");
 var User = mongoose.model("User");
+
 module.exports = (function(){
    return{
-      login: function(req,res){
-         User.findOne({name: req.body.name}, function(err, user){
+      login: function(req,callback){
+         User.findOne({name: req.name}, function(err, user){
             if(user){
-               res.json(user);
+               console.log("found user");
+               callback(user);
             }else{
-               var user = new User({name: req.body.name});
+               var user = new User({name: req.name, visitTime: req.vistTime});
                user.save(function(err){
                   if(err){
                      console.log(err);
                   }else{
-                     res.json(user);
+                     console.log("new user");
+                     callback(user);
                   }
                })
             }

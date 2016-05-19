@@ -1,19 +1,21 @@
 var express = require("express");
+var http = require('http');
 var app = express();
 var bodyParser = require("body-parser");
 var path = require("path");
+var http = http.Server(app);
 
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "./client")));
 require("./server/config/mongoose.js");
-require("./server/config/routes.js")(app);
+//require("./server/config/routes.js")(app);
 
-var server = app.listen(6174, function(){});
 
-var io = require("socket.io").listen(server);
-io.sockets.on("connection", function(socket){
-	socket.on("user_login", function(username){
-		console.log(typeof username);
-		socket.emit("logged_in", username)
-	})
-})
+var io = require("socket.io")(http);
+require("./socketing.js")(io);
+
+http.listen(6174, function(){
+	console.log("SERVER LISTENING");
+});
+
+

@@ -20440,7 +20440,7 @@
 			value: function componentDidMount() {
 				var that = this;
 				this.state.socket.on("logged_in", function (data) {
-					that.setState({ username: data });
+					that.setState({ username: data.name });
 				});
 			}
 		}, {
