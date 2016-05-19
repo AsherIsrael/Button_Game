@@ -5,8 +5,10 @@ module.exports = {
       path: __dirname + '/client'
    },
    module: {
+      noParse: ['ws'],
       loaders: [
          {test: /\.js$/, exclude: /node_modules/, loader: "babel-loader"}
       ]
-   }
+   },
+   externals: ['ws']
 }

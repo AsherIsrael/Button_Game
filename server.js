@@ -12,5 +12,8 @@ var server = app.listen(6174, function(){});
 
 var io = require("socket.io").listen(server);
 io.sockets.on("connection", function(socket){
-
+	socket.on("user_login", function(username){
+		console.log(typeof username);
+		socket.emit("logged_in", username)
+	})
 })
