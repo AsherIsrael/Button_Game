@@ -12,7 +12,7 @@ export default class GameButton extends React.Component{
 	}
 	render(){
 		return(
-
+			<button style={{backgroundColor: this.state.color}} onClick={this.props.recordAct(this.state)}>test</button>
 		)
 	}
 }

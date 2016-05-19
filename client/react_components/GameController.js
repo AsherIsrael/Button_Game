@@ -4,23 +4,28 @@ import GameButton from "./GameButton.js";
 export default class GameController extends React.Component{
 	constructor(props){
 		super(props);
-		this.setState = this.setState.bind(this)
+		console.log("Game loaded");
+		this.setState = this.setState.bind(this);
+		this.record = this.record.bind(this);
 		this.state = {
 			socket: props.route.socket,
-			username: null
+			username: null,
+			activities: []
 		}
 	}
 	componentDidMount(){
-		console.log("game mounted")
 		var that = this;
 		this.state.socket.on("logged_in", function(data){
-			console.log("supposed to be string", typeof data);
-			console.log(that);
 			that.setState({username: data});
-			console.log("game username", that.state.username);
 		})
 	}
+	record(buttonPressed){
+		var activities = this.state.activities.slice();
+		activities.push(buttonPressed);
+		this.setState({activities: activities});
+	}
 	render(){
+		console.log("Game rendered");
 		return(
 			<div className="container">
 				<h1>{this.state.username}</h1>

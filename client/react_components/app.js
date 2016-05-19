@@ -6,16 +6,17 @@ import io from "socket.io-client";
 var ReactRouter = require("react-router");
 var Router = ReactRouter.Router;
 var Route = ReactRouter.Route;
-var hashHistory = ReactRouter.hashHistory;
+var browserHistory = ReactRouter.browserHistory;
 var Link = ReactRouter.Link;
 
 export default class App extends React.Component{
 	constructor(){
 		super();
-		this.redirect = this.redirect.bind(this);
+		console.log("App component loaded");
 		this.setState = this.setState.bind(this);
+		var socket = io.connect();
 		this.state = {
-			socket: io.connect(),
+			socket: socket,
 			username: null
 		}
 	}
@@ -23,24 +24,17 @@ export default class App extends React.Component{
 	// 	console.log("app mounted")
 	// 	var that = this;
 	// 	this.state.socket.on("logged_in", function(data){
-	// 		console.log("supposed to be string", typeof data);
-	// 		console.log(that);
 	// 		that.setState({username: data});
 	// 		console.log("app username", that.state.username);
 	// 	})
 	// }
-	redirect(){
-		console.log("redirect");
-		// hashHistory.push("/game");
-	}
 	render(){
-		console.log("app state", this.state);
+		console.log("app rendered");
 		return(
-			<Router history={hashHistory}>
-				<Route path="/" component={Login} socket={this.state.socket} redirect={this.redirect}/>
-				<Route path="/game" component={GameController} socket={this.state.socket} username={this.state.username}/>
+			<Router history={browserHistory}>
+				<Route path="/" component={Login} socket={this.state.socket}/>
+				<Route path="/game" component={GameController} username={this.state.username} socket={this.state.socket}/>
 			</Router>
 		)
 	}
 }
-	
