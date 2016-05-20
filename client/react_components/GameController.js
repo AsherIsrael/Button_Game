@@ -86,8 +86,6 @@ export default class GameController extends React.Component{
 		return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
 	}
 	record(buttonPressed){
-
-		console.log(buttonPressed)
 		var activities = this.state.activities.slice();
 		activities.push(buttonPressed);
 		this.setState({activities: activities});
