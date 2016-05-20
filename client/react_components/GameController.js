@@ -27,58 +27,67 @@ export default class GameController extends React.Component{
 			that.setState({username: data.name});
 		})
 		var elem = document.querySelector('.grid');
-		var msnry = new Masonry( elem, {
+		var pckry = new Packery( elem, {
 		  itemSelector: '.grid-item',
-		  columnWidth: ".grid-sizer",
 		  percentPosition: true
 		});
 	}
 	componentDidUpdate(nextState){
 		var elem = document.querySelector('.grid');
-		var msnry = new Masonry( elem, {
+		var pckry = new Packery( elem, {
 		  itemSelector: '.grid-item',
-		  columnWidth: ".grid-sizer",
 		  percentPosition: true
 		});
 	}
 	makeBoard(){
 		var board = [];
-		for(var i=0;i<20;i++){
-			board.push(<GameButton key={i} color={this.randomColor()} width={this.randomWidth()} height={this.randomHeight()} recordAct={this.record}/>)
+		let size = 70;//number of grid-items to fill  the board;
+		let wMax = 3;
+		let hMax = 5;
+		var i = 0;
+		while(size>0){
+			if(size<30){
+				wMax = 2;
+				hMax = 3;
+			}
+			if(size<20){
+				wMax = 8;
+				hMax = 1;
+			}
+			var width = this.randomWidth(wMax);
+			var height = this.randomHeight(hMax);
+			while(size - (width.val*height.val)<0){
+				var width = this.randomWidth(wMax);
+				var height = this.randomHeight(hMax);
+			}
+			size = size - (width.val*height.val);
+			board.push(<GameButton key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+			i++;
 		}
 		this.setState({board: board})
 	}
-	randomHeight(){
-		let picker = Math.floor(Math.random()*(6-1))+1;
+	randomHeight(max){
+		let picker = Math.floor(Math.random()*(max-1))+1;
 		switch(picker){
-			case 1:
-				return "";
-				break;
 			case 2:
-				return "grid-item--height2";
+				return {val: 2, class: "grid-item--height2"};
 				break;
 			case 3:
-				return "grid-item--height3";
+				return {val: 3, class: "grid-item--height3"};
 				break;
 			default:
-				return "";
+				return {val: 1, class: ""};
 				break;
 		}
 	}
-	randomWidth(){
-		let picker = Math.floor(Math.random()*(6-1))+1;
+	randomWidth(max){
+		let picker = Math.floor(Math.random()*(max-1))+1;
 		switch(picker){
-			case 1:
-				return "";
-				break;
 			case 2:
-				return "grid-item--width2";
-				break;
-			case 3:
-				return "grid-item--width3";
+				return {val: 2, class: "grid-item--width2"};
 				break;
 			default:
-				return "";
+				return {val: 1, class: ""};
 				break;
 		}
 	}
@@ -105,7 +114,6 @@ export default class GameController extends React.Component{
 				</div>
 				<div className="row board">
 					<div className="gameBoard grid">
-						<div className="grid-sizer"></div>
 						{this.state.board}
 					</div>
 				</div>

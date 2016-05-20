@@ -25955,9 +25955,8 @@
 					that.setState({ username: data.name });
 				});
 				var elem = document.querySelector('.grid');
-				var msnry = new Masonry(elem, {
+				var pckry = new Packery(elem, {
 					itemSelector: '.grid-item',
-					columnWidth: ".grid-sizer",
 					percentPosition: true
 				});
 			}
@@ -25965,9 +25964,8 @@
 			key: "componentDidUpdate",
 			value: function componentDidUpdate(nextState) {
 				var elem = document.querySelector('.grid');
-				var msnry = new Masonry(elem, {
+				var pckry = new Packery(elem, {
 					itemSelector: '.grid-item',
-					columnWidth: ".grid-sizer",
 					percentPosition: true
 				});
 			}
@@ -25975,46 +25973,57 @@
 			key: "makeBoard",
 			value: function makeBoard() {
 				var board = [];
-				for (var i = 0; i < 20; i++) {
-					board.push(_react2.default.createElement(_GameButton2.default, { key: i, color: this.randomColor(), width: this.randomWidth(), height: this.randomHeight(), recordAct: this.record }));
+				var size = 70; //number of grid-items to fill  the board;
+				var wMax = 3;
+				var hMax = 5;
+				var i = 0;
+				while (size > 0) {
+					if (size < 30) {
+						wMax = 2;
+						hMax = 3;
+					}
+					if (size < 20) {
+						wMax = 8;
+						hMax = 1;
+					}
+					var width = this.randomWidth(wMax);
+					var height = this.randomHeight(hMax);
+					while (size - width.val * height.val < 0) {
+						var width = this.randomWidth(wMax);
+						var height = this.randomHeight(hMax);
+					}
+					size = size - width.val * height.val;
+					board.push(_react2.default.createElement(_GameButton2.default, { key: i, color: this.randomColor(), width: width.class, height: height.class, recordAct: this.record }));
+					i++;
 				}
 				this.setState({ board: board });
 			}
 		}, {
 			key: "randomHeight",
-			value: function randomHeight() {
-				var picker = Math.floor(Math.random() * (6 - 1)) + 1;
+			value: function randomHeight(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
 				switch (picker) {
-					case 1:
-						return "";
-						break;
 					case 2:
-						return "grid-item--height2";
+						return { val: 2, class: "grid-item--height2" };
 						break;
 					case 3:
-						return "grid-item--height3";
+						return { val: 3, class: "grid-item--height3" };
 						break;
 					default:
-						return "";
+						return { val: 1, class: "" };
 						break;
 				}
 			}
 		}, {
 			key: "randomWidth",
-			value: function randomWidth() {
-				var picker = Math.floor(Math.random() * (6 - 1)) + 1;
+			value: function randomWidth(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
 				switch (picker) {
-					case 1:
-						return "";
-						break;
 					case 2:
-						return "grid-item--width2";
-						break;
-					case 3:
-						return "grid-item--width3";
+						return { val: 2, class: "grid-item--width2" };
 						break;
 					default:
-						return "";
+						return { val: 1, class: "" };
 						break;
 				}
 			}
@@ -26072,7 +26081,6 @@
 						_react2.default.createElement(
 							"div",
 							{ className: "gameBoard grid" },
-							_react2.default.createElement("div", { className: "grid-sizer" }),
 							this.state.board
 						)
 					)
