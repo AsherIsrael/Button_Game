@@ -25993,7 +25993,7 @@
 						var height = this.randomHeight(hMax);
 					}
 					size = size - width.val * height.val;
-					board.push(_react2.default.createElement(_GameButton2.default, { key: i, color: this.randomColor(), width: width.class, height: height.class, recordAct: this.record }));
+					board.push(_react2.default.createElement(_GameButton2.default, { number: i, key: i, color: this.randomColor(), width: width.class, height: height.class, recordAct: this.record }));
 					i++;
 				}
 				this.setState({ board: board });
@@ -26162,9 +26162,13 @@
 				return _react2.default.createElement(
 					"div",
 					{ className: thisClass },
-					_react2.default.createElement("button", { className: "gameButton", type: "button", style: { backgroundColor: this.state.color }, onClick: function onClick(e) {
-							return _this2.handleClick(e);
-						} })
+					_react2.default.createElement(
+						"button",
+						{ className: "gameButton", type: "button", style: { backgroundColor: this.state.color }, onClick: function onClick(e) {
+								return _this2.handleClick(e);
+							} },
+						this.props.number
+					)
 				);
 			}
 		}]);

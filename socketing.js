@@ -5,14 +5,12 @@ module.exports = function(io){
 		console.log("user connected");
 		socket.on("user_login", function(username){
 			var data = {
-				name: username,
-				visitTime: null
+				name: username
 			}
 			users.login(data,function(result){
 				socket.emit("logged_in", result);
 			})
-			
+
 		})
 	})
 }
-

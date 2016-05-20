@@ -61,7 +61,7 @@ export default class GameController extends React.Component{
 				var height = this.randomHeight(hMax);
 			}
 			size = size - (width.val*height.val);
-			board.push(<GameButton key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+			board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 			i++;
 		}
 		this.setState({board: board})

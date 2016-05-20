@@ -7,13 +7,18 @@ module.exports = (function(){
          User.findOne({name: req.name}, function(err, user){
             if(user){
                console.log("found user");
-               callback(user);
+               user.visits += 1;
+               user.save(function(err){
+                  callback(user);
+               })
             }else{
-               var user = new User({name: req.name, visitTime: req.vistTime});
+               var user = new User({name: req.name});
                user.save(function(err){
                   if(err){
                      console.log(err);
                   }else{
+                     user.visits += 1;
+                     user.save();
                      console.log("new user");
                      callback(user);
                   }

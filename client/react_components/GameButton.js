@@ -29,7 +29,7 @@ export default class GameButton extends React.Component{
 		var thisClass = "grid-item "+this.state.width+" "+this.state.height;
 		return(
 			<div className={thisClass}>
-				<button className="gameButton" type="button" style={{backgroundColor: this.state.color}} onClick={(e) => this.handleClick(e)}></button>
+				<button className="gameButton" type="button" style={{backgroundColor: this.state.color}} onClick={(e) => this.handleClick(e)}>{this.props.number}</button>
 			</div>
 		)
 	}
