@@ -25945,7 +25945,7 @@
 		_createClass(GameController, [{
 			key: "componentWillMount",
 			value: function componentWillMount() {
-				this.makeBoard();
+				//this.makeBoard();
 			}
 		}, {
 			key: "componentDidMount",
@@ -25959,6 +25959,14 @@
 					itemSelector: '.grid-item',
 					percentPosition: true
 				});
+				this.state.socket.on("make_board", function (mainBoard) {
+					console.log("got board");
+					that.setState({ board: mainBoard });
+				});
+				this.state.socket.on("need_board", function () {
+					console.log("need board");
+					that.makeBoard();
+				});
 			}
 		}, {
 			key: "componentDidUpdate",
@@ -25970,13 +25978,26 @@
 				});
 			}
 		}, {
+			key: "record",
+			value: function record(buttonPressed) {
+				var activities = this.state.activities.slice();
+				activities.push(buttonPressed);
+				this.setState({ activities: activities });
+			}
+		}, {
+			key: "reset",
+			value: function reset() {
+				this.setState({ board: [] });
+				this.makeBoard();
+			}
+		}, {
 			key: "makeBoard",
 			value: function makeBoard() {
 				var board = [];
 				var size = 70; //number of grid-items to fill  the board;
 				var wMax = 3;
 				var hMax = 5;
-				var i = 0;
+				var i = 1;
 				while (size > 0) {
 					if (size < 30) {
 						wMax = 2;
@@ -25993,10 +26014,17 @@
 						var height = this.randomHeight(hMax);
 					}
 					size = size - width.val * height.val;
-					board.push(_react2.default.createElement(_GameButton2.default, { number: i, key: i, color: this.randomColor(), width: width.class, height: height.class, recordAct: this.record }));
+					board.push({
+						number: i,
+						color: this.randomColor(),
+						width: width.class,
+						height: height.class
+					});
+					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 					i++;
 				}
-				this.setState({ board: board });
+				this.state.socket.emit("new_board", board);
+				//this.setState({board: board})
 			}
 		}, {
 			key: "randomHeight",
@@ -26033,24 +26061,15 @@
 				return 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
 			}
 		}, {
-			key: "record",
-			value: function record(buttonPressed) {
-				var activities = this.state.activities.slice();
-				activities.push(buttonPressed);
-				this.setState({ activities: activities });
-			}
-		}, {
-			key: "reset",
-			value: function reset() {
-				this.setState({ board: [] });
-				this.makeBoard();
-			}
-		}, {
 			key: "render",
 			value: function render() {
 				var _this2 = this;
 
 				console.log("Game rendered");
+				var that = this;
+				var displayBoard = this.state.board.map(function (item) {
+					return _react2.default.createElement(_GameButton2.default, { key: item.number, number: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
+				});
 				return _react2.default.createElement(
 					"div",
 					{ className: "container-fluid" },
@@ -26081,7 +26100,7 @@
 						_react2.default.createElement(
 							"div",
 							{ className: "gameBoard grid" },
-							this.state.board
+							displayBoard
 						)
 					)
 				);

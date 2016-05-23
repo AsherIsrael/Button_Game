@@ -19,7 +19,7 @@ export default class GameController extends React.Component{
 		}
 	}
 	componentWillMount(){
-		this.makeBoard();
+		//this.makeBoard();
 	}
 	componentDidMount(){
 		var that = this;
@@ -31,6 +31,14 @@ export default class GameController extends React.Component{
 		  itemSelector: '.grid-item',
 		  percentPosition: true
 		});
+		this.state.socket.on("make_board", function(mainBoard){
+			console.log("got board")
+			that.setState({board: mainBoard})
+		});
+		this.state.socket.on("need_board", function(){
+			console.log("need board");
+			that.makeBoard();
+		})
 	}
 	componentDidUpdate(nextState){
 		var elem = document.querySelector('.grid');
@@ -39,12 +47,21 @@ export default class GameController extends React.Component{
 		  percentPosition: true
 		});
 	}
+	record(buttonPressed){
+		var activities = this.state.activities.slice();
+		activities.push(buttonPressed);
+		this.setState({activities: activities});
+	}
+	reset(){
+		this.setState({board: []});
+		this.makeBoard();
+	}
 	makeBoard(){
 		var board = [];
 		let size = 70;//number of grid-items to fill  the board;
 		let wMax = 3;
 		let hMax = 5;
-		var i = 0;
+		var i = 1;
 		while(size>0){
 			if(size<30){
 				wMax = 2;
@@ -61,10 +78,17 @@ export default class GameController extends React.Component{
 				var height = this.randomHeight(hMax);
 			}
 			size = size - (width.val*height.val);
-			board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+			board.push({
+				number: i,
+				color: this.randomColor(),
+				width: width.class,
+				height: height.class
+			})
+			// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 			i++;
 		}
-		this.setState({board: board})
+		this.state.socket.emit("new_board", board);
+		//this.setState({board: board})
 	}
 	randomHeight(max){
 		let picker = Math.floor(Math.random()*(max-1))+1;
@@ -94,17 +118,12 @@ export default class GameController extends React.Component{
 	randomColor(){
 		return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
 	}
-	record(buttonPressed){
-		var activities = this.state.activities.slice();
-		activities.push(buttonPressed);
-		this.setState({activities: activities});
-	}
-	reset(){
-		this.setState({board: []});
-		this.makeBoard();
-	}
 	render(){
 		console.log("Game rendered");
+		var that = this;
+		var displayBoard = this.state.board.map(function(item){
+			return <GameButton key={item.number} number={item.number} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>
+		})
 		return(
 			<div className="container-fluid">
 				<div className="row">
@@ -114,7 +133,7 @@ export default class GameController extends React.Component{
 				</div>
 				<div className="row board">
 					<div className="gameBoard grid">
-						{this.state.board}
+						{displayBoard}
 					</div>
 				</div>
 			</div>
