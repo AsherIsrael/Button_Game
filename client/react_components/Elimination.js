@@ -1,7 +1,8 @@
 import React from "react";
 import GameButton from "./GameButton.js";
+import { Link } from "react-router"
 
-export default class GameController extends React.Component{
+export default class Elimination extends React.Component{
 	constructor(props){
 		super(props);
 		console.log("Game loaded");
@@ -12,30 +13,39 @@ export default class GameController extends React.Component{
 		this.randomColor = this.randomColor.bind(this);
 		this.makeBoard = this.makeBoard.bind(this);
 		this.state = {
-			socket: props.route.socket,
-			username: null,
+			socket: props.socket,
+			username: props.username,
 			activities: [],
 			board: []
 		}
 	}
-	componentWillMount(){
-		//this.makeBoard();
-	}
+	// componentWillMount(){
+	// 	this.makeBoard();
+	// }
 	componentDidMount(){
 		var that = this;
-		this.state.socket.on("logged_in", function(data){
-			that.setState({username: data.name});
-		})
+		// this.state.socket.on("logged_in", function(data){
+		// 	that.setState({username: data.name});
+		// })
+		var activity = {
+			type: "gameStart",
+			data: {
+				name: "elimination",
+				time: Date.now()
+			}
+		}
+		this.setState({activities: [activity]});
+		this.state.socket.emit("elimination_game");
 		var elem = document.querySelector('.grid');
 		var pckry = new Packery( elem, {
 		  itemSelector: '.grid-item',
 		  percentPosition: true
 		});
-		this.state.socket.on("make_board", function(mainBoard){
+		this.state.socket.on("make_eliminationBoard", function(mainBoard){
 			console.log("got board")
 			that.setState({board: mainBoard})
 		});
-		this.state.socket.on("need_board", function(){
+		this.state.socket.on("need_eliminationBoard", function(){
 			console.log("need board");
 			that.makeBoard();
 		})
@@ -47,10 +57,28 @@ export default class GameController extends React.Component{
 		  percentPosition: true
 		});
 	}
-	record(buttonPressed){
+	componentWillUnmount(){
+		var activity = {
+			type: "gameEnd",
+			data: {
+				name: "elimination",
+				time: Date.now()
+			}
+		}
 		var activities = this.state.activities.slice();
-		activities.push(buttonPressed);
+		activities.push(activity);
+		this.props.passUpLog(activities);
+	}
+	record(buttonPressed){
+		 buttonPressed["time"] = Date.now();
+		var activity = {
+			type: "buttonPress",
+			data: buttonPressed
+		}
+		var activities = this.state.activities.slice();
+		activities.push(activity);
 		this.setState({activities: activities});
+
 	}
 	reset(){
 		this.setState({board: []});
@@ -78,8 +106,10 @@ export default class GameController extends React.Component{
 				var height = this.randomHeight(hMax);
 			}
 			size = size - (width.val*height.val);
+			var points = (width.val*height.val)
 			board.push({
 				number: i,
+				points: points,
 				color: this.randomColor(),
 				width: width.class,
 				height: height.class
@@ -87,7 +117,7 @@ export default class GameController extends React.Component{
 			// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 			i++;
 		}
-		this.state.socket.emit("new_board", board);
+		this.state.socket.emit("new_eliminationBoard", board);
 		//this.setState({board: board})
 	}
 	randomHeight(max){
@@ -122,13 +152,15 @@ export default class GameController extends React.Component{
 		console.log("Game rendered");
 		var that = this;
 		var displayBoard = this.state.board.map(function(item){
-			return <GameButton key={item.number} number={item.number} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>
+			return <GameButton key={item.number} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>
 		})
 		return(
 			<div className="container-fluid">
 				<div className="row">
 					<h1 className="col-md-1">{this.state.username}</h1>
-					<div className="col-md-10"></div>
+					<div className="col-md-8"></div>
+					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
+					<div className="col-md-1"></div>
 					<div className="col-md-1"><button className="btn" type="button" onClick={() => this.reset()}>Reset</button></div>
 				</div>
 				<div className="row board">

@@ -1,7 +1,7 @@
 var users = require("./server/controllers/users.js")
 
 module.exports = function(io){
-	var board = [];
+	var eliminationBoard = [];
 	io.on("connection", function(socket){
 		console.log("user connected");
 		socket.on("user_login", function(username){
@@ -10,28 +10,33 @@ module.exports = function(io){
 			}
 			users.login(data,function(result){
 				socket.emit("logged_in", result);
-				if(board.length === 0){
-					console.log("need board");
-					board = ["holder"];
-					socket.emit("need_board");
-				}else{
-					console.log("have board");
-					if(board.length == 1){
-						setTimeout(function(){
-							socket.emit("make_board", board);
-						}, 1000);
-					}else{
-						socket.emit("make_board", board);
-					}
-				}
+
 			})
 
 		})
 
-		socket.on("new_board", function(newBoard){
-			board = newBoard;
-			console.log("emitting board")
-			io.emit("make_board", board);
+		socket.on("elimination_game", function(){
+			if(eliminationBoard.length === 0){
+				console.log("need eliminationBoard");
+				eliminationBoard = ["holder"];
+				socket.emit("need_eliminationBoard");
+			}else{
+				console.log("have eliminationBoard");
+				if(eliminationBoard.length == 1){
+					setTimeout(function(){
+						socket.emit("make_eliminationBoard", eliminationBoard);
+					}, 1000);
+				}else{
+					socket.emit("make_eliminationBoard", eliminationBoard);
+				}
+			}
+
+		})
+
+		socket.on("new_eliminationBoard", function(newBoard){
+			eliminationBoard = newBoard;
+			console.log("emitting eliminationBoard")
+			io.emit("make_eliminationBoard", eliminationBoard);
 		})
 	})
 }

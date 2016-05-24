@@ -58,9 +58,35 @@
 
 	var _app2 = _interopRequireDefault(_app);
 
+	var _login = __webpack_require__(169);
+
+	var _login2 = _interopRequireDefault(_login);
+
+	var _Elimination = __webpack_require__(280);
+
+	var _Elimination2 = _interopRequireDefault(_Elimination);
+
+	var _Selector = __webpack_require__(281);
+
+	var _Selector2 = _interopRequireDefault(_Selector);
+
+	var _reactRouter = __webpack_require__(170);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	_reactDom2.default.render(_react2.default.createElement(_app2.default, null), document.getElementById("content"));
+	var Routes = _react2.default.createElement(
+	   _reactRouter.Router,
+	   { history: _reactRouter.browserHistory },
+	   _react2.default.createElement(
+	      _reactRouter.Route,
+	      { path: "/", component: _app2.default },
+	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _login2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: "elimination", component: _Elimination2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: "modes", component: _Selector2.default })
+	   )
+	);
+
+	_reactDom2.default.render(Routes, document.getElementById("content"));
 
 /***/ },
 /* 1 */
@@ -20177,13 +20203,19 @@
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _GameController = __webpack_require__(231);
+	var _Elimination = __webpack_require__(280);
 
-	var _GameController2 = _interopRequireDefault(_GameController);
+	var _Elimination2 = _interopRequireDefault(_Elimination);
+
+	var _Selector = __webpack_require__(281);
+
+	var _Selector2 = _interopRequireDefault(_Selector);
 
 	var _socket = __webpack_require__(233);
 
 	var _socket2 = _interopRequireDefault(_socket);
+
+	var _reactRouter = __webpack_require__(170);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20192,12 +20224,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var ReactRouter = __webpack_require__(170);
-	var Router = ReactRouter.Router;
-	var Route = ReactRouter.Route;
-	var browserHistory = ReactRouter.browserHistory;
-	var Link = ReactRouter.Link;
 
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -20209,10 +20235,13 @@
 
 			console.log("App component loaded");
 			_this.setState = _this.setState.bind(_this);
+			_this.setName = _this.setName.bind(_this);
+			_this.logActivities = _this.logActivities.bind(_this);
 			var socket = _socket2.default.connect();
 			_this.state = {
 				socket: socket,
-				username: null
+				username: null,
+				activities: []
 			};
 			return _this;
 		}
@@ -20227,15 +20256,42 @@
 
 
 		_createClass(App, [{
+			key: "logActivities",
+			value: function logActivities(subLog) {
+				var activities = this.state.activities.slice();
+				activities = activities.concat(subLog);
+				this.setState({ activities: activities });
+			}
+		}, {
+			key: "setName",
+			value: function setName(name) {
+				console.log(this);
+				this.setState({ username: name });
+			}
+		}, {
 			key: "render",
 			value: function render() {
 				console.log("app rendered");
+				var that = this;
+				var children = _react2.default.Children.map(this.props.children, function (child) {
+					return _react2.default.cloneElement(child, {
+						socket: that.state.socket,
+						username: that.state.username,
+						setUsername: that.setName,
+						passUpLog: that.logActivities
+					});
+				});
 				return _react2.default.createElement(
-					Router,
-					{ history: browserHistory },
-					_react2.default.createElement(Route, { path: "/", component: _login2.default, socket: this.state.socket }),
-					_react2.default.createElement(Route, { path: "/game", component: _GameController2.default, username: this.state.username, socket: this.state.socket })
-				);
+					"div",
+					null,
+					children
+				)
+				// <Router history={browserHistory}>
+				// 	<Route path="/" component={Login} socket={this.state.socket}/>
+				// 	<Route path="/elimination" component={Elimination} socket={this.state.socket} username={username}/>
+				// 	<Route path="/modes" component={Selector} socket={this.state.socket} setUsername={this.setName}/>
+				// </Router>
+				;
 			}
 		}]);
 
@@ -20260,6 +20316,8 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _reactRouter = __webpack_require__(170);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20267,9 +20325,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var ReactRouter = __webpack_require__(170);
-	var withRouter = ReactRouter.withRouter;
 
 	var Login = function (_React$Component) {
 	   _inherits(Login, _React$Component);
@@ -20280,10 +20335,11 @@
 	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Login).call(this, props));
 
 	      console.log("login loaded");
+	      console.log(props);
 	      _this.setState = _this.setState.bind(_this);
 	      _this.login = _this.login.bind(_this);
 	      _this.state = {
-	         socket: props.route.socket,
+	         socket: props.socket,
 	         valid: false,
 	         username: ""
 	      };
@@ -20296,7 +20352,7 @@
 	         var user = this.refs['username'].value;
 	         if (this.state.valid) {
 	            this.state.socket.emit("user_login", this.state.username);
-	            this.props.router.push("/game");
+	            this.props.router.push("modes");
 	         }
 	      }
 	   }, {
@@ -20386,7 +20442,7 @@
 	Login.contextTypes = {
 	   router: _react2.default.PropTypes.any.isRequired
 	};
-	exports.default = withRouter(Login);
+	exports.default = (0, _reactRouter.withRouter)(Login);
 
 /***/ },
 /* 170 */
@@ -25891,228 +25947,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 231 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _GameButton = __webpack_require__(232);
-
-	var _GameButton2 = _interopRequireDefault(_GameButton);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var GameController = function (_React$Component) {
-		_inherits(GameController, _React$Component);
-
-		function GameController(props) {
-			_classCallCheck(this, GameController);
-
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(GameController).call(this, props));
-
-			console.log("Game loaded");
-			_this.setState = _this.setState.bind(_this);
-			_this.record = _this.record.bind(_this);
-			_this.randomWidth = _this.randomWidth.bind(_this);
-			_this.randomHeight = _this.randomHeight.bind(_this);
-			_this.randomColor = _this.randomColor.bind(_this);
-			_this.makeBoard = _this.makeBoard.bind(_this);
-			_this.state = {
-				socket: props.route.socket,
-				username: null,
-				activities: [],
-				board: []
-			};
-			return _this;
-		}
-
-		_createClass(GameController, [{
-			key: "componentWillMount",
-			value: function componentWillMount() {
-				//this.makeBoard();
-			}
-		}, {
-			key: "componentDidMount",
-			value: function componentDidMount() {
-				var that = this;
-				this.state.socket.on("logged_in", function (data) {
-					that.setState({ username: data.name });
-				});
-				var elem = document.querySelector('.grid');
-				var pckry = new Packery(elem, {
-					itemSelector: '.grid-item',
-					percentPosition: true
-				});
-				this.state.socket.on("make_board", function (mainBoard) {
-					console.log("got board");
-					that.setState({ board: mainBoard });
-				});
-				this.state.socket.on("need_board", function () {
-					console.log("need board");
-					that.makeBoard();
-				});
-			}
-		}, {
-			key: "componentDidUpdate",
-			value: function componentDidUpdate(nextState) {
-				var elem = document.querySelector('.grid');
-				var pckry = new Packery(elem, {
-					itemSelector: '.grid-item',
-					percentPosition: true
-				});
-			}
-		}, {
-			key: "record",
-			value: function record(buttonPressed) {
-				var activities = this.state.activities.slice();
-				activities.push(buttonPressed);
-				this.setState({ activities: activities });
-			}
-		}, {
-			key: "reset",
-			value: function reset() {
-				this.setState({ board: [] });
-				this.makeBoard();
-			}
-		}, {
-			key: "makeBoard",
-			value: function makeBoard() {
-				var board = [];
-				var size = 70; //number of grid-items to fill  the board;
-				var wMax = 3;
-				var hMax = 5;
-				var i = 1;
-				while (size > 0) {
-					if (size < 30) {
-						wMax = 2;
-						hMax = 3;
-					}
-					if (size < 20) {
-						wMax = 8;
-						hMax = 1;
-					}
-					var width = this.randomWidth(wMax);
-					var height = this.randomHeight(hMax);
-					while (size - width.val * height.val < 0) {
-						var width = this.randomWidth(wMax);
-						var height = this.randomHeight(hMax);
-					}
-					size = size - width.val * height.val;
-					board.push({
-						number: i,
-						color: this.randomColor(),
-						width: width.class,
-						height: height.class
-					});
-					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
-					i++;
-				}
-				this.state.socket.emit("new_board", board);
-				//this.setState({board: board})
-			}
-		}, {
-			key: "randomHeight",
-			value: function randomHeight(max) {
-				var picker = Math.floor(Math.random() * (max - 1)) + 1;
-				switch (picker) {
-					case 2:
-						return { val: 2, class: "grid-item--height2" };
-						break;
-					case 3:
-						return { val: 3, class: "grid-item--height3" };
-						break;
-					default:
-						return { val: 1, class: "" };
-						break;
-				}
-			}
-		}, {
-			key: "randomWidth",
-			value: function randomWidth(max) {
-				var picker = Math.floor(Math.random() * (max - 1)) + 1;
-				switch (picker) {
-					case 2:
-						return { val: 2, class: "grid-item--width2" };
-						break;
-					default:
-						return { val: 1, class: "" };
-						break;
-				}
-			}
-		}, {
-			key: "randomColor",
-			value: function randomColor() {
-				return 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
-			}
-		}, {
-			key: "render",
-			value: function render() {
-				var _this2 = this;
-
-				console.log("Game rendered");
-				var that = this;
-				var displayBoard = this.state.board.map(function (item) {
-					return _react2.default.createElement(_GameButton2.default, { key: item.number, number: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
-				});
-				return _react2.default.createElement(
-					"div",
-					{ className: "container-fluid" },
-					_react2.default.createElement(
-						"div",
-						{ className: "row" },
-						_react2.default.createElement(
-							"h1",
-							{ className: "col-md-1" },
-							this.state.username
-						),
-						_react2.default.createElement("div", { className: "col-md-10" }),
-						_react2.default.createElement(
-							"div",
-							{ className: "col-md-1" },
-							_react2.default.createElement(
-								"button",
-								{ className: "btn", type: "button", onClick: function onClick() {
-										return _this2.reset();
-									} },
-								"Reset"
-							)
-						)
-					),
-					_react2.default.createElement(
-						"div",
-						{ className: "row board" },
-						_react2.default.createElement(
-							"div",
-							{ className: "gameBoard grid" },
-							displayBoard
-						)
-					)
-				);
-			}
-		}]);
-
-		return GameController;
-	}(_react2.default.Component);
-
-	exports.default = GameController;
-
-/***/ },
+/* 231 */,
 /* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -26162,7 +25997,6 @@
 		}, {
 			key: "handleClick",
 			value: function handleClick(e) {
-				console.log(e.pageX);
 				var data = {
 					color: this.state.color,
 					width: this.state.width,
@@ -33622,6 +33456,477 @@
 	};
 
 
+
+/***/ },
+/* 280 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _GameButton = __webpack_require__(232);
+
+	var _GameButton2 = _interopRequireDefault(_GameButton);
+
+	var _reactRouter = __webpack_require__(170);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Elimination = function (_React$Component) {
+		_inherits(Elimination, _React$Component);
+
+		function Elimination(props) {
+			_classCallCheck(this, Elimination);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Elimination).call(this, props));
+
+			console.log("Game loaded");
+			_this.setState = _this.setState.bind(_this);
+			_this.record = _this.record.bind(_this);
+			_this.randomWidth = _this.randomWidth.bind(_this);
+			_this.randomHeight = _this.randomHeight.bind(_this);
+			_this.randomColor = _this.randomColor.bind(_this);
+			_this.makeBoard = _this.makeBoard.bind(_this);
+			_this.state = {
+				socket: props.socket,
+				username: props.username,
+				activities: [],
+				board: []
+			};
+			return _this;
+		}
+		// componentWillMount(){
+		// 	this.makeBoard();
+		// }
+
+
+		_createClass(Elimination, [{
+			key: "componentDidMount",
+			value: function componentDidMount() {
+				var that = this;
+				// this.state.socket.on("logged_in", function(data){
+				// 	that.setState({username: data.name});
+				// })
+				var activity = {
+					type: "gameStart",
+					data: {
+						name: "elimination",
+						time: Date.now()
+					}
+				};
+				this.setState({ activities: [activity] });
+				this.state.socket.emit("elimination_game");
+				var elem = document.querySelector('.grid');
+				var pckry = new Packery(elem, {
+					itemSelector: '.grid-item',
+					percentPosition: true
+				});
+				this.state.socket.on("make_eliminationBoard", function (mainBoard) {
+					console.log("got board");
+					that.setState({ board: mainBoard });
+				});
+				this.state.socket.on("need_eliminationBoard", function () {
+					console.log("need board");
+					that.makeBoard();
+				});
+			}
+		}, {
+			key: "componentDidUpdate",
+			value: function componentDidUpdate(nextState) {
+				var elem = document.querySelector('.grid');
+				var pckry = new Packery(elem, {
+					itemSelector: '.grid-item',
+					percentPosition: true
+				});
+			}
+		}, {
+			key: "componentWillUnmount",
+			value: function componentWillUnmount() {
+				var activity = {
+					type: "gameEnd",
+					data: {
+						name: "elimination",
+						time: Date.now()
+					}
+				};
+				var activities = this.state.activities.slice();
+				activities.push(activity);
+				this.props.passUpLog(activities);
+			}
+		}, {
+			key: "record",
+			value: function record(buttonPressed) {
+				buttonPressed["time"] = Date.now();
+				var activity = {
+					type: "buttonPress",
+					data: buttonPressed
+				};
+				var activities = this.state.activities.slice();
+				activities.push(activity);
+				this.setState({ activities: activities });
+			}
+		}, {
+			key: "reset",
+			value: function reset() {
+				this.setState({ board: [] });
+				this.makeBoard();
+			}
+		}, {
+			key: "makeBoard",
+			value: function makeBoard() {
+				var board = [];
+				var size = 70; //number of grid-items to fill  the board;
+				var wMax = 3;
+				var hMax = 5;
+				var i = 1;
+				while (size > 0) {
+					if (size < 30) {
+						wMax = 2;
+						hMax = 3;
+					}
+					if (size < 20) {
+						wMax = 8;
+						hMax = 1;
+					}
+					var width = this.randomWidth(wMax);
+					var height = this.randomHeight(hMax);
+					while (size - width.val * height.val < 0) {
+						var width = this.randomWidth(wMax);
+						var height = this.randomHeight(hMax);
+					}
+					size = size - width.val * height.val;
+					var points = width.val * height.val;
+					board.push({
+						number: i,
+						points: points,
+						color: this.randomColor(),
+						width: width.class,
+						height: height.class
+					});
+					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+					i++;
+				}
+				this.state.socket.emit("new_eliminationBoard", board);
+				//this.setState({board: board})
+			}
+		}, {
+			key: "randomHeight",
+			value: function randomHeight(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
+				switch (picker) {
+					case 2:
+						return { val: 2, class: "grid-item--height2" };
+						break;
+					case 3:
+						return { val: 3, class: "grid-item--height3" };
+						break;
+					default:
+						return { val: 1, class: "" };
+						break;
+				}
+			}
+		}, {
+			key: "randomWidth",
+			value: function randomWidth(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
+				switch (picker) {
+					case 2:
+						return { val: 2, class: "grid-item--width2" };
+						break;
+					default:
+						return { val: 1, class: "" };
+						break;
+				}
+			}
+		}, {
+			key: "randomColor",
+			value: function randomColor() {
+				return 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
+			}
+		}, {
+			key: "render",
+			value: function render() {
+				var _this2 = this;
+
+				console.log("Game rendered");
+				var that = this;
+				var displayBoard = this.state.board.map(function (item) {
+					return _react2.default.createElement(_GameButton2.default, { key: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
+				});
+				return _react2.default.createElement(
+					"div",
+					{ className: "container-fluid" },
+					_react2.default.createElement(
+						"div",
+						{ className: "row" },
+						_react2.default.createElement(
+							"h1",
+							{ className: "col-md-1" },
+							this.state.username
+						),
+						_react2.default.createElement("div", { className: "col-md-8" }),
+						_react2.default.createElement(
+							"div",
+							{ className: "col-md-1" },
+							_react2.default.createElement(
+								_reactRouter.Link,
+								{ to: "/modes" },
+								_react2.default.createElement(
+									"button",
+									{ className: "btn", type: "button" },
+									"End Game"
+								)
+							)
+						),
+						_react2.default.createElement("div", { className: "col-md-1" }),
+						_react2.default.createElement(
+							"div",
+							{ className: "col-md-1" },
+							_react2.default.createElement(
+								"button",
+								{ className: "btn", type: "button", onClick: function onClick() {
+										return _this2.reset();
+									} },
+								"Reset"
+							)
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ className: "row board" },
+						_react2.default.createElement(
+							"div",
+							{ className: "gameBoard grid" },
+							displayBoard
+						)
+					)
+				);
+			}
+		}]);
+
+		return Elimination;
+	}(_react2.default.Component);
+
+	exports.default = Elimination;
+
+/***/ },
+/* 281 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _SelectIcon = __webpack_require__(282);
+
+	var _SelectIcon2 = _interopRequireDefault(_SelectIcon);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Selector = function (_React$Component) {
+	   _inherits(Selector, _React$Component);
+
+	   function Selector(props) {
+	      _classCallCheck(this, Selector);
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Selector).call(this, props));
+
+	      _this.setState = _this.setState.bind(_this);
+	      _this.handleClick = _this.handleClick.bind(_this);
+	      _this.state = {
+	         username: null,
+	         socket: props.socket,
+	         modes: [{
+	            name: "Speed",
+	            component: "speed"
+	         }, {
+	            name: "Elimination",
+	            component: "elimination"
+	         }],
+	         activities: []
+	      };
+	      return _this;
+	   }
+
+	   _createClass(Selector, [{
+	      key: "componentDidMount",
+	      value: function componentDidMount() {
+	         var that = this;
+	         this.state.socket.on("logged_in", function (data) {
+	            that.setState({ username: data.name });
+	            that.props.setUsername(that.state.username);
+	         });
+	         var activity = {
+	            type: "login",
+	            data: {
+	               time: Date.now()
+	            }
+	         };
+	         this.setState({ activities: [activity] });
+	      }
+	   }, {
+	      key: "componentWillUnmount",
+	      value: function componentWillUnmount() {
+	         this.props.passUpLog(this.state.activities);
+	      }
+	   }, {
+	      key: "handleClick",
+	      value: function handleClick(name) {
+	         console.log("handleclick");
+	         var activity = {
+	            type: "choseGame",
+	            data: {
+	               name: name,
+	               time: Date.now()
+	            }
+	         };
+	         console.log(this);
+	         var activities = this.state.activities.slice();
+	         activities.push(activity);
+	         this.setState({ activities: activities });
+	      }
+	   }, {
+	      key: "render",
+	      value: function render() {
+	         var that = this;
+	         var games = this.state.modes.map(function (mode, idx) {
+	            return _react2.default.createElement(_SelectIcon2.default, { key: idx, name: mode.name, component: mode.component, logIt: that.handleClick });
+	         });
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "container-fluid" },
+	            _react2.default.createElement(
+	               "div",
+	               { className: "row" },
+	               _react2.default.createElement(
+	                  "h1",
+	                  { className: "col-md-1" },
+	                  this.state.username
+	               ),
+	               _react2.default.createElement("div", { className: "col-md-11" })
+	            ),
+	            _react2.default.createElement(
+	               "div",
+	               { className: "row" },
+	               games
+	            )
+	         );
+	      }
+	   }]);
+
+	   return Selector;
+	}(_react2.default.Component);
+
+	exports.default = Selector;
+
+/***/ },
+/* 282 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactRouter = __webpack_require__(170);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	// var ReactRouter = require("react-router");
+	// var withRouter = ReactRouter.withRouter
+
+
+	var SelectIcon = function (_React$Component) {
+	   _inherits(SelectIcon, _React$Component);
+
+	   function SelectIcon(props) {
+	      _classCallCheck(this, SelectIcon);
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SelectIcon).call(this, props));
+
+	      _this.state = {
+	         name: props.name,
+	         component: props.component
+	      };
+	      return _this;
+	   }
+
+	   _createClass(SelectIcon, [{
+	      key: "redirect",
+	      value: function redirect() {
+	         this.props.logIt(this.state.name);
+	         console.log("redirecting");
+	         this.props.router.push(this.props.component);
+	      }
+	   }, {
+	      key: "render",
+	      value: function render() {
+	         var _this2 = this;
+
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "col-md-3" },
+	            _react2.default.createElement("div", { className: "col-md-2" }),
+	            _react2.default.createElement(
+	               "button",
+	               { className: "btn btn-primary", onClick: function onClick() {
+	                     return _this2.redirect();
+	                  } },
+	               this.state.name
+	            ),
+	            _react2.default.createElement("div", { className: "col-md-2" })
+	         );
+	      }
+	   }]);
+
+	   return SelectIcon;
+	}(_react2.default.Component);
+
+	SelectIcon.contextTypes = {
+	   router: _react2.default.PropTypes.any.isRequired
+	};
+	exports.default = (0, _reactRouter.withRouter)(SelectIcon);
 
 /***/ }
 /******/ ]);

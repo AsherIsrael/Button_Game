@@ -1,16 +1,15 @@
 import React from "react";
-var ReactRouter = require("react-router");
-var withRouter = ReactRouter.withRouter
-
+import { withRouter } from "react-router";
 
 class Login extends React.Component{
    constructor(props){
       super(props);
       console.log("login loaded");
+      console.log(props)
       this.setState = this.setState.bind(this);
       this.login = this.login.bind(this);
       this.state = {
-         socket: props.route.socket,
+         socket: props.socket,
          valid: false,
          username: ""
       }
@@ -19,7 +18,7 @@ class Login extends React.Component{
       var user = this.refs['username'].value;
       if(this.state.valid){
          this.state.socket.emit("user_login", this.state.username)
-         this.props.router.push("/game")
+         this.props.router.push("modes")
       }
    }
    isValid(){

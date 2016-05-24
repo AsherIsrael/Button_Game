@@ -1,23 +1,23 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import Login from "./login.js";
-import GameController from "./GameController.js";
+import Elimination from "./Elimination.js";
+import Selector from "./Selector.js"
 import io from "socket.io-client";
-var ReactRouter = require("react-router");
-var Router = ReactRouter.Router;
-var Route = ReactRouter.Route;
-var browserHistory = ReactRouter.browserHistory;
-var Link = ReactRouter.Link;
+import { Router, Route, browserHistory } from "react-router";
 
 export default class App extends React.Component{
 	constructor(){
 		super();
 		console.log("App component loaded");
 		this.setState = this.setState.bind(this);
+		this.setName = this.setName.bind(this);
+		this.logActivities = this.logActivities.bind(this);
 		var socket = io.connect();
 		this.state = {
 			socket: socket,
-			username: null
+			username: null,
+			activities: []
 		}
 	}
 	// componentDidMount(){
@@ -28,13 +28,35 @@ export default class App extends React.Component{
 	// 		console.log("app username", that.state.username);
 	// 	})
 	// }
+	logActivities(subLog){
+		var activities = this.state.activities.slice();
+		activities = activities.concat(subLog);
+		this.setState({activities: activities});
+	}
+	setName(name){
+		console.log(this)
+		this.setState({username: name});
+	}
 	render(){
 		console.log("app rendered");
+		var that = this;
+		var children = React.Children.map(this.props.children, function(child){
+			return React.cloneElement(child, {
+				socket: that.state.socket,
+				username: that.state.username,
+				setUsername: that.setName,
+				passUpLog: that.logActivities
+			})
+		})
 		return(
-			<Router history={browserHistory}>
-				<Route path="/" component={Login} socket={this.state.socket}/>
-				<Route path="/game" component={GameController} username={this.state.username} socket={this.state.socket}/>
-			</Router>
+			<div>
+				{children}
+			</div>
+			// <Router history={browserHistory}>
+			// 	<Route path="/" component={Login} socket={this.state.socket}/>
+			// 	<Route path="/elimination" component={Elimination} socket={this.state.socket} username={username}/>
+			// 	<Route path="/modes" component={Selector} socket={this.state.socket} setUsername={this.setName}/>
+			// </Router>
 		)
 	}
 }

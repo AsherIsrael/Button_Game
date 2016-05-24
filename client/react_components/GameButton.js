@@ -15,7 +15,6 @@ export default class GameButton extends React.Component{
 		this.setState({color: nextProps.color, width: nextProps.width, height: nextProps.height})
 	}
 	handleClick(e){
-		console.log(e.pageX);
 		var data = {
 			color: this.state.color,
 			width: this.state.width,
