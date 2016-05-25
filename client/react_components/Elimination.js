@@ -70,10 +70,15 @@ export default class Elimination extends React.Component{
 		this.props.passUpLog(activities);
 	}
 	record(buttonPressed){
-		 buttonPressed["time"] = Date.now();
 		var activity = {
 			type: "buttonPress",
-			data: buttonPressed
+			data: {
+				size: buttonPressed.height*buttonPressed.width,
+				color: buttonPressed.color,
+				time: Date.now(),
+				x: buttonPressed.x,
+				y: buttonPressed.y
+			}
 		}
 		var activities = this.state.activities.slice();
 		activities.push(activity);
@@ -124,13 +129,13 @@ export default class Elimination extends React.Component{
 		let picker = Math.floor(Math.random()*(max-1))+1;
 		switch(picker){
 			case 2:
-				return {val: 2, class: "grid-item--height2"};
+				return {val: 2, class: "2"};
 				break;
 			case 3:
-				return {val: 3, class: "grid-item--height3"};
+				return {val: 3, class: "3"};
 				break;
 			default:
-				return {val: 1, class: ""};
+				return {val: 1, class: "1"};
 				break;
 		}
 	}
@@ -138,15 +143,16 @@ export default class Elimination extends React.Component{
 		let picker = Math.floor(Math.random()*(max-1))+1;
 		switch(picker){
 			case 2:
-				return {val: 2, class: "grid-item--width2"};
+				return {val: 2, class: "2"};
 				break;
 			default:
-				return {val: 1, class: ""};
+				return {val: 1, class: "1"};
 				break;
 		}
 	}
 	randomColor(){
-		return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+		return '#'+Math.floor(Math.random()*16777215).toString(16);
+		// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
 	}
 	render(){
 		console.log("Game rendered");

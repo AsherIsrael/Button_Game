@@ -1,9 +1,9 @@
 import React from "react";
 // var ReactRouter = require("react-router");
 // var withRouter = ReactRouter.withRouter
-import { withRouter } from "react-router";
+// import { withRouter } from "react-router";
 
-class SelectIcon extends React.Component{
+export default class SelectIcon extends React.Component{
    constructor(props){
       super(props);
       this.state = {
@@ -14,7 +14,7 @@ class SelectIcon extends React.Component{
    redirect(){
       this.props.logIt(this.state.name);
       console.log("redirecting")
-      this.props.router.push(this.props.component)
+      this.context.router.push(this.props.component)
    }
 
    render(){
@@ -30,6 +30,6 @@ class SelectIcon extends React.Component{
    }
 }
 SelectIcon.contextTypes = {
-   router: React.PropTypes.any.isRequired
+   router: React.PropTypes.object.isRequired
 };
-export default withRouter(SelectIcon)
+// export default withRouter(SelectIcon)

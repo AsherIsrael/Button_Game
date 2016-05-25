@@ -11,16 +11,17 @@
    /*column-gap: 0px;*/*/
 }
 
-html, body, #content, .container-fluid{
-   height: 100%;
+html, #content, .container-fluid{
+   height: 100vh;
 }
 
 body{
-   overflow: hidden;
+   height: 100vh;
+   /*overflow: hidden;*/
 }
 
-.board{
-   height: 90%;
+.displayPage{
+   /*overflow: scroll !important;*/
 }
 
 .gameButton{
@@ -33,12 +34,18 @@ body{
 }
 
 .grid-item {
-  height: 85px;
+   height: 13%;
+  /*height: 85px;*/
   float: left;
 }
 
-
 .grid-item--width2 { width:  20%; }
 
-.grid-item--height2 { height: 170px; }
-.grid-item--height3 { height: 255px; }
+.grid-item--height2 {
+   height: 26%;
+   /*height: 170px;*/
+}
+.grid-item--height3 {
+   height: 39%;
+   /*height: 255px;*/
+}

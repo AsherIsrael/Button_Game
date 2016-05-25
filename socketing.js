@@ -1,7 +1,9 @@
-var users = require("./server/controllers/users.js")
+var users = require("./server/controllers/users.js");
+var visits = require("./server/controllers/visits.js");
 
 module.exports = function(io){
 	var eliminationBoard = [];
+	var currentUser;
 	io.on("connection", function(socket){
 		console.log("user connected");
 		socket.on("user_login", function(username){
@@ -9,6 +11,7 @@ module.exports = function(io){
 				name: username
 			}
 			users.login(data,function(result){
+				currentUser = result;
 				socket.emit("logged_in", result);
 
 			})
@@ -37,6 +40,21 @@ module.exports = function(io){
 			eliminationBoard = newBoard;
 			console.log("emitting eliminationBoard")
 			io.emit("make_eliminationBoard", eliminationBoard);
+		})
+
+		socket.on("display_records", function(){
+			visits.index(function(activities){
+				socket.emit("record_data", activities);
+			})
+		})
+
+		socket.on("finish_session", function(log){
+			var data = {
+				user: currentUser,
+				activities: log
+			}
+			console.log("save log")
+			visits.create(data);
 		})
 	})
 }

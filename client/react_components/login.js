@@ -1,11 +1,10 @@
 import React from "react";
 import { withRouter } from "react-router";
 
-class Login extends React.Component{
+export default class Login extends React.Component{
    constructor(props){
       super(props);
       console.log("login loaded");
-      console.log(props)
       this.setState = this.setState.bind(this);
       this.login = this.login.bind(this);
       this.state = {
@@ -14,11 +13,12 @@ class Login extends React.Component{
          username: ""
       }
    }
-   login(){
+   login(e){
+      e.preventDefault();
       var user = this.refs['username'].value;
       if(this.state.valid){
          this.state.socket.emit("user_login", this.state.username)
-         this.props.router.push("modes")
+         this.context.router.push("modes")
       }
    }
    isValid(){
@@ -55,7 +55,7 @@ class Login extends React.Component{
                <div className="row">
                   <div className={formClass}>
                      <input className={inputClass} type="text" value={this.state.username} onChange={() => this.isValid()} ref="username"/>
-                     <span className="input-group-btn"><button type="button" className={btnClass} onClick={() => this.login()}>Enter</button></span>
+                     <span className="input-group-btn"><button type="button" className={btnClass} onClick={this.login}>Enter</button></span>
                   </div>
                   <div className="col-md-6"></div>
                </div>
@@ -67,4 +67,4 @@ class Login extends React.Component{
 Login.contextTypes = {
    router: React.PropTypes.any.isRequired
 };
-export default withRouter(Login)
+// export default withRouter(Login)

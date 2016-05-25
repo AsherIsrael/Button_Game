@@ -62,18 +62,29 @@
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _Elimination = __webpack_require__(280);
+	var _Elimination = __webpack_require__(231);
 
 	var _Elimination2 = _interopRequireDefault(_Elimination);
 
-	var _Selector = __webpack_require__(281);
+	var _Selector = __webpack_require__(233);
 
 	var _Selector2 = _interopRequireDefault(_Selector);
+
+	var _Display = __webpack_require__(235);
+
+	var _Display2 = _interopRequireDefault(_Display);
+
+	var _Guessing = __webpack_require__(283);
+
+	var _Guessing2 = _interopRequireDefault(_Guessing);
 
 	var _reactRouter = __webpack_require__(170);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	function handleLeave() {
+	   console.log('LEAVING');
+	}
 	var Routes = _react2.default.createElement(
 	   _reactRouter.Router,
 	   { history: _reactRouter.browserHistory },
@@ -82,7 +93,9 @@
 	      { path: "/", component: _app2.default },
 	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _login2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: "elimination", component: _Elimination2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: "modes", component: _Selector2.default })
+	      _react2.default.createElement(_reactRouter.Route, { path: "modes", component: _Selector2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: "display", component: _Display2.default }),
+	      _react2.default.createElement(_reactRouter.Route, { path: "guess", component: _Guessing2.default })
 	   )
 	);
 
@@ -20203,15 +20216,19 @@
 
 	var _login2 = _interopRequireDefault(_login);
 
-	var _Elimination = __webpack_require__(280);
+	var _Elimination = __webpack_require__(231);
 
 	var _Elimination2 = _interopRequireDefault(_Elimination);
 
-	var _Selector = __webpack_require__(281);
+	var _Selector = __webpack_require__(233);
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _socket = __webpack_require__(233);
+	var _Display = __webpack_require__(235);
+
+	var _Display2 = _interopRequireDefault(_Display);
+
+	var _socket = __webpack_require__(236);
 
 	var _socket2 = _interopRequireDefault(_socket);
 
@@ -20224,6 +20241,8 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// import reactMixin from "react-mixin";
 
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
@@ -20245,17 +20264,68 @@
 			};
 			return _this;
 		}
-		// componentDidMount(){
-		// 	console.log("app mounted")
-		// 	var that = this;
-		// 	this.state.socket.on("logged_in", function(data){
-		// 		that.setState({username: data});
-		// 		console.log("app username", that.state.username);
-		// 	})
-		// }
-
 
 		_createClass(App, [{
+			key: "componentDidMount",
+			value: function componentDidMount() {
+				console.log("app mounted");
+				var that = this;
+				this.state.socket.on("logged_in", function (data) {
+					that.setState({ username: data.name });
+					var activity = {
+						type: "login",
+						data: {
+							time: Date.now()
+						}
+					};
+					that.setState({ activities: [activity] });
+				});
+				// const { router } = this.context;
+				// router.setRouteLeaveHook(this.props.route, this.routerWillLeave)
+
+				// console.log("app", this)
+				window.addEventListener("beforeunload", function (event) {
+					// do stuff here
+					console.log("leaving");
+					var activity = {
+						type: "logout",
+						data: {
+							time: Date.now()
+						}
+					};
+					var activities = that.state.activities.slice();
+					activities.push(activity);
+					console.log(activities);
+					that.state.socket.emit("finish_session", activities);
+				});
+			}
+			// routerWillLeave(nextLocation){
+			// 	console.log("LEAVING")
+			// 	var activity = {
+			// 		type: "logout",
+			// 		data: {
+			// 			time: Date.now()
+			// 		}
+			// 	}
+			// 	var activities = this.state.activities.slice();
+			// 	activities.push(activity);
+			// 	this.socket.emit("finish_session", activities);
+			// 	return "why not"
+			// }
+			// componentWillUnmount(){
+			// 	console.log("leaving");
+			// 	var activity = {
+			// 		type: "logout",
+			// 		data: {
+			// 			time: Date.now()
+			// 		}
+			// 	}
+			// 	var activities = this.state.activities.slice();
+			// 	activities.push(activity);
+			// 	this.socket.emit("finish_session", activities);
+			// }
+
+		}, {
 			key: "logActivities",
 			value: function logActivities(subLog) {
 				var activities = this.state.activities.slice();
@@ -20265,7 +20335,6 @@
 		}, {
 			key: "setName",
 			value: function setName(name) {
-				console.log(this);
 				this.setState({ username: name });
 			}
 		}, {
@@ -20278,7 +20347,8 @@
 						socket: that.state.socket,
 						username: that.state.username,
 						setUsername: that.setName,
-						passUpLog: that.logActivities
+						passUpLog: that.logActivities,
+						activities: that.state.activities
 					});
 				});
 				return _react2.default.createElement(
@@ -20299,6 +20369,13 @@
 	}(_react2.default.Component);
 
 	exports.default = App;
+
+	App.contextTypes = {
+		router: _react2.default.PropTypes.object.isRequired
+	};
+	// export default withRouter(App)
+	// reactMixin.onClass(App, Lifecycle);
+	// export default App;
 
 /***/ },
 /* 169 */
@@ -20335,7 +20412,6 @@
 	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Login).call(this, props));
 
 	      console.log("login loaded");
-	      console.log(props);
 	      _this.setState = _this.setState.bind(_this);
 	      _this.login = _this.login.bind(_this);
 	      _this.state = {
@@ -20348,11 +20424,12 @@
 
 	   _createClass(Login, [{
 	      key: "login",
-	      value: function login() {
+	      value: function login(e) {
+	         e.preventDefault();
 	         var user = this.refs['username'].value;
 	         if (this.state.valid) {
 	            this.state.socket.emit("user_login", this.state.username);
-	            this.props.router.push("modes");
+	            this.context.router.push("modes");
 	         }
 	      }
 	   }, {
@@ -20422,9 +20499,7 @@
 	                        { className: "input-group-btn" },
 	                        _react2.default.createElement(
 	                           "button",
-	                           { type: "button", className: btnClass, onClick: function onClick() {
-	                                 return _this2.login();
-	                              } },
+	                           { type: "button", className: btnClass, onClick: this.login },
 	                           "Enter"
 	                        )
 	                     )
@@ -20439,10 +20514,12 @@
 	   return Login;
 	}(_react2.default.Component);
 
+	exports.default = Login;
+
 	Login.contextTypes = {
 	   router: _react2.default.PropTypes.any.isRequired
 	};
-	exports.default = (0, _reactRouter.withRouter)(Login);
+	// export default withRouter(Login)
 
 /***/ },
 /* 170 */
@@ -25947,7 +26024,279 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 231 */,
+/* 231 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _GameButton = __webpack_require__(232);
+
+	var _GameButton2 = _interopRequireDefault(_GameButton);
+
+	var _reactRouter = __webpack_require__(170);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Elimination = function (_React$Component) {
+		_inherits(Elimination, _React$Component);
+
+		function Elimination(props) {
+			_classCallCheck(this, Elimination);
+
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Elimination).call(this, props));
+
+			console.log("Game loaded");
+			_this.setState = _this.setState.bind(_this);
+			_this.record = _this.record.bind(_this);
+			_this.randomWidth = _this.randomWidth.bind(_this);
+			_this.randomHeight = _this.randomHeight.bind(_this);
+			_this.randomColor = _this.randomColor.bind(_this);
+			_this.makeBoard = _this.makeBoard.bind(_this);
+			_this.state = {
+				socket: props.socket,
+				username: props.username,
+				activities: [],
+				board: []
+			};
+			return _this;
+		}
+		// componentWillMount(){
+		// 	this.makeBoard();
+		// }
+
+
+		_createClass(Elimination, [{
+			key: "componentDidMount",
+			value: function componentDidMount() {
+				var that = this;
+				// this.state.socket.on("logged_in", function(data){
+				// 	that.setState({username: data.name});
+				// })
+				var activity = {
+					type: "gameStart",
+					data: {
+						name: "elimination",
+						time: Date.now()
+					}
+				};
+				this.setState({ activities: [activity] });
+				this.state.socket.emit("elimination_game");
+				var elem = document.querySelector('.grid');
+				var pckry = new Packery(elem, {
+					itemSelector: '.grid-item',
+					percentPosition: true
+				});
+				this.state.socket.on("make_eliminationBoard", function (mainBoard) {
+					console.log("got board");
+					that.setState({ board: mainBoard });
+				});
+				this.state.socket.on("need_eliminationBoard", function () {
+					console.log("need board");
+					that.makeBoard();
+				});
+			}
+		}, {
+			key: "componentDidUpdate",
+			value: function componentDidUpdate(nextState) {
+				var elem = document.querySelector('.grid');
+				var pckry = new Packery(elem, {
+					itemSelector: '.grid-item',
+					percentPosition: true
+				});
+			}
+		}, {
+			key: "componentWillUnmount",
+			value: function componentWillUnmount() {
+				var activity = {
+					type: "gameEnd",
+					data: {
+						name: "elimination",
+						time: Date.now()
+					}
+				};
+				var activities = this.state.activities.slice();
+				activities.push(activity);
+				this.props.passUpLog(activities);
+			}
+		}, {
+			key: "record",
+			value: function record(buttonPressed) {
+				var activity = {
+					type: "buttonPress",
+					data: {
+						size: buttonPressed.height * buttonPressed.width,
+						color: buttonPressed.color,
+						time: Date.now(),
+						x: buttonPressed.x,
+						y: buttonPressed.y
+					}
+				};
+				var activities = this.state.activities.slice();
+				activities.push(activity);
+				this.setState({ activities: activities });
+			}
+		}, {
+			key: "reset",
+			value: function reset() {
+				this.setState({ board: [] });
+				this.makeBoard();
+			}
+		}, {
+			key: "makeBoard",
+			value: function makeBoard() {
+				var board = [];
+				var size = 70; //number of grid-items to fill  the board;
+				var wMax = 3;
+				var hMax = 5;
+				var i = 1;
+				while (size > 0) {
+					if (size < 30) {
+						wMax = 2;
+						hMax = 3;
+					}
+					if (size < 20) {
+						wMax = 8;
+						hMax = 1;
+					}
+					var width = this.randomWidth(wMax);
+					var height = this.randomHeight(hMax);
+					while (size - width.val * height.val < 0) {
+						var width = this.randomWidth(wMax);
+						var height = this.randomHeight(hMax);
+					}
+					size = size - width.val * height.val;
+					var points = width.val * height.val;
+					board.push({
+						number: i,
+						points: points,
+						color: this.randomColor(),
+						width: width.class,
+						height: height.class
+					});
+					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+					i++;
+				}
+				this.state.socket.emit("new_eliminationBoard", board);
+				//this.setState({board: board})
+			}
+		}, {
+			key: "randomHeight",
+			value: function randomHeight(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
+				switch (picker) {
+					case 2:
+						return { val: 2, class: "2" };
+						break;
+					case 3:
+						return { val: 3, class: "3" };
+						break;
+					default:
+						return { val: 1, class: "1" };
+						break;
+				}
+			}
+		}, {
+			key: "randomWidth",
+			value: function randomWidth(max) {
+				var picker = Math.floor(Math.random() * (max - 1)) + 1;
+				switch (picker) {
+					case 2:
+						return { val: 2, class: "2" };
+						break;
+					default:
+						return { val: 1, class: "1" };
+						break;
+				}
+			}
+		}, {
+			key: "randomColor",
+			value: function randomColor() {
+				return '#' + Math.floor(Math.random() * 16777215).toString(16);
+				// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+			}
+		}, {
+			key: "render",
+			value: function render() {
+				var _this2 = this;
+
+				console.log("Game rendered");
+				var that = this;
+				var displayBoard = this.state.board.map(function (item) {
+					return _react2.default.createElement(_GameButton2.default, { key: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
+				});
+				return _react2.default.createElement(
+					"div",
+					{ className: "container-fluid" },
+					_react2.default.createElement(
+						"div",
+						{ className: "row" },
+						_react2.default.createElement(
+							"h1",
+							{ className: "col-md-1" },
+							this.state.username
+						),
+						_react2.default.createElement("div", { className: "col-md-8" }),
+						_react2.default.createElement(
+							"div",
+							{ className: "col-md-1" },
+							_react2.default.createElement(
+								_reactRouter.Link,
+								{ to: "/modes" },
+								_react2.default.createElement(
+									"button",
+									{ className: "btn", type: "button" },
+									"End Game"
+								)
+							)
+						),
+						_react2.default.createElement("div", { className: "col-md-1" }),
+						_react2.default.createElement(
+							"div",
+							{ className: "col-md-1" },
+							_react2.default.createElement(
+								"button",
+								{ className: "btn", type: "button", onClick: function onClick() {
+										return _this2.reset();
+									} },
+								"Reset"
+							)
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ className: "row board" },
+						_react2.default.createElement(
+							"div",
+							{ className: "gameBoard grid" },
+							displayBoard
+						)
+					)
+				);
+			}
+		}]);
+
+		return Elimination;
+	}(_react2.default.Component);
+
+	exports.default = Elimination;
+
+/***/ },
 /* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -25982,9 +26331,11 @@
 			_this.setState = _this.setState.bind(_this);
 			_this.state = {
 				color: props.color,
+				number: props.number,
 				width: props.width,
 				height: props.height,
-				delay: props.delay
+				delay: props.delay,
+				display: props.display
 			};
 			return _this;
 		}
@@ -26001,6 +26352,7 @@
 					color: this.state.color,
 					width: this.state.width,
 					height: this.state.height,
+					number: this.state.number,
 					x: e.pageX,
 					y: e.pageY
 				};
@@ -26011,7 +26363,7 @@
 			value: function render() {
 				var _this2 = this;
 
-				var thisClass = "grid-item " + this.state.width + " " + this.state.height;
+				var thisClass = "grid-item grid-item--width" + this.state.width + " grid-item--height" + this.state.height;
 				return _react2.default.createElement(
 					"div",
 					{ className: thisClass },
@@ -26020,7 +26372,7 @@
 						{ className: "gameButton", type: "button", style: { backgroundColor: this.state.color }, onClick: function onClick(e) {
 								return _this2.handleClick(e);
 							} },
-						this.props.number
+						this.props.display
 					)
 				);
 			}
@@ -26035,15 +26387,293 @@
 /* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _SelectIcon = __webpack_require__(234);
+
+	var _SelectIcon2 = _interopRequireDefault(_SelectIcon);
+
+	var _reactRouter = __webpack_require__(170);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Selector = function (_React$Component) {
+	   _inherits(Selector, _React$Component);
+
+	   function Selector(props) {
+	      _classCallCheck(this, Selector);
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Selector).call(this, props));
+
+	      _this.setState = _this.setState.bind(_this);
+	      _this.handleClick = _this.handleClick.bind(_this);
+	      _this.state = {
+	         username: props.username,
+	         socket: props.socket,
+	         modes: [{
+	            name: "Display Activities",
+	            component: "display"
+	         }, {
+	            name: "Elimination",
+	            component: "elimination"
+	         }, {
+	            name: "Guessing",
+	            component: "guess"
+	         }],
+	         activities: []
+	      };
+	      return _this;
+	   }
+	   // componentDidMount(){
+	   //    var that = this;
+	   //    this.state.socket.on("logged_in", function(data){
+	   // 		that.setState({username: data.name});
+	   //       that.props.setUsername(that.state.username);
+	   //       var activity = {
+	   //          type: "login",
+	   //          data: {
+	   //             time: Date.now()
+	   //          }
+	   //       }
+	   //       that.setState({activities: [activity]});
+	   // 	})
+	   // }
+
+
+	   _createClass(Selector, [{
+	      key: "componentWillUnmount",
+	      value: function componentWillUnmount() {
+	         this.props.passUpLog(this.state.activities);
+	      }
+	   }, {
+	      key: "handleClick",
+	      value: function handleClick(name) {
+	         console.log("handleclick");
+	         var activity = {
+	            type: "choseGame",
+	            data: {
+	               name: name,
+	               time: Date.now()
+	            }
+	         };
+	         var activities = this.state.activities.slice();
+	         activities.push(activity);
+	         this.setState({ activities: activities });
+	      }
+	   }, {
+	      key: "render",
+	      value: function render() {
+	         var that = this;
+	         var games = this.state.modes.map(function (mode, idx) {
+	            return _react2.default.createElement(_SelectIcon2.default, { key: idx, name: mode.name, component: mode.component, logIt: that.handleClick });
+	         });
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "container-fluid" },
+	            _react2.default.createElement(
+	               "div",
+	               { className: "row" },
+	               _react2.default.createElement(
+	                  "h1",
+	                  { className: "col-md-1" },
+	                  this.props.username
+	               ),
+	               _react2.default.createElement("div", { className: "col-md-11" })
+	            ),
+	            _react2.default.createElement(
+	               "div",
+	               { className: "row" },
+	               games
+	            )
+	         );
+	      }
+	   }]);
+
+	   return Selector;
+	}(_react2.default.Component);
+	// Selector.contextTypes = {
+	//    router: React.PropTypes.object.isRequired
+	// };
+	// export default withRouter(Selector)
+
+
+	exports.default = Selector;
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// var ReactRouter = require("react-router");
+	// var withRouter = ReactRouter.withRouter
+	// import { withRouter } from "react-router";
+
+	var SelectIcon = function (_React$Component) {
+	   _inherits(SelectIcon, _React$Component);
+
+	   function SelectIcon(props) {
+	      _classCallCheck(this, SelectIcon);
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SelectIcon).call(this, props));
+
+	      _this.state = {
+	         name: props.name,
+	         component: props.component
+	      };
+	      return _this;
+	   }
+
+	   _createClass(SelectIcon, [{
+	      key: "redirect",
+	      value: function redirect() {
+	         this.props.logIt(this.state.name);
+	         console.log("redirecting");
+	         this.context.router.push(this.props.component);
+	      }
+	   }, {
+	      key: "render",
+	      value: function render() {
+	         var _this2 = this;
+
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "col-md-3" },
+	            _react2.default.createElement("div", { className: "col-md-2" }),
+	            _react2.default.createElement(
+	               "button",
+	               { className: "btn btn-primary", onClick: function onClick() {
+	                     return _this2.redirect();
+	                  } },
+	               this.state.name
+	            ),
+	            _react2.default.createElement("div", { className: "col-md-2" })
+	         );
+	      }
+	   }]);
+
+	   return SelectIcon;
+	}(_react2.default.Component);
+
+	exports.default = SelectIcon;
+
+	SelectIcon.contextTypes = {
+	   router: _react2.default.PropTypes.object.isRequired
+	};
+	// export default withRouter(SelectIcon)
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Display = function (_React$Component) {
+	   _inherits(Display, _React$Component);
+
+	   function Display(props) {
+	      _classCallCheck(this, Display);
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Display).call(this, props));
+
+	      _this.setState = _this.setState.bind(_this);
+	      _this.state = {
+	         allActivities: null,
+	         socket: props.socket
+	      };
+	      return _this;
+	   }
+
+	   _createClass(Display, [{
+	      key: "componentDidMount",
+	      value: function componentDidMount() {
+	         var that = this;
+	         this.state.socket.emit("display_records");
+	         this.state.socket.on("record_data", function (result) {
+	            that.setState({ allActivities: result });
+	         });
+	      }
+	   }, {
+	      key: "render",
+	      value: function render() {
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "displayPage" },
+	            JSON.stringify(this.state.allActivities)
+	         );
+	      }
+	   }]);
+
+	   return Display;
+	}(_react2.default.Component);
+
+	exports.default = Display;
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
 	
 	/**
 	 * Module dependencies.
 	 */
 
-	var url = __webpack_require__(234);
-	var parser = __webpack_require__(239);
-	var Manager = __webpack_require__(247);
-	var debug = __webpack_require__(236)('socket.io-client');
+	var url = __webpack_require__(237);
+	var parser = __webpack_require__(242);
+	var Manager = __webpack_require__(250);
+	var debug = __webpack_require__(239)('socket.io-client');
 
 	/**
 	 * Module exports.
@@ -26125,12 +26755,12 @@
 	 * @api public
 	 */
 
-	exports.Manager = __webpack_require__(247);
-	exports.Socket = __webpack_require__(273);
+	exports.Manager = __webpack_require__(250);
+	exports.Socket = __webpack_require__(276);
 
 
 /***/ },
-/* 234 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -26138,8 +26768,8 @@
 	 * Module dependencies.
 	 */
 
-	var parseuri = __webpack_require__(235);
-	var debug = __webpack_require__(236)('socket.io-client:url');
+	var parseuri = __webpack_require__(238);
+	var debug = __webpack_require__(239)('socket.io-client:url');
 
 	/**
 	 * Module exports.
@@ -26213,7 +26843,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 235 */
+/* 238 */
 /***/ function(module, exports) {
 
 	/**
@@ -26258,7 +26888,7 @@
 
 
 /***/ },
-/* 236 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -26268,7 +26898,7 @@
 	 * Expose `debug()` as the module.
 	 */
 
-	exports = module.exports = __webpack_require__(237);
+	exports = module.exports = __webpack_require__(240);
 	exports.log = log;
 	exports.formatArgs = formatArgs;
 	exports.save = save;
@@ -26432,7 +27062,7 @@
 
 
 /***/ },
-/* 237 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -26448,7 +27078,7 @@
 	exports.disable = disable;
 	exports.enable = enable;
 	exports.enabled = enabled;
-	exports.humanize = __webpack_require__(238);
+	exports.humanize = __webpack_require__(241);
 
 	/**
 	 * The currently active debug mode names, and names to skip.
@@ -26635,7 +27265,7 @@
 
 
 /***/ },
-/* 238 */
+/* 241 */
 /***/ function(module, exports) {
 
 	/**
@@ -26766,7 +27396,7 @@
 
 
 /***/ },
-/* 239 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -26774,12 +27404,12 @@
 	 * Module dependencies.
 	 */
 
-	var debug = __webpack_require__(236)('socket.io-parser');
-	var json = __webpack_require__(240);
-	var isArray = __webpack_require__(243);
-	var Emitter = __webpack_require__(244);
-	var binary = __webpack_require__(245);
-	var isBuf = __webpack_require__(246);
+	var debug = __webpack_require__(239)('socket.io-parser');
+	var json = __webpack_require__(243);
+	var isArray = __webpack_require__(246);
+	var Emitter = __webpack_require__(247);
+	var binary = __webpack_require__(248);
+	var isBuf = __webpack_require__(249);
 
 	/**
 	 * Protocol version.
@@ -27172,14 +27802,14 @@
 
 
 /***/ },
-/* 240 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
 	;(function () {
 	  // Detect the `define` function exposed by asynchronous module loaders. The
 	  // strict `define` check is necessary for compatibility with `r.js`.
-	  var isLoader = "function" === "function" && __webpack_require__(242);
+	  var isLoader = "function" === "function" && __webpack_require__(245);
 
 	  // A set of types used to distinguish objects from primitives.
 	  var objectTypes = {
@@ -28078,10 +28708,10 @@
 	  }
 	}).call(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(241)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(244)(module), (function() { return this; }())))
 
 /***/ },
-/* 241 */
+/* 244 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -28097,7 +28727,7 @@
 
 
 /***/ },
-/* 242 */
+/* 245 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -28105,7 +28735,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 243 */
+/* 246 */
 /***/ function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -28114,7 +28744,7 @@
 
 
 /***/ },
-/* 244 */
+/* 247 */
 /***/ function(module, exports) {
 
 	
@@ -28284,7 +28914,7 @@
 
 
 /***/ },
-/* 245 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*global Blob,File*/
@@ -28293,8 +28923,8 @@
 	 * Module requirements
 	 */
 
-	var isArray = __webpack_require__(243);
-	var isBuf = __webpack_require__(246);
+	var isArray = __webpack_require__(246);
+	var isBuf = __webpack_require__(249);
 
 	/**
 	 * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -28432,7 +29062,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 246 */
+/* 249 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -28452,7 +29082,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 247 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -28460,15 +29090,15 @@
 	 * Module dependencies.
 	 */
 
-	var eio = __webpack_require__(248);
-	var Socket = __webpack_require__(273);
-	var Emitter = __webpack_require__(274);
-	var parser = __webpack_require__(239);
-	var on = __webpack_require__(276);
-	var bind = __webpack_require__(277);
-	var debug = __webpack_require__(236)('socket.io-client:manager');
-	var indexOf = __webpack_require__(271);
-	var Backoff = __webpack_require__(279);
+	var eio = __webpack_require__(251);
+	var Socket = __webpack_require__(276);
+	var Emitter = __webpack_require__(277);
+	var parser = __webpack_require__(242);
+	var on = __webpack_require__(279);
+	var bind = __webpack_require__(280);
+	var debug = __webpack_require__(239)('socket.io-client:manager');
+	var indexOf = __webpack_require__(274);
+	var Backoff = __webpack_require__(282);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -29015,19 +29645,19 @@
 
 
 /***/ },
-/* 248 */
+/* 251 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	module.exports =  __webpack_require__(249);
+	module.exports =  __webpack_require__(252);
 
 
 /***/ },
-/* 249 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	module.exports = __webpack_require__(250);
+	module.exports = __webpack_require__(253);
 
 	/**
 	 * Exports parser
@@ -29035,25 +29665,25 @@
 	 * @api public
 	 *
 	 */
-	module.exports.parser = __webpack_require__(257);
+	module.exports.parser = __webpack_require__(260);
 
 
 /***/ },
-/* 250 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var transports = __webpack_require__(251);
-	var Emitter = __webpack_require__(244);
-	var debug = __webpack_require__(236)('engine.io-client:socket');
-	var index = __webpack_require__(271);
-	var parser = __webpack_require__(257);
-	var parseuri = __webpack_require__(235);
-	var parsejson = __webpack_require__(272);
-	var parseqs = __webpack_require__(265);
+	var transports = __webpack_require__(254);
+	var Emitter = __webpack_require__(247);
+	var debug = __webpack_require__(239)('engine.io-client:socket');
+	var index = __webpack_require__(274);
+	var parser = __webpack_require__(260);
+	var parseuri = __webpack_require__(238);
+	var parsejson = __webpack_require__(275);
+	var parseqs = __webpack_require__(268);
 
 	/**
 	 * Module exports.
@@ -29177,9 +29807,9 @@
 	 */
 
 	Socket.Socket = Socket;
-	Socket.Transport = __webpack_require__(256);
-	Socket.transports = __webpack_require__(251);
-	Socket.parser = __webpack_require__(257);
+	Socket.Transport = __webpack_require__(259);
+	Socket.transports = __webpack_require__(254);
+	Socket.parser = __webpack_require__(260);
 
 	/**
 	 * Creates transport of the given type.
@@ -29774,17 +30404,17 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 251 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies
 	 */
 
-	var XMLHttpRequest = __webpack_require__(252);
-	var XHR = __webpack_require__(254);
-	var JSONP = __webpack_require__(268);
-	var websocket = __webpack_require__(269);
+	var XMLHttpRequest = __webpack_require__(255);
+	var XHR = __webpack_require__(257);
+	var JSONP = __webpack_require__(271);
+	var websocket = __webpack_require__(272);
 
 	/**
 	 * Export transports.
@@ -29834,11 +30464,11 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 252 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// browser shim for xmlhttprequest module
-	var hasCORS = __webpack_require__(253);
+	var hasCORS = __webpack_require__(256);
 
 	module.exports = function(opts) {
 	  var xdomain = opts.xdomain;
@@ -29876,7 +30506,7 @@
 
 
 /***/ },
-/* 253 */
+/* 256 */
 /***/ function(module, exports) {
 
 	
@@ -29899,18 +30529,18 @@
 
 
 /***/ },
-/* 254 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module requirements.
 	 */
 
-	var XMLHttpRequest = __webpack_require__(252);
-	var Polling = __webpack_require__(255);
-	var Emitter = __webpack_require__(244);
-	var inherit = __webpack_require__(266);
-	var debug = __webpack_require__(236)('engine.io-client:polling-xhr');
+	var XMLHttpRequest = __webpack_require__(255);
+	var Polling = __webpack_require__(258);
+	var Emitter = __webpack_require__(247);
+	var inherit = __webpack_require__(269);
+	var debug = __webpack_require__(239)('engine.io-client:polling-xhr');
 
 	/**
 	 * Module exports.
@@ -30318,19 +30948,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 255 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(256);
-	var parseqs = __webpack_require__(265);
-	var parser = __webpack_require__(257);
-	var inherit = __webpack_require__(266);
-	var yeast = __webpack_require__(267);
-	var debug = __webpack_require__(236)('engine.io-client:polling');
+	var Transport = __webpack_require__(259);
+	var parseqs = __webpack_require__(268);
+	var parser = __webpack_require__(260);
+	var inherit = __webpack_require__(269);
+	var yeast = __webpack_require__(270);
+	var debug = __webpack_require__(239)('engine.io-client:polling');
 
 	/**
 	 * Module exports.
@@ -30343,7 +30973,7 @@
 	 */
 
 	var hasXHR2 = (function() {
-	  var XMLHttpRequest = __webpack_require__(252);
+	  var XMLHttpRequest = __webpack_require__(255);
 	  var xhr = new XMLHttpRequest({ xdomain: false });
 	  return null != xhr.responseType;
 	})();
@@ -30571,15 +31201,15 @@
 
 
 /***/ },
-/* 256 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var parser = __webpack_require__(257);
-	var Emitter = __webpack_require__(244);
+	var parser = __webpack_require__(260);
+	var Emitter = __webpack_require__(247);
 
 	/**
 	 * Module exports.
@@ -30732,19 +31362,19 @@
 
 
 /***/ },
-/* 257 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var keys = __webpack_require__(258);
-	var hasBinary = __webpack_require__(259);
-	var sliceBuffer = __webpack_require__(260);
-	var base64encoder = __webpack_require__(261);
-	var after = __webpack_require__(262);
-	var utf8 = __webpack_require__(263);
+	var keys = __webpack_require__(261);
+	var hasBinary = __webpack_require__(262);
+	var sliceBuffer = __webpack_require__(263);
+	var base64encoder = __webpack_require__(264);
+	var after = __webpack_require__(265);
+	var utf8 = __webpack_require__(266);
 
 	/**
 	 * Check if we are running an android browser. That requires us to use
@@ -30801,7 +31431,7 @@
 	 * Create a blob api even for blob builder when vendor prefixes exist
 	 */
 
-	var Blob = __webpack_require__(264);
+	var Blob = __webpack_require__(267);
 
 	/**
 	 * Encodes a packet.
@@ -31333,7 +31963,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 258 */
+/* 261 */
 /***/ function(module, exports) {
 
 	
@@ -31358,7 +31988,7 @@
 
 
 /***/ },
-/* 259 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -31366,7 +31996,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(243);
+	var isArray = __webpack_require__(246);
 
 	/**
 	 * Module exports.
@@ -31423,7 +32053,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 260 */
+/* 263 */
 /***/ function(module, exports) {
 
 	/**
@@ -31458,7 +32088,7 @@
 
 
 /***/ },
-/* 261 */
+/* 264 */
 /***/ function(module, exports) {
 
 	/*
@@ -31523,7 +32153,7 @@
 
 
 /***/ },
-/* 262 */
+/* 265 */
 /***/ function(module, exports) {
 
 	module.exports = after
@@ -31557,7 +32187,7 @@
 
 
 /***/ },
-/* 263 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/utf8js v2.0.0 by @mathias */
@@ -31803,10 +32433,10 @@
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(241)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(244)(module), (function() { return this; }())))
 
 /***/ },
-/* 264 */
+/* 267 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -31909,7 +32539,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 265 */
+/* 268 */
 /***/ function(module, exports) {
 
 	/**
@@ -31952,7 +32582,7 @@
 
 
 /***/ },
-/* 266 */
+/* 269 */
 /***/ function(module, exports) {
 
 	
@@ -31964,7 +32594,7 @@
 	};
 
 /***/ },
-/* 267 */
+/* 270 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32038,7 +32668,7 @@
 
 
 /***/ },
-/* 268 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -32046,8 +32676,8 @@
 	 * Module requirements.
 	 */
 
-	var Polling = __webpack_require__(255);
-	var inherit = __webpack_require__(266);
+	var Polling = __webpack_require__(258);
+	var inherit = __webpack_require__(269);
 
 	/**
 	 * Module exports.
@@ -32283,19 +32913,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 269 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(256);
-	var parser = __webpack_require__(257);
-	var parseqs = __webpack_require__(265);
-	var inherit = __webpack_require__(266);
-	var yeast = __webpack_require__(267);
-	var debug = __webpack_require__(236)('engine.io-client:websocket');
+	var Transport = __webpack_require__(259);
+	var parser = __webpack_require__(260);
+	var parseqs = __webpack_require__(268);
+	var inherit = __webpack_require__(269);
+	var yeast = __webpack_require__(270);
+	var debug = __webpack_require__(239)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
 	/**
@@ -32307,7 +32937,7 @@
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(270);
+	    WebSocket = __webpack_require__(273);
 	  } catch (e) { }
 	}
 
@@ -32578,14 +33208,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 270 */
+/* 273 */
 /***/ function(module, exports) {
 
 	if(typeof ws === 'undefined') {var e = new Error("Cannot find module \"ws\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
 	module.exports = ws;
 
 /***/ },
-/* 271 */
+/* 274 */
 /***/ function(module, exports) {
 
 	
@@ -32600,7 +33230,7 @@
 	};
 
 /***/ },
-/* 272 */
+/* 275 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -32638,7 +33268,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 273 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -32646,13 +33276,13 @@
 	 * Module dependencies.
 	 */
 
-	var parser = __webpack_require__(239);
-	var Emitter = __webpack_require__(274);
-	var toArray = __webpack_require__(275);
-	var on = __webpack_require__(276);
-	var bind = __webpack_require__(277);
-	var debug = __webpack_require__(236)('socket.io-client:socket');
-	var hasBin = __webpack_require__(278);
+	var parser = __webpack_require__(242);
+	var Emitter = __webpack_require__(277);
+	var toArray = __webpack_require__(278);
+	var on = __webpack_require__(279);
+	var bind = __webpack_require__(280);
+	var debug = __webpack_require__(239)('socket.io-client:socket');
+	var hasBin = __webpack_require__(281);
 
 	/**
 	 * Module exports.
@@ -33056,7 +33686,7 @@
 
 
 /***/ },
-/* 274 */
+/* 277 */
 /***/ function(module, exports) {
 
 	
@@ -33223,7 +33853,7 @@
 
 
 /***/ },
-/* 275 */
+/* 278 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -33242,7 +33872,7 @@
 
 
 /***/ },
-/* 276 */
+/* 279 */
 /***/ function(module, exports) {
 
 	
@@ -33272,7 +33902,7 @@
 
 
 /***/ },
-/* 277 */
+/* 280 */
 /***/ function(module, exports) {
 
 	/**
@@ -33301,7 +33931,7 @@
 
 
 /***/ },
-/* 278 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -33309,7 +33939,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(243);
+	var isArray = __webpack_require__(246);
 
 	/**
 	 * Module exports.
@@ -33367,7 +33997,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 279 */
+/* 282 */
 /***/ function(module, exports) {
 
 	
@@ -33458,7 +34088,7 @@
 
 
 /***/ },
-/* 280 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -33487,15 +34117,14 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Elimination = function (_React$Component) {
-		_inherits(Elimination, _React$Component);
+	var Guessing = function (_React$Component) {
+		_inherits(Guessing, _React$Component);
 
-		function Elimination(props) {
-			_classCallCheck(this, Elimination);
+		function Guessing(props) {
+			_classCallCheck(this, Guessing);
 
-			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Elimination).call(this, props));
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Guessing).call(this, props));
 
-			console.log("Game loaded");
 			_this.setState = _this.setState.bind(_this);
 			_this.record = _this.record.bind(_this);
 			_this.randomWidth = _this.randomWidth.bind(_this);
@@ -33506,16 +34135,18 @@
 				socket: props.socket,
 				username: props.username,
 				activities: [],
-				board: []
+				board: [],
+				correctButton: null
 			};
 			return _this;
 		}
-		// componentWillMount(){
-		// 	this.makeBoard();
-		// }
 
-
-		_createClass(Elimination, [{
+		_createClass(Guessing, [{
+			key: "componentWillMount",
+			value: function componentWillMount() {
+				this.makeBoard();
+			}
+		}, {
 			key: "componentDidMount",
 			value: function componentDidMount() {
 				var that = this;
@@ -33525,25 +34156,39 @@
 				var activity = {
 					type: "gameStart",
 					data: {
-						name: "elimination",
+						name: "guessing",
 						time: Date.now()
 					}
 				};
 				this.setState({ activities: [activity] });
-				this.state.socket.emit("elimination_game");
+				// this.state.socket.emit("elimination_game");
 				var elem = document.querySelector('.grid');
 				var pckry = new Packery(elem, {
 					itemSelector: '.grid-item',
 					percentPosition: true
 				});
-				this.state.socket.on("make_eliminationBoard", function (mainBoard) {
-					console.log("got board");
-					that.setState({ board: mainBoard });
-				});
-				this.state.socket.on("need_eliminationBoard", function () {
-					console.log("need board");
-					that.makeBoard();
-				});
+				// this.state.socket.on("make_eliminationBoard", function(mainBoard){
+				// 	console.log("got board")
+				// 	that.setState({board: mainBoard})
+				// });
+				// this.state.socket.on("need_eliminationBoard", function(){
+				// 	console.log("need board");
+				// 	that.makeBoard();
+				// })
+			}
+		}, {
+			key: "componentWillUnmount",
+			value: function componentWillUnmount() {
+				var activity = {
+					type: "gameEnd",
+					data: {
+						name: "guessing",
+						time: Date.now()
+					}
+				};
+				var activities = this.state.activities.slice();
+				activities.push(activity);
+				this.props.passUpLog(activities);
 			}
 		}, {
 			key: "componentDidUpdate",
@@ -33555,36 +34200,66 @@
 				});
 			}
 		}, {
-			key: "componentWillUnmount",
-			value: function componentWillUnmount() {
-				var activity = {
-					type: "gameEnd",
-					data: {
-						name: "elimination",
-						time: Date.now()
-					}
-				};
-				var activities = this.state.activities.slice();
-				activities.push(activity);
-				this.props.passUpLog(activities);
-			}
-		}, {
 			key: "record",
 			value: function record(buttonPressed) {
-				buttonPressed["time"] = Date.now();
-				var activity = {
-					type: "buttonPress",
-					data: buttonPressed
-				};
-				var activities = this.state.activities.slice();
-				activities.push(activity);
-				this.setState({ activities: activities });
-			}
-		}, {
-			key: "reset",
-			value: function reset() {
-				this.setState({ board: [] });
-				this.makeBoard();
+				var size = buttonPressed.height * buttonPressed.width;
+				if (buttonPressed.number == this.state.correctButton) {
+					var activity = {
+						type: "buttonPress",
+						data: {
+							correct: true,
+							size: size,
+							color: buttonPressed.color,
+							time: Date.now(),
+							x: buttonPressed.x,
+							y: buttonPressed.y
+						}
+					};
+					var activities = this.state.activities.slice();
+					activities.push(activity);
+					// this.setState({activities: activities});
+					// var activity = {
+					// 	type: "gameEnd",
+					// 	data: {
+					// 		name: "guessing",
+					// 		time: Date.now()
+					// 	}
+					// }
+					// // var activities = this.state.activities.slice();
+					// activities.push(activity);
+					this.props.passUpLog(activities);
+					var replay = confirm("You got it! Would you like to play again?");
+					if (replay) {
+						var _activity = {
+							type: "gameStart",
+							data: {
+								name: "guessing",
+								time: Date.now()
+							}
+						};
+						this.makeBoard();
+					} else {
+						this.props.router.push("/modes");
+					}
+				} else {
+					var _activity2 = {
+						type: "buttonPress",
+						data: {
+							correct: false,
+							size: size,
+							color: buttonPressed.color,
+							time: Date.now(),
+							x: buttonPressed.x,
+							y: buttonPressed.y
+						}
+					};
+					var activities = this.state.activities.slice();
+					activities.push(_activity2);
+					this.setState({ activities: activities });
+					var board = this.state.board.slice();
+					board[buttonPressed.number - 1].display = "X";
+					this.setState({ board: board });
+				}
 			}
 		}, {
 			key: "makeBoard",
@@ -33616,13 +34291,16 @@
 						points: points,
 						color: this.randomColor(),
 						width: width.class,
-						height: height.class
+						height: height.class,
+						display: "O"
 					});
-					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
+					//board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 					i++;
 				}
-				this.state.socket.emit("new_eliminationBoard", board);
-				//this.setState({board: board})
+				// this.state.socket.emit("new_eliminationBoard", board);
+				this.setState({ board: board });
+				var correct = Math.floor(Math.random() * (board.length - 1)) + 1;
+				this.setState({ correctButton: correct });
 			}
 		}, {
 			key: "randomHeight",
@@ -33630,13 +34308,13 @@
 				var picker = Math.floor(Math.random() * (max - 1)) + 1;
 				switch (picker) {
 					case 2:
-						return { val: 2, class: "grid-item--height2" };
+						return { val: 2, class: "2" };
 						break;
 					case 3:
-						return { val: 3, class: "grid-item--height3" };
+						return { val: 3, class: "3" };
 						break;
 					default:
-						return { val: 1, class: "" };
+						return { val: 1, class: "1" };
 						break;
 				}
 			}
@@ -33646,27 +34324,26 @@
 				var picker = Math.floor(Math.random() * (max - 1)) + 1;
 				switch (picker) {
 					case 2:
-						return { val: 2, class: "grid-item--width2" };
+						return { val: 2, class: "2" };
 						break;
 					default:
-						return { val: 1, class: "" };
+						return { val: 1, class: "1" };
 						break;
 				}
 			}
 		}, {
 			key: "randomColor",
 			value: function randomColor() {
-				return 'rgb(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ')';
+				return '#' + Math.floor(Math.random() * 16777215).toString(16);
+				// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
 			}
 		}, {
 			key: "render",
 			value: function render() {
-				var _this2 = this;
-
-				console.log("Game rendered");
+				console.log("Guessing game rendered");
 				var that = this;
 				var displayBoard = this.state.board.map(function (item) {
-					return _react2.default.createElement(_GameButton2.default, { key: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
+					return _react2.default.createElement(_GameButton2.default, { key: item.number, number: item.number, display: item.display, color: item.color, width: item.width, height: item.height, recordAct: that.record });
 				});
 				return _react2.default.createElement(
 					"div",
@@ -33679,7 +34356,7 @@
 							{ className: "col-md-1" },
 							this.state.username
 						),
-						_react2.default.createElement("div", { className: "col-md-8" }),
+						_react2.default.createElement("div", { className: "col-md-10" }),
 						_react2.default.createElement(
 							"div",
 							{ className: "col-md-1" },
@@ -33692,241 +34369,26 @@
 									"End Game"
 								)
 							)
-						),
-						_react2.default.createElement("div", { className: "col-md-1" }),
-						_react2.default.createElement(
-							"div",
-							{ className: "col-md-1" },
-							_react2.default.createElement(
-								"button",
-								{ className: "btn", type: "button", onClick: function onClick() {
-										return _this2.reset();
-									} },
-								"Reset"
-							)
 						)
 					),
 					_react2.default.createElement(
 						"div",
-						{ className: "row board" },
-						_react2.default.createElement(
-							"div",
-							{ className: "gameBoard grid" },
-							displayBoard
-						)
+						{ className: "row grid gameBoard" },
+						displayBoard
 					)
 				);
 			}
 		}]);
 
-		return Elimination;
+		return Guessing;
 	}(_react2.default.Component);
 
-	exports.default = Elimination;
+	exports.default = Guessing;
 
-/***/ },
-/* 281 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	   value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _SelectIcon = __webpack_require__(282);
-
-	var _SelectIcon2 = _interopRequireDefault(_SelectIcon);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Selector = function (_React$Component) {
-	   _inherits(Selector, _React$Component);
-
-	   function Selector(props) {
-	      _classCallCheck(this, Selector);
-
-	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Selector).call(this, props));
-
-	      _this.setState = _this.setState.bind(_this);
-	      _this.handleClick = _this.handleClick.bind(_this);
-	      _this.state = {
-	         username: null,
-	         socket: props.socket,
-	         modes: [{
-	            name: "Speed",
-	            component: "speed"
-	         }, {
-	            name: "Elimination",
-	            component: "elimination"
-	         }],
-	         activities: []
-	      };
-	      return _this;
-	   }
-
-	   _createClass(Selector, [{
-	      key: "componentDidMount",
-	      value: function componentDidMount() {
-	         var that = this;
-	         this.state.socket.on("logged_in", function (data) {
-	            that.setState({ username: data.name });
-	            that.props.setUsername(that.state.username);
-	         });
-	         var activity = {
-	            type: "login",
-	            data: {
-	               time: Date.now()
-	            }
-	         };
-	         this.setState({ activities: [activity] });
-	      }
-	   }, {
-	      key: "componentWillUnmount",
-	      value: function componentWillUnmount() {
-	         this.props.passUpLog(this.state.activities);
-	      }
-	   }, {
-	      key: "handleClick",
-	      value: function handleClick(name) {
-	         console.log("handleclick");
-	         var activity = {
-	            type: "choseGame",
-	            data: {
-	               name: name,
-	               time: Date.now()
-	            }
-	         };
-	         console.log(this);
-	         var activities = this.state.activities.slice();
-	         activities.push(activity);
-	         this.setState({ activities: activities });
-	      }
-	   }, {
-	      key: "render",
-	      value: function render() {
-	         var that = this;
-	         var games = this.state.modes.map(function (mode, idx) {
-	            return _react2.default.createElement(_SelectIcon2.default, { key: idx, name: mode.name, component: mode.component, logIt: that.handleClick });
-	         });
-	         return _react2.default.createElement(
-	            "div",
-	            { className: "container-fluid" },
-	            _react2.default.createElement(
-	               "div",
-	               { className: "row" },
-	               _react2.default.createElement(
-	                  "h1",
-	                  { className: "col-md-1" },
-	                  this.state.username
-	               ),
-	               _react2.default.createElement("div", { className: "col-md-11" })
-	            ),
-	            _react2.default.createElement(
-	               "div",
-	               { className: "row" },
-	               games
-	            )
-	         );
-	      }
-	   }]);
-
-	   return Selector;
-	}(_react2.default.Component);
-
-	exports.default = Selector;
-
-/***/ },
-/* 282 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	   value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactRouter = __webpack_require__(170);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	// var ReactRouter = require("react-router");
-	// var withRouter = ReactRouter.withRouter
-
-
-	var SelectIcon = function (_React$Component) {
-	   _inherits(SelectIcon, _React$Component);
-
-	   function SelectIcon(props) {
-	      _classCallCheck(this, SelectIcon);
-
-	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SelectIcon).call(this, props));
-
-	      _this.state = {
-	         name: props.name,
-	         component: props.component
-	      };
-	      return _this;
-	   }
-
-	   _createClass(SelectIcon, [{
-	      key: "redirect",
-	      value: function redirect() {
-	         this.props.logIt(this.state.name);
-	         console.log("redirecting");
-	         this.props.router.push(this.props.component);
-	      }
-	   }, {
-	      key: "render",
-	      value: function render() {
-	         var _this2 = this;
-
-	         return _react2.default.createElement(
-	            "div",
-	            { className: "col-md-3" },
-	            _react2.default.createElement("div", { className: "col-md-2" }),
-	            _react2.default.createElement(
-	               "button",
-	               { className: "btn btn-primary", onClick: function onClick() {
-	                     return _this2.redirect();
-	                  } },
-	               this.state.name
-	            ),
-	            _react2.default.createElement("div", { className: "col-md-2" })
-	         );
-	      }
-	   }]);
-
-	   return SelectIcon;
-	}(_react2.default.Component);
-
-	SelectIcon.contextTypes = {
-	   router: _react2.default.PropTypes.any.isRequired
+	Guessing.contextTypes = {
+		router: _react2.default.PropTypes.object.isRequired
 	};
-	exports.default = (0, _reactRouter.withRouter)(SelectIcon);
+	exports.default = (0, _reactRouter.withRouter)(Guessing);
 
 /***/ }
 /******/ ]);

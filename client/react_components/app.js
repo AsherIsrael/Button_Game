@@ -3,8 +3,10 @@ import ReactDOM from "react-dom";
 import Login from "./login.js";
 import Elimination from "./Elimination.js";
 import Selector from "./Selector.js"
+import Display from "./Display.js"
 import io from "socket.io-client";
-import { Router, Route, browserHistory } from "react-router";
+import { withRouter } from "react-router";
+// import reactMixin from "react-mixin";
 
 export default class App extends React.Component{
 	constructor(){
@@ -20,13 +22,64 @@ export default class App extends React.Component{
 			activities: []
 		}
 	}
-	// componentDidMount(){
-	// 	console.log("app mounted")
-	// 	var that = this;
-	// 	this.state.socket.on("logged_in", function(data){
-	// 		that.setState({username: data});
-	// 		console.log("app username", that.state.username);
-	// 	})
+	componentDidMount(){
+		console.log("app mounted")
+		var that = this;
+		this.state.socket.on("logged_in", function(data){
+			that.setState({username: data.name});
+			var activity = {
+            type: "login",
+            data: {
+               time: Date.now()
+            }
+         }
+         that.setState({activities: [activity]});
+		})
+		// const { router } = this.context;
+		// router.setRouteLeaveHook(this.props.route, this.routerWillLeave)
+
+
+
+		// console.log("app", this)
+		window.addEventListener("beforeunload", function(event){
+		    // do stuff here
+			 console.log("leaving");
+			 var activity = {
+ 				type: "logout",
+ 				data: {
+ 					time: Date.now()
+ 				}
+ 			}
+ 			var activities = that.state.activities.slice();
+ 			activities.push(activity);
+			console.log(activities)
+ 			that.state.socket.emit("finish_session", activities);
+		})
+	}
+	// routerWillLeave(nextLocation){
+	// 	console.log("LEAVING")
+	// 	var activity = {
+	// 		type: "logout",
+	// 		data: {
+	// 			time: Date.now()
+	// 		}
+	// 	}
+	// 	var activities = this.state.activities.slice();
+	// 	activities.push(activity);
+	// 	this.socket.emit("finish_session", activities);
+	// 	return "why not"
+	// }
+	// componentWillUnmount(){
+	// 	console.log("leaving");
+	// 	var activity = {
+	// 		type: "logout",
+	// 		data: {
+	// 			time: Date.now()
+	// 		}
+	// 	}
+	// 	var activities = this.state.activities.slice();
+	// 	activities.push(activity);
+	// 	this.socket.emit("finish_session", activities);
 	// }
 	logActivities(subLog){
 		var activities = this.state.activities.slice();
@@ -34,7 +87,6 @@ export default class App extends React.Component{
 		this.setState({activities: activities});
 	}
 	setName(name){
-		console.log(this)
 		this.setState({username: name});
 	}
 	render(){
@@ -45,7 +97,8 @@ export default class App extends React.Component{
 				socket: that.state.socket,
 				username: that.state.username,
 				setUsername: that.setName,
-				passUpLog: that.logActivities
+				passUpLog: that.logActivities,
+				activities: that.state.activities
 			})
 		})
 		return(
@@ -60,3 +113,9 @@ export default class App extends React.Component{
 		)
 	}
 }
+App.contextTypes = {
+   router: React.PropTypes.object.isRequired
+};
+// export default withRouter(App)
+// reactMixin.onClass(App, Lifecycle);
+// export default App;
