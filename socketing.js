@@ -43,7 +43,7 @@ module.exports = function(io){
 
 		socket.on("new_eliminationBoard", function(newBoard){
 			eliminationBoard = newBoard;
-			let data = {
+			var data = {
 				board: eliminationBoard,
 				topScore: eliminationScore
 			}
@@ -55,12 +55,12 @@ module.exports = function(io){
 				eliminationButtonsPressed++;
 				eliminationBoard[index].pressed = true;
 				eliminationBoard[index].color = "#000000";
-				let data = {
+				var data = {
 					board: eliminationBoard,
 					topScore: eliminationScore
 				}
 				io.emit("make_eliminationBoard", data);
-				let points = eliminationBoard[index].width*eliminationBoard[index].height;
+				var points = eliminationBoard[index].width*eliminationBoard[index].height;
 				socket.emit("you_scored", points)
 			}
 		})
@@ -112,7 +112,7 @@ module.exports = function(io){
 			if(eliminationBoard.length === 0){
 				socket.emit("need_eliminationBoard");
 			}else{
-					let data = {
+					var data = {
 						board: eliminationBoard,
 						topScore: eliminationScore
 					}
