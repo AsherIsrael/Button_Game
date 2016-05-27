@@ -1,14 +1,6 @@
 .gameBoard{
    width: 100%;
    min-height: 100%;
-   /*border: 1px red dotted;*/
-   /*line-height: 0;
-   /*-webkit-column-count: 5;*/
-   /*-webkit-column-gap: 0px;*/
-   /*-moz-column-count: 5;*/
-   /*-moz-column-gap: 0px;*/
-   /*column-count: 5;*/
-   /*column-gap: 0px;*/
 }
 
 html, #content, .container-fluid{
@@ -33,7 +25,6 @@ body{
 .grid-item {
    width: 10%;
    height: 13%;
-  /*height: 85px;*/
   float: left;
 }
 
@@ -41,9 +32,7 @@ body{
 
 .grid-item--height2 {
    height: 26%;
-   /*height: 170px;*/
 }
 .grid-item--height3 {
    height: 39%;
-   /*height: 255px;*/
 }

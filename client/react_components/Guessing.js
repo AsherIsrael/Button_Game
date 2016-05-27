@@ -5,7 +5,7 @@ import { withRouter, Link } from "react-router";
 import RandomColor from "randomcolor";
 
 
-export default class Guessing extends React.Component{
+class Guessing extends React.Component{
    constructor(props){
       super(props);
       this.setState = this.setState.bind(this);
@@ -40,22 +40,6 @@ export default class Guessing extends React.Component{
 		  itemSelector: '.grid-item',
 		  percentPosition: true
 		});
-
-      // window.addEventListener("beforeunload", function(event){
-      //    console.log("gueeing game leaving page")
-		// 	let activity = {
- 	// 			type: "gameEnd",
- 	// 			data: {
- 	// 				name: "guessing",
- 	// 				time: Date.now()
- 	// 			}
- 	// 		}
- 	// 		let activities = that.state.activities.slice();
- 	// 		activities.push(activity);
-		// 	console.log(activities)
- 	// 		that.props.passUpLog(activities);
-		// 	that.props.cleanup();
-		// })
 	}
    componentWillUnmount(){
 		var activity = {
@@ -193,7 +177,6 @@ export default class Guessing extends React.Component{
 		}
 	}
    render(){
-		console.log("Guessing game rendered");
 		var that = this;
 		var displayBoard = this.state.board.map(function(item){
 			return <GameButton key={item.number} number={item.number} display={item.display} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>

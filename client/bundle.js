@@ -70,10 +70,6 @@
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _socket = __webpack_require__(238);
-
-	var _socket2 = _interopRequireDefault(_socket);
-
 	var _Guessing = __webpack_require__(285);
 
 	var _Guessing2 = _interopRequireDefault(_Guessing);
@@ -81,8 +77,6 @@
 	var _reactRouter = __webpack_require__(170);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	// var socket = io.connect();
 
 	var Routes = _react2.default.createElement(
 	   _reactRouter.Router,
@@ -20222,15 +20216,9 @@
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _Display = __webpack_require__(237);
-
-	var _Display2 = _interopRequireDefault(_Display);
-
 	var _socket = __webpack_require__(238);
 
 	var _socket2 = _interopRequireDefault(_socket);
-
-	var _reactRouter = __webpack_require__(170);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20240,8 +20228,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	// import reactMixin from "react-mixin";
-
 	var App = function (_React$Component) {
 		_inherits(App, _React$Component);
 
@@ -20250,15 +20236,12 @@
 
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this));
 
-			console.log("App component loaded");
 			_this.setState = _this.setState.bind(_this);
 			_this.setName = _this.setName.bind(_this);
 			_this.logActivities = _this.logActivities.bind(_this);
 			_this.eliminationSockets = _this.eliminationSockets.bind(_this);
 			_this.clearElimScore = _this.clearElimScore.bind(_this);
-			// this.cleanUp = this.cleanUp.bind(this)
 			var socket = _socket2.default.connect();
-			// var socket = io.connect("http://127.0.0.1:6174/", {"force new connection": true});
 			_this.state = {
 				socket: socket,
 				username: null,
@@ -20274,7 +20257,6 @@
 		_createClass(App, [{
 			key: "componentDidMount",
 			value: function componentDidMount() {
-				console.log("app mounted");
 				var that = this;
 				this.state.socket.on("logged_in", function (data) {
 					that.setState({ username: data.name });
@@ -20290,10 +20272,7 @@
 					};
 					that.setState({ activities: [activity] });
 				});
-
-				// console.log("app", this)
 				window.addEventListener("beforeunload", function (event) {
-					console.log("leaving");
 					var activity = {
 						type: "logout",
 						data: {
@@ -20302,107 +20281,34 @@
 					};
 					var activities = that.state.activities.slice();
 					activities.push(activity);
-					console.log(activities);
 					that.state.socket.emit("finish_session", activities);
 				});
 			}
-			// cleanUp(){
-			// 	console.log("leaving");
-			// 	var activity = {
-			// 	  type: "logout",
-			// 	  data: {
-			// 		  time: Date.now()
-			// 	  }
-			//   }
-			//   var activities = this.state.activities.slice();
-			//   activities.push(activity);
-			//   console.log(activities)
-			//   this.state.socket.emit("finish_session", activities);
-			// }
-			// routerWillLeave(nextLocation){
-			// 	console.log("LEAVING")
-			// 	var activity = {
-			// 		type: "logout",
-			// 		data: {
-			// 			time: Date.now()
-			// 		}
-			// 	}
-			// 	var activities = this.state.activities.slice();
-			// 	activities.push(activity);
-			// 	this.socket.emit("finish_session", activities);
-			// 	return "why not"
-			// }
-			// componentWillUnmount(){
-			// 	console.log("leaving");
-			// 	var activity = {
-			// 		type: "logout",
-			// 		data: {
-			// 			time: Date.now()
-			// 		}
-			// 	}
-			// 	var activities = this.state.activities.slice();
-			// 	activities.push(activity);
-			// 	this.socket.emit("finish_session", activities);
-			// }
-
 		}, {
 			key: "eliminationSockets",
 			value: function eliminationSockets(elimination) {
 				var that = this;
 				if (!this.state.elimHasRun) {
 					this.setState({ elimHasRun: true });
-					// var elem = document.querySelector('.grid');
-					// var pckry = new Packery( elem, {
-					//   itemSelector: '.grid-item',
-					//   percentPosition: true
-					// });
-
-					// window.addEventListener("beforeunload", function(event){
-					// 	 console.log("player left the site");
-					//
-					// 	let activity = {
-					// 			type: "gameEnd",
-					// 			data: {
-					// 				name: "elimination",
-					// 				time: Date.now()
-					// 			}
-					// 		}
-					// 		let activities = that.state.activities.slice();
-					// 		activities.push(activity);
-					// 		that.props.passUpLog(activities);
-					// 	that.state.socket.emit("elimination_player_left")
-					// 	that.props.cleanup();
-					// })
-
-					//socket events
 					this.state.socket.on("make_eliminationBoard", function (result) {
-						console.log("got board");
-						console.log(result);
-						// elimination.updateIt(result);
 						that.setState({ elimBoard: result.board });
 						that.setState({ elimTopScore: result.topScore });
 					});
 					this.state.socket.on("need_eliminationBoard", function () {
-						console.log("need board");
 						elimination.makeBoard();
 					});
 					this.state.socket.on("top_score", function (score) {
 						that.setState({ elimTopScore: score });
 					});
 					this.state.socket.on("you_scored", function (points) {
-						console.log(elimination);
-						console.log("you scored", points);
 						var score = that.state.elimScore + points;
 						that.setState({ elimScore: score });
 						elimination.state.socket.emit("check_score", score);
 					});
 					this.state.socket.on("game_over", function (winningScore) {
-						console.log("game over");
 						that.setState({ elimScore: 0 });
-						// this.state.socket.emit("check_score", 0);
 						var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 5 seconds.");
 						if (replay) {
-							console.log("replay");
 							var activity = {
 								type: "gameEnd",
 								data: {
@@ -20421,12 +20327,9 @@
 							};
 							activities.push(activity);
 							that.setState({ activities: activities });
-							// this.state.socket.emit("restart_elimination_game")
-							// this.state.socket.emit("rejoin_elimination")
 						} else {
-								console.log("decline");
-								elimination.context.router.push("/modes");
-							}
+							elimination.context.router.push("/modes");
+						}
 					});
 				}
 			}
@@ -20450,7 +20353,6 @@
 		}, {
 			key: "render",
 			value: function render() {
-				console.log("app rendered");
 				var that = this;
 				var children = _react2.default.Children.map(this.props.children, function (child) {
 					return _react2.default.cloneElement(child, {
@@ -20482,9 +20384,6 @@
 	App.contextTypes = {
 		router: _react2.default.PropTypes.object.isRequired
 	};
-	// export default withRouter(App)
-	// reactMixin.onClass(App, Lifecycle);
-	// export default App;
 
 /***/ },
 /* 169 */
@@ -20502,8 +20401,6 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactRouter = __webpack_require__(170);
-
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20511,8 +20408,6 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	// import io from "socket.io-client";
 
 	var Login = function (_React$Component) {
 	   _inherits(Login, _React$Component);
@@ -20522,11 +20417,8 @@
 
 	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Login).call(this, props));
 
-	      console.log("login loaded");
 	      _this.setState = _this.setState.bind(_this);
 	      _this.login = _this.login.bind(_this);
-	      // var socket = io.connect();
-
 	      _this.state = {
 	         socket: props.socket,
 	         valid: false,
@@ -20632,7 +20524,6 @@
 	Login.contextTypes = {
 	   router: _react2.default.PropTypes.any.isRequired
 	};
-	// export default withRouter(Login)
 
 /***/ },
 /* 170 */
@@ -26174,10 +26065,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	// import io from "socket.io-client";
-	//
-	// var socket = io.connect();
-
 	var Elimination = function (_React$Component) {
 		_inherits(Elimination, _React$Component);
 
@@ -26186,7 +26073,6 @@
 
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Elimination).call(this, props));
 
-			console.log("Game loaded");
 			_this.setState = _this.setState.bind(_this);
 			_this.record = _this.record.bind(_this);
 			_this.randomWidth = _this.randomWidth.bind(_this);
@@ -26215,94 +26101,8 @@
 					}
 				};
 				this.props.passUpLog([activity]);
-				console.log("enter game");
 				this.state.socket.emit("elimination_game");
-				// var elem = document.querySelector('.grid');
-				// var pckry = new Packery( elem, {
-				//   itemSelector: '.grid-item',
-				//   percentPosition: true
-				// });
 			}
-		}, {
-			key: "componentWillMount",
-			value: function componentWillMount() {}
-			// 	var that = this;
-			//
-			// 	// window.addEventListener("beforeunload", function(event){
-			// 	// 	 console.log("player left the site");
-			// 	//
-			// 	// 	let activity = {
-			// 	// 			type: "gameEnd",
-			// 	// 			data: {
-			// 	// 				name: "elimination",
-			// 	// 				time: Date.now()
-			// 	// 			}
-			// 	// 		}
-			// 	// 		let activities = that.state.activities.slice();
-			// 	// 		activities.push(activity);
-			// 	// 		that.props.passUpLog(activities);
-			// 	// 	that.state.socket.emit("elimination_player_left")
-			// 	// 	that.props.cleanup();
-			// 	// })
-			//
-			// 	//socket events
-			// 	this.state.socket.on("make_eliminationBoard", function(result){
-			// 		console.log("got board")
-			// 		console.log(result)
-			// 		that.setState({board: result.board})
-			// 		that.setState({topScore: result.topScore})
-			// 	});
-			// 	this.state.socket.on("need_eliminationBoard", function(){
-			// 		console.log("need board");
-			// 		that.makeBoard();
-			// 	});
-			// 	this.state.socket.on("top_score", function(score){
-			// 		that.setState({topScore: score});
-			// 	});
-			// 	this.state.socket.on("you_scored", function(points){
-			// 		console.log(that)
-			// 		console.log("you scored", points)
-			// 		let score = that.state.score+points;
-			// 		that.setState({score: score});
-			// 		that.state.socket.emit("check_score", score);
-			// 	});
-			// 	this.state.socket.on("game_over", function(winningScore){
-			// 		console.log("game over")
-			// 		that.setState({score: 0});
-			// 		// that.state.socket.emit("check_score", 0);
-			// 		let replay = confirm("GAME OVER! Highest score: "+winningScore+". Would you like to join the new round? Game begins in 5 seconds.")
-			// 		if(replay){
-			// 			console.log("replay")
-			// 			let activity = {
-			// 				type: "gameEnd",
-			// 				data: {
-			// 					name: "elimination",
-			// 					time: Date.now()
-			// 				}
-			// 			}
-			// 			var activities = that.state.activities.slice();
-			// 			activities.push(activity);
-			//          activity = {
-			//             type: "gameStart",
-			//             data: {
-			//                name: "elimination",
-			//                time: Date.now()
-			//             }
-			//          }
-			// 			activities.push(activity);
-			// 			that.setState({activities: activities});
-			// 			// that.state.socket.emit("restart_elimination_game")
-			// 			// that.state.socket.emit("rejoin_elimination")
-			//       }else{
-			// 			console.log("decline")
-			//          that.context.router.push("/modes");
-			//       }
-			// 	})
-
-			// checkInactivity(){
-			//
-			// }
-
 		}, {
 			key: "componentDidUpdate",
 			value: function componentDidUpdate(nextState) {
@@ -26322,7 +26122,6 @@
 		}, {
 			key: "componentWillUnmount",
 			value: function componentWillUnmount() {
-				console.log("player left");
 				var activity = {
 					type: "gameEnd",
 					data: {
@@ -26330,10 +26129,7 @@
 						time: Date.now()
 					}
 				};
-				// this.setState({score: 0});
 				this.state.socket.emit("elimination_player_left");
-				// var activities = this.state.activities.slice();
-				// activities.push(activity);
 				this.props.passUpLog([activity]);
 				this.props.clearElimScore();
 			}
@@ -26356,30 +26152,17 @@
 						windowHeight: height
 					}
 				};
-				console.log("activity ", activity);
-				// var activities = this.state.activities.slice();
-				// activities.push(activity);
-				// this.setState({activities: activities});
 				this.props.passUpLog([activity]);
 			}
 		}, {
 			key: "updateIt",
 			value: function updateIt(data) {
-				console.log(data);
 				this.setState({ board: data.board });
 				this.setState({ topScore: data.topScore });
 			}
-			// reset(){
-			// 	this.setState({board: []});
-			// 	this.makeBoard();
-			// }
-
 		}, {
 			key: "makeBoard",
 			value: function makeBoard() {
-				console.log("make board called");
-				// this.setState({score: 0});
-				// this.setState({topScore: 0});
 				var board = [];
 				var boardSize = 70; //number of grid-items to fill  the board;
 				var wMax = 3;
@@ -26417,7 +26200,6 @@
 					});
 					i++;
 				}
-				console.log("makeboard done");
 				this.state.socket.emit("new_eliminationBoard", board);
 			}
 		}, {
@@ -26452,7 +26234,6 @@
 		}, {
 			key: "render",
 			value: function render() {
-				console.log("Game rendered");
 				var that = this;
 				var displayBoard = this.state.board.map(function (item, idx) {
 					return _react2.default.createElement(_GameButton2.default, { key: item.number, pressed: item.pressed, index: idx, color: item.color, width: item.width, height: item.height, recordAct: that.record });
@@ -27116,8 +26897,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	// import io from "socket.io-client";
-
 	var Selector = function (_React$Component) {
 	   _inherits(Selector, _React$Component);
 
@@ -27128,17 +26907,11 @@
 
 	      _this.setState = _this.setState.bind(_this);
 	      _this.handleClick = _this.handleClick.bind(_this);
-	      // var socket = io.connect();
 
 	      _this.state = {
 	         username: props.username,
 	         socket: props.socket,
-	         modes: [
-	         // {
-	         //    name: "Display Activities",
-	         //    component: "display"
-	         // },
-	         {
+	         modes: [{
 	            name: "Elimination",
 	            component: "elimination",
 	            description: "Compete with other players to earn the most points! The bigger the button, the more points it's worth!"
@@ -27150,23 +26923,10 @@
 	      };
 	      return _this;
 	   }
-	   // componentDidMount(){
-	   //    var that = this;
-	   //    window.addEventListener("beforeunload", function(event){
-	   //       console.log("selector leaving page")
-	   //       that.props.passUpLog(activities);
-	   //       that.props.cleanup();
-	   //    })
-	   // }
-	   // componentWillUnmount(){
-	   //    this.props.passUpLog(this.state.activities);
-	   // }
-
 
 	   _createClass(Selector, [{
 	      key: "handleClick",
 	      value: function handleClick(name) {
-	         console.log("handleclick");
 	         var activity = {
 	            type: "choseGame",
 	            data: {
@@ -27174,9 +26934,6 @@
 	               time: Date.now()
 	            }
 	         };
-	         // var activities = this.state.activities.slice();
-	         // activities.push(activity);
-	         // this.setState({activities: activities});
 	         this.props.passUpLog([activity]);
 	      }
 	   }, {
@@ -27230,11 +26987,6 @@
 
 	   return Selector;
 	}(_react2.default.Component);
-	// Selector.contextTypes = {
-	//    router: React.PropTypes.object.isRequired
-	// };
-	// export default withRouter(Selector)
-
 
 	exports.default = Selector;
 
@@ -27262,10 +27014,6 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	// var ReactRouter = require("react-router");
-	// var withRouter = ReactRouter.withRouter
-	// import { withRouter } from "react-router";
-
 	var SelectIcon = function (_React$Component) {
 	   _inherits(SelectIcon, _React$Component);
 
@@ -27286,7 +27034,6 @@
 	      key: "redirect",
 	      value: function redirect() {
 	         this.props.logIt(this.state.name);
-	         console.log("redirecting");
 	         this.context.router.push(this.props.component);
 	      }
 	   }, {
@@ -27335,81 +27082,9 @@
 	SelectIcon.contextTypes = {
 	   router: _react2.default.PropTypes.object.isRequired
 	};
-	// export default withRouter(SelectIcon)
 
 /***/ },
-/* 237 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	   value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _socket = __webpack_require__(238);
-
-	var _socket2 = _interopRequireDefault(_socket);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var Display = function (_React$Component) {
-	   _inherits(Display, _React$Component);
-
-	   function Display() {
-	      _classCallCheck(this, Display);
-
-	      console.log("made it here");
-
-	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Display).call(this));
-
-	      _this.setState = _this.setState.bind(_this);
-	      var socket = _socket2.default.connect();
-	      _this.state = {
-	         allActivities: null,
-	         socket: socket
-	      };
-	      return _this;
-	   }
-
-	   _createClass(Display, [{
-	      key: "componentDidMount",
-	      value: function componentDidMount() {
-	         var that = this;
-	         this.state.socket.emit("display_records");
-	         this.state.socket.on("record_data", function (result) {
-	            that.setState({ allActivities: result });
-	         });
-	      }
-	   }, {
-	      key: "render",
-	      value: function render() {
-	         return _react2.default.createElement(
-	            "div",
-	            { className: "displayPage" },
-	            JSON.stringify(this.state.allActivities)
-	         );
-	      }
-	   }]);
-
-	   return Display;
-	}(_react2.default.Component);
-
-	exports.default = Display;
-
-/***/ },
+/* 237 */,
 /* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -34919,22 +34594,6 @@
 					itemSelector: '.grid-item',
 					percentPosition: true
 				});
-
-				// window.addEventListener("beforeunload", function(event){
-				//    console.log("gueeing game leaving page")
-				// 	let activity = {
-				// 			type: "gameEnd",
-				// 			data: {
-				// 				name: "guessing",
-				// 				time: Date.now()
-				// 			}
-				// 		}
-				// 		let activities = that.state.activities.slice();
-				// 		activities.push(activity);
-				// 	console.log(activities)
-				// 		that.props.passUpLog(activities);
-				// 	that.props.cleanup();
-				// })
 			}
 		}, {
 			key: "componentWillUnmount",
@@ -35085,7 +34744,6 @@
 		}, {
 			key: "render",
 			value: function render() {
-				console.log("Guessing game rendered");
 				var that = this;
 				var displayBoard = this.state.board.map(function (item) {
 					return _react2.default.createElement(_GameButton2.default, { key: item.number, number: item.number, display: item.display, color: item.color, width: item.width, height: item.height, recordAct: that.record });
@@ -35129,8 +34787,6 @@
 
 		return Guessing;
 	}(_react2.default.Component);
-
-	exports.default = Guessing;
 
 	Guessing.contextTypes = {
 		router: _react2.default.PropTypes.object.isRequired

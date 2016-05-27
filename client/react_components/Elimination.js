@@ -3,14 +3,10 @@ import GameButton from "./GameButton.js";
 import ValueBox from "./ValueBox.js";
 import { Link } from "react-router";
 import RandomColor from "randomcolor";
-// import io from "socket.io-client";
-//
-// var socket = io.connect();
 
 export default class Elimination extends React.Component{
 	constructor(props){
 		super(props);
-		console.log("Game loaded");
 		this.setState = this.setState.bind(this);
 		this.record = this.record.bind(this);
 		this.randomWidth = this.randomWidth.bind(this);
@@ -36,92 +32,8 @@ export default class Elimination extends React.Component{
 			}
 		}
 		this.props.passUpLog([activity])
-		console.log("enter game")
 		this.state.socket.emit("elimination_game");
-		// var elem = document.querySelector('.grid');
-		// var pckry = new Packery( elem, {
-		//   itemSelector: '.grid-item',
-		//   percentPosition: true
-		// });
 	}
-
-	componentWillMount(){
-	// 	var that = this;
-	//
-	// 	// window.addEventListener("beforeunload", function(event){
-	// 	// 	 console.log("player left the site");
-	// 	//
-	// 	// 	let activity = {
- // 	// 			type: "gameEnd",
- // 	// 			data: {
- // 	// 				name: "elimination",
- // 	// 				time: Date.now()
- // 	// 			}
- // 	// 		}
- // 	// 		let activities = that.state.activities.slice();
- // 	// 		activities.push(activity);
- // 	// 		that.props.passUpLog(activities);
-	// 	// 	that.state.socket.emit("elimination_player_left")
-	// 	// 	that.props.cleanup();
-	// 	// })
-	//
-	// 	//socket events
-	// 	this.state.socket.on("make_eliminationBoard", function(result){
-	// 		console.log("got board")
-	// 		console.log(result)
-	// 		that.setState({board: result.board})
-	// 		that.setState({topScore: result.topScore})
-	// 	});
-	// 	this.state.socket.on("need_eliminationBoard", function(){
-	// 		console.log("need board");
-	// 		that.makeBoard();
-	// 	});
-	// 	this.state.socket.on("top_score", function(score){
-	// 		that.setState({topScore: score});
-	// 	});
-	// 	this.state.socket.on("you_scored", function(points){
-	// 		console.log(that)
-	// 		console.log("you scored", points)
-	// 		let score = that.state.score+points;
-	// 		that.setState({score: score});
-	// 		that.state.socket.emit("check_score", score);
-	// 	});
-	// 	this.state.socket.on("game_over", function(winningScore){
-	// 		console.log("game over")
-	// 		that.setState({score: 0});
-	// 		// that.state.socket.emit("check_score", 0);
-	// 		let replay = confirm("GAME OVER! Highest score: "+winningScore+". Would you like to join the new round? Game begins in 5 seconds.")
-	// 		if(replay){
-	// 			console.log("replay")
-	// 			let activity = {
-	// 				type: "gameEnd",
-	// 				data: {
-	// 					name: "elimination",
-	// 					time: Date.now()
-	// 				}
-	// 			}
-	// 			var activities = that.state.activities.slice();
-	// 			activities.push(activity);
-   //          activity = {
-   //             type: "gameStart",
-   //             data: {
-   //                name: "elimination",
-   //                time: Date.now()
-   //             }
-   //          }
-	// 			activities.push(activity);
-	// 			that.setState({activities: activities});
-	// 			// that.state.socket.emit("restart_elimination_game")
-	// 			// that.state.socket.emit("rejoin_elimination")
-   //       }else{
-	// 			console.log("decline")
-   //          that.context.router.push("/modes");
-   //       }
-	// 	})
-	}
-	// checkInactivity(){
-	//
-	// }
 	componentDidUpdate(nextState){
 		var elem = document.querySelector('.grid');
 		var pckry = new Packery( elem, {
@@ -136,7 +48,6 @@ export default class Elimination extends React.Component{
 
 	}
 	componentWillUnmount(){
-		console.log("player left")
 		var activity = {
 			type: "gameEnd",
 			data: {
@@ -144,10 +55,7 @@ export default class Elimination extends React.Component{
 				time: Date.now()
 			}
 		}
-		// this.setState({score: 0});
 		this.state.socket.emit("elimination_player_left")
-		// var activities = this.state.activities.slice();
-		// activities.push(activity);
 		this.props.passUpLog([activity]);
 		this.props.clearElimScore();
 	}
@@ -168,25 +76,13 @@ export default class Elimination extends React.Component{
 				windowHeight: height
 			}
 		}
-		console.log("activity ",activity)
-		// var activities = this.state.activities.slice();
-		// activities.push(activity);
-		// this.setState({activities: activities});
 		this.props.passUpLog([activity]);
 	}
 	updateIt(data){
-		console.log(data)
 		this.setState({board: data.board})
 		this.setState({topScore: data.topScore})
 	}
-	// reset(){
-	// 	this.setState({board: []});
-	// 	this.makeBoard();
-	// }
 	makeBoard(){
-		console.log("make board called")
-		// this.setState({score: 0});
-		// this.setState({topScore: 0});
 		var board = [];
 		let boardSize = 70;//number of grid-items to fill  the board;
 		let wMax = 3;
@@ -224,7 +120,6 @@ export default class Elimination extends React.Component{
 			})
 			i++;
 		}
-		console.log("makeboard done")
 		this.state.socket.emit("new_eliminationBoard", board);
 	}
 	randomHeight(max){
@@ -253,7 +148,6 @@ export default class Elimination extends React.Component{
 		}
 	}
 	render(){
-		console.log("Game rendered");
 		var that = this;
 		var displayBoard = this.state.board.map(function(item, idx){
 			return <GameButton key={item.number} pressed={item.pressed} index={idx} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>

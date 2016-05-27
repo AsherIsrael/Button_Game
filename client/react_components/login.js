@@ -1,16 +1,11 @@
 import React from "react";
-import { withRouter } from "react-router";
-// import io from "socket.io-client";
 
 
 export default class Login extends React.Component{
    constructor(props){
       super(props);
-      console.log("login loaded");
       this.setState = this.setState.bind(this);
       this.login = this.login.bind(this);
-      // var socket = io.connect();
-
       this.state = {
          socket: props.socket,
          valid: false,
@@ -71,4 +66,3 @@ export default class Login extends React.Component{
 Login.contextTypes = {
    router: React.PropTypes.any.isRequired
 };
-// export default withRouter(Login)

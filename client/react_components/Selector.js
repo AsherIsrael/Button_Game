@@ -1,7 +1,6 @@
 import React from "react";
 import SelectIcon from "./SelectIcon.js";
-import { withRouter, Link } from "react-router";
-// import io from "socket.io-client";
+import { Link } from "react-router";
 
 
 export default class Selector extends React.Component{
@@ -9,16 +8,11 @@ export default class Selector extends React.Component{
       super(props);
       this.setState = this.setState.bind(this);
       this.handleClick = this.handleClick.bind(this);
-      // var socket = io.connect();
 
       this.state = {
          username: props.username,
          socket: props.socket,
          modes: [
-            // {
-            //    name: "Display Activities",
-            //    component: "display"
-            // },
             {
                name: "Elimination",
                component: "elimination",
@@ -32,19 +26,7 @@ export default class Selector extends React.Component{
          ]
       }
    }
-   // componentDidMount(){
-   //    var that = this;
-   //    window.addEventListener("beforeunload", function(event){
-   //       console.log("selector leaving page")
-   //       that.props.passUpLog(activities);
-   //       that.props.cleanup();
-   //    })
-   // }
-   // componentWillUnmount(){
-   //    this.props.passUpLog(this.state.activities);
-   // }
    handleClick(name){
-      console.log("handleclick")
       var activity = {
          type: "choseGame",
          data: {
@@ -52,9 +34,6 @@ export default class Selector extends React.Component{
             time: Date.now()
          }
       }
-      // var activities = this.state.activities.slice();
-      // activities.push(activity);
-      // this.setState({activities: activities});
       this.props.passUpLog([activity]);
    }
    render(){
@@ -77,7 +56,3 @@ export default class Selector extends React.Component{
       );
    }
 }
-// Selector.contextTypes = {
-//    router: React.PropTypes.object.isRequired
-// };
-// export default withRouter(Selector)
