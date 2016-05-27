@@ -7,9 +7,9 @@ export default class GameButton extends React.Component{
 		this.state = {
 			color: props.color,
 			number: props.number,
+			index: props.index,
 			width: props.width,
 			height: props.height,
-			delay: props.delay,
 			display: props.display
 		}
 	}
@@ -22,6 +22,7 @@ export default class GameButton extends React.Component{
 			width: this.state.width,
 			height: this.state.height,
 			number: this.state.number,
+			index: this.state.index,
 			x: e.pageX,
 			y: e.pageY
 		}
@@ -31,7 +32,7 @@ export default class GameButton extends React.Component{
 		var thisClass = "grid-item grid-item--width"+this.state.width+" grid-item--height"+this.state.height;
 		return(
 			<div className={thisClass}>
-				<button className="gameButton" type="button" style={{backgroundColor: this.state.color}} onClick={(e) => this.handleClick(e)}>{this.props.display}</button>
+				<button className="gameButton" type="button" style={{backgroundColor: this.state.color}} onClick={(e) => this.handleClick(e)} disabled={this.props.pressed}>{this.props.display}</button>
 			</div>
 		)
 	}

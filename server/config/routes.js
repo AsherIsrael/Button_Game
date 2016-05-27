@@ -1,7 +1,10 @@
-var users = require("./../controllers/users.js");
+// var users = require("./../controllers/users.js");
+var visits = require("./../controllers/visits.js");
+
 
 module.exports = function(app){
-   app.post("/users", function(req,res){
-      users.login(req,res);
+   app.get("/display", function(req, res){
+      console.log("display")
+      visits.index(req,res);
    });
 }

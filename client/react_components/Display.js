@@ -1,12 +1,15 @@
 import React from "react"
+import io from "socket.io-client"
 
 export default class Display extends React.Component{
-   constructor(props){
-      super(props);
+   constructor(){
+      console.log("made it here")
+      super();
       this.setState = this.setState.bind(this);
+      var socket = io.connect();
       this.state = {
          allActivities: null,
-         socket: props.socket
+         socket: socket
       }
    }
    componentDidMount(){

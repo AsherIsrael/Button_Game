@@ -1,6 +1,11 @@
 import React from "react";
 import GameButton from "./GameButton.js";
-import { Link } from "react-router"
+import ValueBox from "./ValueBox.js";
+import { Link } from "react-router";
+import RandomColor from "randomcolor";
+// import io from "socket.io-client";
+//
+// var socket = io.connect();
 
 export default class Elimination extends React.Component{
 	constructor(props){
@@ -10,23 +15,19 @@ export default class Elimination extends React.Component{
 		this.record = this.record.bind(this);
 		this.randomWidth = this.randomWidth.bind(this);
 		this.randomHeight = this.randomHeight.bind(this);
-		this.randomColor = this.randomColor.bind(this);
 		this.makeBoard = this.makeBoard.bind(this);
 		this.state = {
 			socket: props.socket,
 			username: props.username,
 			activities: [],
-			board: []
+			board: props.elimBoard,
+			score: 0,
+			topScore: props.elimScore
 		}
 	}
-	// componentWillMount(){
-	// 	this.makeBoard();
-	// }
+
 	componentDidMount(){
-		var that = this;
-		// this.state.socket.on("logged_in", function(data){
-		// 	that.setState({username: data.name});
-		// })
+		this.props.socketControl(this);
 		var activity = {
 			type: "gameStart",
 			data: {
@@ -34,22 +35,93 @@ export default class Elimination extends React.Component{
 				time: Date.now()
 			}
 		}
-		this.setState({activities: [activity]});
+		this.props.passUpLog([activity])
+		console.log("enter game")
 		this.state.socket.emit("elimination_game");
-		var elem = document.querySelector('.grid');
-		var pckry = new Packery( elem, {
-		  itemSelector: '.grid-item',
-		  percentPosition: true
-		});
-		this.state.socket.on("make_eliminationBoard", function(mainBoard){
-			console.log("got board")
-			that.setState({board: mainBoard})
-		});
-		this.state.socket.on("need_eliminationBoard", function(){
-			console.log("need board");
-			that.makeBoard();
-		})
 	}
+
+	componentWillMount(){
+	// 	var that = this;
+	// 	// var elem = document.querySelector('.grid');
+	// 	// var pckry = new Packery( elem, {
+	// 	//   itemSelector: '.grid-item',
+	// 	//   percentPosition: true
+	// 	// });
+	//
+	// 	// window.addEventListener("beforeunload", function(event){
+	// 	// 	 console.log("player left the site");
+	// 	//
+	// 	// 	let activity = {
+ // 	// 			type: "gameEnd",
+ // 	// 			data: {
+ // 	// 				name: "elimination",
+ // 	// 				time: Date.now()
+ // 	// 			}
+ // 	// 		}
+ // 	// 		let activities = that.state.activities.slice();
+ // 	// 		activities.push(activity);
+ // 	// 		that.props.passUpLog(activities);
+	// 	// 	that.state.socket.emit("elimination_player_left")
+	// 	// 	that.props.cleanup();
+	// 	// })
+	//
+	// 	//socket events
+	// 	this.state.socket.on("make_eliminationBoard", function(result){
+	// 		console.log("got board")
+	// 		console.log(result)
+	// 		that.setState({board: result.board})
+	// 		that.setState({topScore: result.topScore})
+	// 	});
+	// 	this.state.socket.on("need_eliminationBoard", function(){
+	// 		console.log("need board");
+	// 		that.makeBoard();
+	// 	});
+	// 	this.state.socket.on("top_score", function(score){
+	// 		that.setState({topScore: score});
+	// 	});
+	// 	this.state.socket.on("you_scored", function(points){
+	// 		console.log(that)
+	// 		console.log("you scored", points)
+	// 		let score = that.state.score+points;
+	// 		that.setState({score: score});
+	// 		that.state.socket.emit("check_score", score);
+	// 	});
+	// 	this.state.socket.on("game_over", function(winningScore){
+	// 		console.log("game over")
+	// 		that.setState({score: 0});
+	// 		// that.state.socket.emit("check_score", 0);
+	// 		let replay = confirm("GAME OVER! Highest score: "+winningScore+". Would you like to join the new round? Game begins in 5 seconds.")
+	// 		if(replay){
+	// 			console.log("replay")
+	// 			let activity = {
+	// 				type: "gameEnd",
+	// 				data: {
+	// 					name: "elimination",
+	// 					time: Date.now()
+	// 				}
+	// 			}
+	// 			var activities = that.state.activities.slice();
+	// 			activities.push(activity);
+   //          activity = {
+   //             type: "gameStart",
+   //             data: {
+   //                name: "elimination",
+   //                time: Date.now()
+   //             }
+   //          }
+	// 			activities.push(activity);
+	// 			that.setState({activities: activities});
+	// 			// that.state.socket.emit("restart_elimination_game")
+	// 			// that.state.socket.emit("rejoin_elimination")
+   //       }else{
+	// 			console.log("decline")
+   //          that.context.router.push("/modes");
+   //       }
+	// 	})
+	}
+	// checkInactivity(){
+	//
+	// }
 	componentDidUpdate(nextState){
 		var elem = document.querySelector('.grid');
 		var pckry = new Packery( elem, {
@@ -57,7 +129,14 @@ export default class Elimination extends React.Component{
 		  percentPosition: true
 		});
 	}
+	componentWillReceiveProps(nextProps){
+		this.setState({board: nextProps.elimBoard})
+		this.setState({topScore: nextProps.elimTopScore})
+		this.setState({score: nextProps.elimScore})
+
+	}
 	componentWillUnmount(){
+		console.log("player left")
 		var activity = {
 			type: "gameEnd",
 			data: {
@@ -65,65 +144,83 @@ export default class Elimination extends React.Component{
 				time: Date.now()
 			}
 		}
-		var activities = this.state.activities.slice();
-		activities.push(activity);
-		this.props.passUpLog(activities);
+		// this.setState({score: 0});
+		this.state.socket.emit("elimination_player_left")
+		// var activities = this.state.activities.slice();
+		// activities.push(activity);
+		this.props.passUpLog([activity]);
+		this.props.clearElimScore();
 	}
 	record(buttonPressed){
+		this.state.socket.emit("button_pressed", buttonPressed.index);
+		var size = buttonPressed.height*buttonPressed.width
 		var activity = {
 			type: "buttonPress",
 			data: {
-				size: buttonPressed.height*buttonPressed.width,
+				size: size,
 				color: buttonPressed.color,
 				time: Date.now(),
 				x: buttonPressed.x,
 				y: buttonPressed.y
 			}
 		}
-		var activities = this.state.activities.slice();
-		activities.push(activity);
-		this.setState({activities: activities});
-
+		// var activities = this.state.activities.slice();
+		// activities.push(activity);
+		// this.setState({activities: activities});
+		this.props.passUpLog([activity]);
 	}
-	reset(){
-		this.setState({board: []});
-		this.makeBoard();
+	updateIt(data){
+		console.log(data)
+		this.setState({board: data.board})
+		this.setState({topScore: data.topScore})
 	}
+	// reset(){
+	// 	this.setState({board: []});
+	// 	this.makeBoard();
+	// }
 	makeBoard(){
+		console.log("make board called")
+		// this.setState({score: 0});
+		// this.setState({topScore: 0});
 		var board = [];
-		let size = 70;//number of grid-items to fill  the board;
+		let boardSize = 70;//number of grid-items to fill  the board;
 		let wMax = 3;
 		let hMax = 5;
 		var i = 1;
-		while(size>0){
-			if(size<30){
+		while(boardSize>0){
+			if(boardSize<30){
 				wMax = 2;
 				hMax = 3;
 			}
-			if(size<20){
+			if(boardSize<20){
 				wMax = 8;
+				hMax = 1;
+			}
+			if(boardSize<6){
+				wMax = 1;
 				hMax = 1;
 			}
 			var width = this.randomWidth(wMax);
 			var height = this.randomHeight(hMax);
-			while(size - (width.val*height.val)<0){
+			while(boardSize - (width.val*height.val)<0){
 				var width = this.randomWidth(wMax);
 				var height = this.randomHeight(hMax);
 			}
-			size = size - (width.val*height.val);
+			boardSize = boardSize - (width.val*height.val);
 			var points = (width.val*height.val)
 			board.push({
 				number: i,
 				points: points,
-				color: this.randomColor(),
+				pressed: false,
+				color: RandomColor({luminosity: "bright"}),
 				width: width.class,
-				height: height.class
+				height: height.class,
+				display: null
 			})
-			// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 			i++;
 		}
+		console.log("makeboard done")
 		this.state.socket.emit("new_eliminationBoard", board);
-		//this.setState({board: board})
 	}
 	randomHeight(max){
 		let picker = Math.floor(Math.random()*(max-1))+1;
@@ -150,31 +247,30 @@ export default class Elimination extends React.Component{
 				break;
 		}
 	}
-	randomColor(){
-		return '#'+Math.floor(Math.random()*16777215).toString(16);
-		// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
-	}
 	render(){
 		console.log("Game rendered");
 		var that = this;
-		var displayBoard = this.state.board.map(function(item){
-			return <GameButton key={item.number} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>
+		var displayBoard = this.state.board.map(function(item, idx){
+			return <GameButton key={item.number} pressed={item.pressed} index={idx} color={item.color} width={item.width} height={item.height} recordAct={that.record}/>
 		})
 		return(
 			<div className="container-fluid">
 				<div className="row">
-					<h1 className="col-md-1">{this.state.username}</h1>
-					<div className="col-md-8"></div>
-					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
+					<h1 className="col-md-4">Now playing: {this.state.username}</h1>
+					<ValueBox label="Your score:" data={this.state.score}/>
 					<div className="col-md-1"></div>
-					<div className="col-md-1"><button className="btn" type="button" onClick={() => this.reset()}>Reset</button></div>
+					<ValueBox label="Current Leader:" data={this.state.topScore}/>
+					<div className="col-md-2"></div>
+					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
+					{/*<div className="col-md-1"><button className="btn" type="button" onClick={() => this.reset()}>Reset</button></div>*/}
 				</div>
-				<div className="row board">
-					<div className="gameBoard grid">
-						{displayBoard}
-					</div>
+				<div className="row grid gameBoard">
+					{displayBoard}
 				</div>
 			</div>
 		)
 	}
 }
+Elimination.contextTypes = {
+   router: React.PropTypes.object.isRequired
+};

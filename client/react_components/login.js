@@ -1,5 +1,7 @@
 import React from "react";
 import { withRouter } from "react-router";
+// import io from "socket.io-client";
+
 
 export default class Login extends React.Component{
    constructor(props){
@@ -7,6 +9,8 @@ export default class Login extends React.Component{
       console.log("login loaded");
       this.setState = this.setState.bind(this);
       this.login = this.login.bind(this);
+      // var socket = io.connect();
+
       this.state = {
          socket: props.socket,
          valid: false,
@@ -51,11 +55,11 @@ export default class Login extends React.Component{
             <h2>Login</h2>
             <br/>
             <span ref="error" className={errorClass}>Name must be at least 4 characters</span>
-            <form name="form">
+            <form name="form" onSubmit={this.login}>
                <div className="row">
                   <div className={formClass}>
                      <input className={inputClass} type="text" value={this.state.username} onChange={() => this.isValid()} ref="username"/>
-                     <span className="input-group-btn"><button type="button" className={btnClass} onClick={this.login}>Enter</button></span>
+                     <span className="input-group-btn"><button type="submit" className={btnClass}>Enter</button></span>
                   </div>
                   <div className="col-md-6"></div>
                </div>

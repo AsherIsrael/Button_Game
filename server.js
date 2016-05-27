@@ -8,7 +8,7 @@ var http = http.Server(app);
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "./client")));
 require("./server/config/mongoose.js");
-//require("./server/config/routes.js")(app);
+require("./server/config/routes.js")(app);
 
 
 var io = require("socket.io")(http);

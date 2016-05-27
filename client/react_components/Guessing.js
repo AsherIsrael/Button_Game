@@ -1,6 +1,9 @@
 import React from "react";
 import GameButton from "./GameButton.js"
+import ValueBox from "./ValueBox.js"
 import { withRouter, Link } from "react-router";
+import RandomColor from "randomcolor";
+
 
 export default class Guessing extends React.Component{
    constructor(props){
@@ -9,14 +12,14 @@ export default class Guessing extends React.Component{
 		this.record = this.record.bind(this);
 		this.randomWidth = this.randomWidth.bind(this);
 		this.randomHeight = this.randomHeight.bind(this);
-		this.randomColor = this.randomColor.bind(this);
 		this.makeBoard = this.makeBoard.bind(this);
       this.state = {
          socket: props.socket,
          username: props.username,
          activities: [],
          board: [],
-         correctButton: null
+         correctButton: null,
+         guesses: 0
       }
    }
    componentWillMount(){
@@ -24,9 +27,6 @@ export default class Guessing extends React.Component{
    }
    componentDidMount(){
 		var that = this;
-		// this.state.socket.on("logged_in", function(data){
-		// 	that.setState({username: data.name});
-		// })
 		var activity = {
 			type: "gameStart",
 			data: {
@@ -35,19 +35,26 @@ export default class Guessing extends React.Component{
 			}
 		}
 		this.setState({activities: [activity]});
-		// this.state.socket.emit("elimination_game");
 		var elem = document.querySelector('.grid');
 		var pckry = new Packery( elem, {
 		  itemSelector: '.grid-item',
 		  percentPosition: true
 		});
-		// this.state.socket.on("make_eliminationBoard", function(mainBoard){
-		// 	console.log("got board")
-		// 	that.setState({board: mainBoard})
-		// });
-		// this.state.socket.on("need_eliminationBoard", function(){
-		// 	console.log("need board");
-		// 	that.makeBoard();
+
+      // window.addEventListener("beforeunload", function(event){
+      //    console.log("gueeing game leaving page")
+		// 	let activity = {
+ 	// 			type: "gameEnd",
+ 	// 			data: {
+ 	// 				name: "guessing",
+ 	// 				time: Date.now()
+ 	// 			}
+ 	// 		}
+ 	// 		let activities = that.state.activities.slice();
+ 	// 		activities.push(activity);
+		// 	console.log(activities)
+ 	// 		that.props.passUpLog(activities);
+		// 	that.props.cleanup();
 		// })
 	}
    componentWillUnmount(){
@@ -70,6 +77,8 @@ export default class Guessing extends React.Component{
 		});
 	}
    record(buttonPressed){
+      var guess =  this.state.guesses+1
+      this.setState({guesses: guess})
       var size = buttonPressed.height*buttonPressed.width;
       if(buttonPressed.number==this.state.correctButton){
          let activity = {
@@ -85,18 +94,8 @@ export default class Guessing extends React.Component{
          }
          var activities = this.state.activities.slice();
          activities.push(activity);
-         // this.setState({activities: activities});
-         // var activity = {
-   		// 	type: "gameEnd",
-   		// 	data: {
-   		// 		name: "guessing",
-   		// 		time: Date.now()
-   		// 	}
-   		// }
-   		// // var activities = this.state.activities.slice();
-   		// activities.push(activity);
    		this.props.passUpLog(activities);
-         var replay = confirm("You got it! Would you like to play again?");
+         var replay = confirm("You got it in "+this.state.guesses+" guesses! Would you like to play again?");
          if(replay){
             let activity = {
                type: "gameStart",
@@ -105,6 +104,7 @@ export default class Guessing extends React.Component{
                   time: Date.now()
                }
             }
+            this.setState({guesses: 0});
             this.makeBoard();
          }else{
             this.props.router.push("/modes");
@@ -156,15 +156,13 @@ export default class Guessing extends React.Component{
 			board.push({
 				number: i,
 				points: points,
-				color: this.randomColor(),
+				color: RandomColor({luminosity: "bright"}),
 				width: width.class,
 				height: height.class,
             display: "O"
 			})
-			//board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 			i++;
 		}
-		// this.state.socket.emit("new_eliminationBoard", board);
 		this.setState({board: board})
       var correct = Math.floor(Math.random()*(board.length-1))+1;
       this.setState({correctButton: correct});
@@ -194,10 +192,6 @@ export default class Guessing extends React.Component{
 				break;
 		}
 	}
-	randomColor(){
-      return '#'+Math.floor(Math.random()*16777215).toString(16);
-		// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
-	}
    render(){
 		console.log("Guessing game rendered");
 		var that = this;
@@ -208,15 +202,13 @@ export default class Guessing extends React.Component{
 			<div className="container-fluid">
 				<div className="row">
 					<h1 className="col-md-1">{this.state.username}</h1>
-					<div className="col-md-10"></div>
+               <div className="col-md-1"></div>
+               <ValueBox label="guesses:" data={this.state.guesses}/>
+					<div className="col-md-7"></div>
 					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
-					{/*<div className="col-md-1"></div>*/}
-					{/*<div className="col-md-1"><button className="btn" type="button" onClick={() => this.reset()}>Reset</button></div>*/}
 				</div>
 				<div className="row grid gameBoard">
-					{/*<div className="gameBoard grid">*/}
-						{displayBoard}
-					{/*</div>*/}
+					{displayBoard}
 				</div>
 			</div>
 		)

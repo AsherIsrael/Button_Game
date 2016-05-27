@@ -8,7 +8,7 @@
    /*-moz-column-count: 5;*/
    /*-moz-column-gap: 0px;*/
    /*column-count: 5;*/
-   /*column-gap: 0px;*/*/
+   /*column-gap: 0px;*/
 }
 
 html, #content, .container-fluid{
@@ -17,11 +17,12 @@ html, #content, .container-fluid{
 
 body{
    height: 100vh;
-   /*overflow: hidden;*/
+   overflow: hidden;
 }
 
-.displayPage{
-   /*overflow: scroll !important;*/
+.selectButton{
+   width: 100%;
+   min-height: 100%;
 }
 
 .gameButton{
@@ -29,11 +30,8 @@ body{
    min-height: 100% !important;
 }
 
-.grid-sizer, .grid-item{
-   width: 10%;
-}
-
 .grid-item {
+   width: 10%;
    height: 13%;
   /*height: 85px;*/
   float: left;

@@ -70,9 +70,9 @@
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _Display = __webpack_require__(235);
+	var _socket = __webpack_require__(236);
 
-	var _Display2 = _interopRequireDefault(_Display);
+	var _socket2 = _interopRequireDefault(_socket);
 
 	var _Guessing = __webpack_require__(283);
 
@@ -82,9 +82,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function handleLeave() {
-	   console.log('LEAVING');
-	}
+	// var socket = io.connect();
+
 	var Routes = _react2.default.createElement(
 	   _reactRouter.Router,
 	   { history: _reactRouter.browserHistory },
@@ -94,8 +93,7 @@
 	      _react2.default.createElement(_reactRouter.IndexRoute, { component: _login2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: "elimination", component: _Elimination2.default }),
 	      _react2.default.createElement(_reactRouter.Route, { path: "modes", component: _Selector2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: "display", component: _Display2.default }),
-	      _react2.default.createElement(_reactRouter.Route, { path: "guess", component: _Guessing2.default })
+	      _react2.default.createElement(_reactRouter.Route, { path: "guessing", component: _Guessing2.default })
 	   )
 	);
 
@@ -20256,11 +20254,19 @@
 			_this.setState = _this.setState.bind(_this);
 			_this.setName = _this.setName.bind(_this);
 			_this.logActivities = _this.logActivities.bind(_this);
+			_this.eliminationSockets = _this.eliminationSockets.bind(_this);
+			_this.clearElimScore = _this.clearElimScore.bind(_this);
+			// this.cleanUp = this.cleanUp.bind(this)
 			var socket = _socket2.default.connect();
+			// var socket = io.connect("http://127.0.0.1:6174/", {"force new connection": true});
 			_this.state = {
 				socket: socket,
 				username: null,
-				activities: []
+				activities: [],
+				elimHasRun: false,
+				elimBoard: [],
+				elimTopScore: 0,
+				elimScore: 0
 			};
 			return _this;
 		}
@@ -20280,12 +20286,9 @@
 					};
 					that.setState({ activities: [activity] });
 				});
-				// const { router } = this.context;
-				// router.setRouteLeaveHook(this.props.route, this.routerWillLeave)
 
 				// console.log("app", this)
 				window.addEventListener("beforeunload", function (event) {
-					// do stuff here
 					console.log("leaving");
 					var activity = {
 						type: "logout",
@@ -20299,6 +20302,19 @@
 					that.state.socket.emit("finish_session", activities);
 				});
 			}
+			// cleanUp(){
+			// 	console.log("leaving");
+			// 	var activity = {
+			// 	  type: "logout",
+			// 	  data: {
+			// 		  time: Date.now()
+			// 	  }
+			//   }
+			//   var activities = this.state.activities.slice();
+			//   activities.push(activity);
+			//   console.log(activities)
+			//   this.state.socket.emit("finish_session", activities);
+			// }
 			// routerWillLeave(nextLocation){
 			// 	console.log("LEAVING")
 			// 	var activity = {
@@ -20326,6 +20342,96 @@
 			// }
 
 		}, {
+			key: "eliminationSockets",
+			value: function eliminationSockets(elimination) {
+				var that = this;
+				if (!this.state.elimHasRun) {
+					this.setState({ elimHasRun: true });
+					// var elem = document.querySelector('.grid');
+					// var pckry = new Packery( elem, {
+					//   itemSelector: '.grid-item',
+					//   percentPosition: true
+					// });
+
+					// window.addEventListener("beforeunload", function(event){
+					// 	 console.log("player left the site");
+					//
+					// 	let activity = {
+					// 			type: "gameEnd",
+					// 			data: {
+					// 				name: "elimination",
+					// 				time: Date.now()
+					// 			}
+					// 		}
+					// 		let activities = that.state.activities.slice();
+					// 		activities.push(activity);
+					// 		that.props.passUpLog(activities);
+					// 	that.state.socket.emit("elimination_player_left")
+					// 	that.props.cleanup();
+					// })
+
+					//socket events
+					this.state.socket.on("make_eliminationBoard", function (result) {
+						console.log("got board");
+						console.log(result);
+						// elimination.updateIt(result);
+						that.setState({ elimBoard: result.board });
+						that.setState({ elimTopScore: result.topScore });
+					});
+					this.state.socket.on("need_eliminationBoard", function () {
+						console.log("need board");
+						elimination.makeBoard();
+					});
+					this.state.socket.on("top_score", function (score) {
+						that.setState({ elimTopScore: score });
+					});
+					this.state.socket.on("you_scored", function (points) {
+						console.log(elimination);
+						console.log("you scored", points);
+						var score = that.state.elimScore + points;
+						that.setState({ elimScore: score });
+						elimination.state.socket.emit("check_score", score);
+					});
+					this.state.socket.on("game_over", function (winningScore) {
+						console.log("game over");
+						elimination.setState({ score: 0 });
+						// this.state.socket.emit("check_score", 0);
+						var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 5 seconds.");
+						if (replay) {
+							console.log("replay");
+							var activity = {
+								type: "gameEnd",
+								data: {
+									name: "elimination",
+									time: Date.now()
+								}
+							};
+							var activities = that.state.activities.slice();
+							activities.push(activity);
+							activity = {
+								type: "gameStart",
+								data: {
+									name: "elimination",
+									time: Date.now()
+								}
+							};
+							activities.push(activity);
+							that.setState({ activities: activities });
+							// this.state.socket.emit("restart_elimination_game")
+							// this.state.socket.emit("rejoin_elimination")
+						} else {
+								console.log("decline");
+								elimination.context.router.push("/modes");
+							}
+					});
+				}
+			}
+		}, {
+			key: "clearElimScore",
+			value: function clearElimScore() {
+				this.setState({ elimScore: 0 });
+			}
+		}, {
 			key: "logActivities",
 			value: function logActivities(subLog) {
 				var activities = this.state.activities.slice();
@@ -20348,20 +20454,19 @@
 						username: that.state.username,
 						setUsername: that.setName,
 						passUpLog: that.logActivities,
-						activities: that.state.activities
+						activities: that.state.activities,
+						socketControl: that.eliminationSockets,
+						elimBoard: that.state.elimBoard,
+						elimTopScore: that.state.elimTopScore,
+						elimScore: that.state.elimScore,
+						clearElimScore: that.clearElimScore
 					});
 				});
 				return _react2.default.createElement(
 					"div",
 					null,
 					children
-				)
-				// <Router history={browserHistory}>
-				// 	<Route path="/" component={Login} socket={this.state.socket}/>
-				// 	<Route path="/elimination" component={Elimination} socket={this.state.socket} username={username}/>
-				// 	<Route path="/modes" component={Selector} socket={this.state.socket} setUsername={this.setName}/>
-				// </Router>
-				;
+				);
 			}
 		}]);
 
@@ -20403,6 +20508,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	// import io from "socket.io-client";
+
 	var Login = function (_React$Component) {
 	   _inherits(Login, _React$Component);
 
@@ -20414,6 +20521,8 @@
 	      console.log("login loaded");
 	      _this.setState = _this.setState.bind(_this);
 	      _this.login = _this.login.bind(_this);
+	      // var socket = io.connect();
+
 	      _this.state = {
 	         socket: props.socket,
 	         valid: false,
@@ -20484,7 +20593,7 @@
 	            ),
 	            _react2.default.createElement(
 	               "form",
-	               { name: "form" },
+	               { name: "form", onSubmit: this.login },
 	               _react2.default.createElement(
 	                  "div",
 	                  { className: "row" },
@@ -20499,7 +20608,7 @@
 	                        { className: "input-group-btn" },
 	                        _react2.default.createElement(
 	                           "button",
-	                           { type: "button", className: btnClass, onClick: this.login },
+	                           { type: "submit", className: btnClass },
 	                           "Enter"
 	                        )
 	                     )
@@ -26043,7 +26152,15 @@
 
 	var _GameButton2 = _interopRequireDefault(_GameButton);
 
+	var _ValueBox = __webpack_require__(286);
+
+	var _ValueBox2 = _interopRequireDefault(_ValueBox);
+
 	var _reactRouter = __webpack_require__(170);
+
+	var _randomcolor = __webpack_require__(284);
+
+	var _randomcolor2 = _interopRequireDefault(_randomcolor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -26052,6 +26169,10 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// import io from "socket.io-client";
+	//
+	// var socket = io.connect();
 
 	var Elimination = function (_React$Component) {
 		_inherits(Elimination, _React$Component);
@@ -26066,28 +26187,22 @@
 			_this.record = _this.record.bind(_this);
 			_this.randomWidth = _this.randomWidth.bind(_this);
 			_this.randomHeight = _this.randomHeight.bind(_this);
-			_this.randomColor = _this.randomColor.bind(_this);
 			_this.makeBoard = _this.makeBoard.bind(_this);
 			_this.state = {
 				socket: props.socket,
 				username: props.username,
 				activities: [],
-				board: []
+				board: props.elimBoard,
+				score: 0,
+				topScore: props.elimScore
 			};
 			return _this;
 		}
-		// componentWillMount(){
-		// 	this.makeBoard();
-		// }
-
 
 		_createClass(Elimination, [{
 			key: "componentDidMount",
 			value: function componentDidMount() {
-				var that = this;
-				// this.state.socket.on("logged_in", function(data){
-				// 	that.setState({username: data.name});
-				// })
+				this.props.socketControl(this);
 				var activity = {
 					type: "gameStart",
 					data: {
@@ -26095,22 +26210,95 @@
 						time: Date.now()
 					}
 				};
-				this.setState({ activities: [activity] });
+				this.props.passUpLog([activity]);
+				console.log("enter game");
 				this.state.socket.emit("elimination_game");
-				var elem = document.querySelector('.grid');
-				var pckry = new Packery(elem, {
-					itemSelector: '.grid-item',
-					percentPosition: true
-				});
-				this.state.socket.on("make_eliminationBoard", function (mainBoard) {
-					console.log("got board");
-					that.setState({ board: mainBoard });
-				});
-				this.state.socket.on("need_eliminationBoard", function () {
-					console.log("need board");
-					that.makeBoard();
-				});
 			}
+		}, {
+			key: "componentWillMount",
+			value: function componentWillMount() {}
+			// 	var that = this;
+			// 	// var elem = document.querySelector('.grid');
+			// 	// var pckry = new Packery( elem, {
+			// 	//   itemSelector: '.grid-item',
+			// 	//   percentPosition: true
+			// 	// });
+			//
+			// 	// window.addEventListener("beforeunload", function(event){
+			// 	// 	 console.log("player left the site");
+			// 	//
+			// 	// 	let activity = {
+			// 	// 			type: "gameEnd",
+			// 	// 			data: {
+			// 	// 				name: "elimination",
+			// 	// 				time: Date.now()
+			// 	// 			}
+			// 	// 		}
+			// 	// 		let activities = that.state.activities.slice();
+			// 	// 		activities.push(activity);
+			// 	// 		that.props.passUpLog(activities);
+			// 	// 	that.state.socket.emit("elimination_player_left")
+			// 	// 	that.props.cleanup();
+			// 	// })
+			//
+			// 	//socket events
+			// 	this.state.socket.on("make_eliminationBoard", function(result){
+			// 		console.log("got board")
+			// 		console.log(result)
+			// 		that.setState({board: result.board})
+			// 		that.setState({topScore: result.topScore})
+			// 	});
+			// 	this.state.socket.on("need_eliminationBoard", function(){
+			// 		console.log("need board");
+			// 		that.makeBoard();
+			// 	});
+			// 	this.state.socket.on("top_score", function(score){
+			// 		that.setState({topScore: score});
+			// 	});
+			// 	this.state.socket.on("you_scored", function(points){
+			// 		console.log(that)
+			// 		console.log("you scored", points)
+			// 		let score = that.state.score+points;
+			// 		that.setState({score: score});
+			// 		that.state.socket.emit("check_score", score);
+			// 	});
+			// 	this.state.socket.on("game_over", function(winningScore){
+			// 		console.log("game over")
+			// 		that.setState({score: 0});
+			// 		// that.state.socket.emit("check_score", 0);
+			// 		let replay = confirm("GAME OVER! Highest score: "+winningScore+". Would you like to join the new round? Game begins in 5 seconds.")
+			// 		if(replay){
+			// 			console.log("replay")
+			// 			let activity = {
+			// 				type: "gameEnd",
+			// 				data: {
+			// 					name: "elimination",
+			// 					time: Date.now()
+			// 				}
+			// 			}
+			// 			var activities = that.state.activities.slice();
+			// 			activities.push(activity);
+			//          activity = {
+			//             type: "gameStart",
+			//             data: {
+			//                name: "elimination",
+			//                time: Date.now()
+			//             }
+			//          }
+			// 			activities.push(activity);
+			// 			that.setState({activities: activities});
+			// 			// that.state.socket.emit("restart_elimination_game")
+			// 			// that.state.socket.emit("rejoin_elimination")
+			//       }else{
+			// 			console.log("decline")
+			//          that.context.router.push("/modes");
+			//       }
+			// 	})
+
+			// checkInactivity(){
+			//
+			// }
+
 		}, {
 			key: "componentDidUpdate",
 			value: function componentDidUpdate(nextState) {
@@ -26121,8 +26309,16 @@
 				});
 			}
 		}, {
+			key: "componentWillReceiveProps",
+			value: function componentWillReceiveProps(nextProps) {
+				this.setState({ board: nextProps.elimBoard });
+				this.setState({ topScore: nextProps.elimTopScore });
+				this.setState({ score: nextProps.elimScore });
+			}
+		}, {
 			key: "componentWillUnmount",
 			value: function componentWillUnmount() {
+				console.log("player left");
 				var activity = {
 					type: "gameEnd",
 					data: {
@@ -26130,70 +26326,90 @@
 						time: Date.now()
 					}
 				};
-				var activities = this.state.activities.slice();
-				activities.push(activity);
-				this.props.passUpLog(activities);
+				// this.setState({score: 0});
+				this.state.socket.emit("elimination_player_left");
+				// var activities = this.state.activities.slice();
+				// activities.push(activity);
+				this.props.passUpLog([activity]);
+				this.props.clearElimScore();
 			}
 		}, {
 			key: "record",
 			value: function record(buttonPressed) {
+				this.state.socket.emit("button_pressed", buttonPressed.index);
+				var size = buttonPressed.height * buttonPressed.width;
 				var activity = {
 					type: "buttonPress",
 					data: {
-						size: buttonPressed.height * buttonPressed.width,
+						size: size,
 						color: buttonPressed.color,
 						time: Date.now(),
 						x: buttonPressed.x,
 						y: buttonPressed.y
 					}
 				};
-				var activities = this.state.activities.slice();
-				activities.push(activity);
-				this.setState({ activities: activities });
+				// var activities = this.state.activities.slice();
+				// activities.push(activity);
+				// this.setState({activities: activities});
+				this.props.passUpLog([activity]);
 			}
 		}, {
-			key: "reset",
-			value: function reset() {
-				this.setState({ board: [] });
-				this.makeBoard();
+			key: "updateIt",
+			value: function updateIt(data) {
+				console.log(data);
+				this.setState({ board: data.board });
+				this.setState({ topScore: data.topScore });
 			}
+			// reset(){
+			// 	this.setState({board: []});
+			// 	this.makeBoard();
+			// }
+
 		}, {
 			key: "makeBoard",
 			value: function makeBoard() {
+				console.log("make board called");
+				// this.setState({score: 0});
+				// this.setState({topScore: 0});
 				var board = [];
-				var size = 70; //number of grid-items to fill  the board;
+				var boardSize = 70; //number of grid-items to fill  the board;
 				var wMax = 3;
 				var hMax = 5;
 				var i = 1;
-				while (size > 0) {
-					if (size < 30) {
+				while (boardSize > 0) {
+					if (boardSize < 30) {
 						wMax = 2;
 						hMax = 3;
 					}
-					if (size < 20) {
+					if (boardSize < 20) {
 						wMax = 8;
+						hMax = 1;
+					}
+					if (boardSize < 6) {
+						wMax = 1;
 						hMax = 1;
 					}
 					var width = this.randomWidth(wMax);
 					var height = this.randomHeight(hMax);
-					while (size - width.val * height.val < 0) {
+					while (boardSize - width.val * height.val < 0) {
 						var width = this.randomWidth(wMax);
 						var height = this.randomHeight(hMax);
 					}
-					size = size - width.val * height.val;
+					boardSize = boardSize - width.val * height.val;
 					var points = width.val * height.val;
 					board.push({
 						number: i,
 						points: points,
-						color: this.randomColor(),
+						pressed: false,
+						color: (0, _randomcolor2.default)({ luminosity: "bright" }),
 						width: width.class,
-						height: height.class
+						height: height.class,
+						display: null
 					});
-					// board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 					i++;
 				}
+				console.log("makeboard done");
 				this.state.socket.emit("new_eliminationBoard", board);
-				//this.setState({board: board})
 			}
 		}, {
 			key: "randomHeight",
@@ -26225,20 +26441,12 @@
 				}
 			}
 		}, {
-			key: "randomColor",
-			value: function randomColor() {
-				return '#' + Math.floor(Math.random() * 16777215).toString(16);
-				// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
-			}
-		}, {
 			key: "render",
 			value: function render() {
-				var _this2 = this;
-
 				console.log("Game rendered");
 				var that = this;
-				var displayBoard = this.state.board.map(function (item) {
-					return _react2.default.createElement(_GameButton2.default, { key: item.number, color: item.color, width: item.width, height: item.height, recordAct: that.record });
+				var displayBoard = this.state.board.map(function (item, idx) {
+					return _react2.default.createElement(_GameButton2.default, { key: item.number, pressed: item.pressed, index: idx, color: item.color, width: item.width, height: item.height, recordAct: that.record });
 				});
 				return _react2.default.createElement(
 					"div",
@@ -26248,10 +26456,14 @@
 						{ className: "row" },
 						_react2.default.createElement(
 							"h1",
-							{ className: "col-md-1" },
+							{ className: "col-md-4" },
+							"Now playing: ",
 							this.state.username
 						),
-						_react2.default.createElement("div", { className: "col-md-8" }),
+						_react2.default.createElement(_ValueBox2.default, { label: "Your score:", data: this.state.score }),
+						_react2.default.createElement("div", { className: "col-md-1" }),
+						_react2.default.createElement(_ValueBox2.default, { label: "Current Leader:", data: this.state.topScore }),
+						_react2.default.createElement("div", { className: "col-md-2" }),
 						_react2.default.createElement(
 							"div",
 							{ className: "col-md-1" },
@@ -26264,28 +26476,12 @@
 									"End Game"
 								)
 							)
-						),
-						_react2.default.createElement("div", { className: "col-md-1" }),
-						_react2.default.createElement(
-							"div",
-							{ className: "col-md-1" },
-							_react2.default.createElement(
-								"button",
-								{ className: "btn", type: "button", onClick: function onClick() {
-										return _this2.reset();
-									} },
-								"Reset"
-							)
 						)
 					),
 					_react2.default.createElement(
 						"div",
-						{ className: "row board" },
-						_react2.default.createElement(
-							"div",
-							{ className: "gameBoard grid" },
-							displayBoard
-						)
+						{ className: "row grid gameBoard" },
+						displayBoard
 					)
 				);
 			}
@@ -26295,6 +26491,10 @@
 	}(_react2.default.Component);
 
 	exports.default = Elimination;
+
+	Elimination.contextTypes = {
+		router: _react2.default.PropTypes.object.isRequired
+	};
 
 /***/ },
 /* 232 */
@@ -26332,9 +26532,9 @@
 			_this.state = {
 				color: props.color,
 				number: props.number,
+				index: props.index,
 				width: props.width,
 				height: props.height,
-				delay: props.delay,
 				display: props.display
 			};
 			return _this;
@@ -26353,6 +26553,7 @@
 					width: this.state.width,
 					height: this.state.height,
 					number: this.state.number,
+					index: this.state.index,
 					x: e.pageX,
 					y: e.pageY
 				};
@@ -26371,7 +26572,7 @@
 						"button",
 						{ className: "gameButton", type: "button", style: { backgroundColor: this.state.color }, onClick: function onClick(e) {
 								return _this2.handleClick(e);
-							} },
+							}, disabled: this.props.pressed },
 						this.props.display
 					)
 				);
@@ -26413,6 +26614,8 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+	// import io from "socket.io-client";
+
 	var Selector = function (_React$Component) {
 	   _inherits(Selector, _React$Component);
 
@@ -26423,45 +26626,42 @@
 
 	      _this.setState = _this.setState.bind(_this);
 	      _this.handleClick = _this.handleClick.bind(_this);
+	      // var socket = io.connect();
+
 	      _this.state = {
 	         username: props.username,
 	         socket: props.socket,
-	         modes: [{
-	            name: "Display Activities",
-	            component: "display"
-	         }, {
+	         modes: [
+	         // {
+	         //    name: "Display Activities",
+	         //    component: "display"
+	         // },
+	         {
 	            name: "Elimination",
-	            component: "elimination"
+	            component: "elimination",
+	            description: "Compete with other players to earn the most points! The bigger the button, the more points it's worth!"
 	         }, {
 	            name: "Guessing",
-	            component: "guess"
-	         }],
-	         activities: []
+	            component: "guessing",
+	            description: "Can you guess which button is the correct one? How many tries will it take?"
+	         }]
 	      };
 	      return _this;
 	   }
 	   // componentDidMount(){
 	   //    var that = this;
-	   //    this.state.socket.on("logged_in", function(data){
-	   // 		that.setState({username: data.name});
-	   //       that.props.setUsername(that.state.username);
-	   //       var activity = {
-	   //          type: "login",
-	   //          data: {
-	   //             time: Date.now()
-	   //          }
-	   //       }
-	   //       that.setState({activities: [activity]});
-	   // 	})
+	   //    window.addEventListener("beforeunload", function(event){
+	   //       console.log("selector leaving page")
+	   //       that.props.passUpLog(activities);
+	   //       that.props.cleanup();
+	   //    })
+	   // }
+	   // componentWillUnmount(){
+	   //    this.props.passUpLog(this.state.activities);
 	   // }
 
 
 	   _createClass(Selector, [{
-	      key: "componentWillUnmount",
-	      value: function componentWillUnmount() {
-	         this.props.passUpLog(this.state.activities);
-	      }
-	   }, {
 	      key: "handleClick",
 	      value: function handleClick(name) {
 	         console.log("handleclick");
@@ -26472,16 +26672,17 @@
 	               time: Date.now()
 	            }
 	         };
-	         var activities = this.state.activities.slice();
-	         activities.push(activity);
-	         this.setState({ activities: activities });
+	         // var activities = this.state.activities.slice();
+	         // activities.push(activity);
+	         // this.setState({activities: activities});
+	         this.props.passUpLog([activity]);
 	      }
 	   }, {
 	      key: "render",
 	      value: function render() {
 	         var that = this;
 	         var games = this.state.modes.map(function (mode, idx) {
-	            return _react2.default.createElement(_SelectIcon2.default, { key: idx, name: mode.name, component: mode.component, logIt: that.handleClick });
+	            return _react2.default.createElement(_SelectIcon2.default, { key: idx, name: mode.name, component: mode.component, description: mode.description, logIt: that.handleClick });
 	         });
 	         return _react2.default.createElement(
 	            "div",
@@ -26500,6 +26701,26 @@
 	               "div",
 	               { className: "row" },
 	               games
+	            ),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement("br", null),
+	            _react2.default.createElement(
+	               "p",
+	               null,
+	               "Icons made by FreePik from ",
+	               _react2.default.createElement(
+	                  "a",
+	                  { href: "/www.flaticon.com" },
+	                  "www.flaticon.com"
+	               )
 	            )
 	         );
 	      }
@@ -26553,7 +26774,8 @@
 
 	      _this.state = {
 	         name: props.name,
-	         component: props.component
+	         component: props.component,
+	         description: props.description
 	      };
 	      return _this;
 	   }
@@ -26570,16 +26792,33 @@
 	      value: function render() {
 	         var _this2 = this;
 
+	         var source = "../static/images/" + this.state.component + ".png";
+
 	         return _react2.default.createElement(
 	            "div",
-	            { className: "col-md-3" },
+	            { className: "col-md-5" },
 	            _react2.default.createElement("div", { className: "col-md-2" }),
 	            _react2.default.createElement(
-	               "button",
-	               { className: "btn btn-primary", onClick: function onClick() {
-	                     return _this2.redirect();
-	                  } },
-	               this.state.name
+	               "div",
+	               { className: "col-md-8 center-block" },
+	               _react2.default.createElement(
+	                  "button",
+	                  { className: "btn selectButton", onClick: function onClick() {
+	                        return _this2.redirect();
+	                     } },
+	                  _react2.default.createElement("img", { className: "selectButton", src: source, alt: this.state.component })
+	               ),
+	               _react2.default.createElement(
+	                  "h4",
+	                  null,
+	                  this.state.name
+	               ),
+	               _react2.default.createElement("br", null),
+	               _react2.default.createElement(
+	                  "p",
+	                  null,
+	                  this.state.description
+	               )
 	            ),
 	            _react2.default.createElement("div", { className: "col-md-2" })
 	         );
@@ -26612,6 +26851,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _socket = __webpack_require__(236);
+
+	var _socket2 = _interopRequireDefault(_socket);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -26623,15 +26866,18 @@
 	var Display = function (_React$Component) {
 	   _inherits(Display, _React$Component);
 
-	   function Display(props) {
+	   function Display() {
 	      _classCallCheck(this, Display);
 
-	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Display).call(this, props));
+	      console.log("made it here");
+
+	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Display).call(this));
 
 	      _this.setState = _this.setState.bind(_this);
+	      var socket = _socket2.default.connect();
 	      _this.state = {
 	         allActivities: null,
-	         socket: props.socket
+	         socket: socket
 	      };
 	      return _this;
 	   }
@@ -34107,7 +34353,15 @@
 
 	var _GameButton2 = _interopRequireDefault(_GameButton);
 
+	var _ValueBox = __webpack_require__(286);
+
+	var _ValueBox2 = _interopRequireDefault(_ValueBox);
+
 	var _reactRouter = __webpack_require__(170);
+
+	var _randomcolor = __webpack_require__(284);
+
+	var _randomcolor2 = _interopRequireDefault(_randomcolor);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34129,14 +34383,14 @@
 			_this.record = _this.record.bind(_this);
 			_this.randomWidth = _this.randomWidth.bind(_this);
 			_this.randomHeight = _this.randomHeight.bind(_this);
-			_this.randomColor = _this.randomColor.bind(_this);
 			_this.makeBoard = _this.makeBoard.bind(_this);
 			_this.state = {
 				socket: props.socket,
 				username: props.username,
 				activities: [],
 				board: [],
-				correctButton: null
+				correctButton: null,
+				guesses: 0
 			};
 			return _this;
 		}
@@ -34150,9 +34404,6 @@
 			key: "componentDidMount",
 			value: function componentDidMount() {
 				var that = this;
-				// this.state.socket.on("logged_in", function(data){
-				// 	that.setState({username: data.name});
-				// })
 				var activity = {
 					type: "gameStart",
 					data: {
@@ -34161,19 +34412,26 @@
 					}
 				};
 				this.setState({ activities: [activity] });
-				// this.state.socket.emit("elimination_game");
 				var elem = document.querySelector('.grid');
 				var pckry = new Packery(elem, {
 					itemSelector: '.grid-item',
 					percentPosition: true
 				});
-				// this.state.socket.on("make_eliminationBoard", function(mainBoard){
-				// 	console.log("got board")
-				// 	that.setState({board: mainBoard})
-				// });
-				// this.state.socket.on("need_eliminationBoard", function(){
-				// 	console.log("need board");
-				// 	that.makeBoard();
+
+				// window.addEventListener("beforeunload", function(event){
+				//    console.log("gueeing game leaving page")
+				// 	let activity = {
+				// 			type: "gameEnd",
+				// 			data: {
+				// 				name: "guessing",
+				// 				time: Date.now()
+				// 			}
+				// 		}
+				// 		let activities = that.state.activities.slice();
+				// 		activities.push(activity);
+				// 	console.log(activities)
+				// 		that.props.passUpLog(activities);
+				// 	that.props.cleanup();
 				// })
 			}
 		}, {
@@ -34202,6 +34460,8 @@
 		}, {
 			key: "record",
 			value: function record(buttonPressed) {
+				var guess = this.state.guesses + 1;
+				this.setState({ guesses: guess });
 				var size = buttonPressed.height * buttonPressed.width;
 				if (buttonPressed.number == this.state.correctButton) {
 					var activity = {
@@ -34217,18 +34477,8 @@
 					};
 					var activities = this.state.activities.slice();
 					activities.push(activity);
-					// this.setState({activities: activities});
-					// var activity = {
-					// 	type: "gameEnd",
-					// 	data: {
-					// 		name: "guessing",
-					// 		time: Date.now()
-					// 	}
-					// }
-					// // var activities = this.state.activities.slice();
-					// activities.push(activity);
 					this.props.passUpLog(activities);
-					var replay = confirm("You got it! Would you like to play again?");
+					var replay = confirm("You got it in " + this.state.guesses + " guesses! Would you like to play again?");
 					if (replay) {
 						var _activity = {
 							type: "gameStart",
@@ -34237,6 +34487,7 @@
 								time: Date.now()
 							}
 						};
+						this.setState({ guesses: 0 });
 						this.makeBoard();
 					} else {
 						this.props.router.push("/modes");
@@ -34289,15 +34540,13 @@
 					board.push({
 						number: i,
 						points: points,
-						color: this.randomColor(),
+						color: (0, _randomcolor2.default)({ luminosity: "bright" }),
 						width: width.class,
 						height: height.class,
 						display: "O"
 					});
-					//board.push(<GameButton number={i} key={i} color={this.randomColor()} width={width.class} height={height.class} recordAct={this.record}/>)
 					i++;
 				}
-				// this.state.socket.emit("new_eliminationBoard", board);
 				this.setState({ board: board });
 				var correct = Math.floor(Math.random() * (board.length - 1)) + 1;
 				this.setState({ correctButton: correct });
@@ -34332,12 +34581,6 @@
 				}
 			}
 		}, {
-			key: "randomColor",
-			value: function randomColor() {
-				return '#' + Math.floor(Math.random() * 16777215).toString(16);
-				// return 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
-			}
-		}, {
 			key: "render",
 			value: function render() {
 				console.log("Guessing game rendered");
@@ -34356,7 +34599,9 @@
 							{ className: "col-md-1" },
 							this.state.username
 						),
-						_react2.default.createElement("div", { className: "col-md-10" }),
+						_react2.default.createElement("div", { className: "col-md-1" }),
+						_react2.default.createElement(_ValueBox2.default, { label: "guesses:", data: this.state.guesses }),
+						_react2.default.createElement("div", { className: "col-md-7" }),
 						_react2.default.createElement(
 							"div",
 							{ className: "col-md-1" },
@@ -34389,6 +34634,500 @@
 		router: _react2.default.PropTypes.object.isRequired
 	};
 	exports.default = (0, _reactRouter.withRouter)(Guessing);
+
+/***/ },
+/* 284 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the CC0 license
+	// https://github.com/davidmerfield/randomColor/
+
+	;(function(root, factory) {
+
+	  // Support AMD
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+	  // Support CommonJS
+	  } else if (typeof exports === 'object') {
+	    var randomColor = factory();
+
+	    // Support NodeJS & Component, which allow module.exports to be a function
+	    if (typeof module === 'object' && module && module.exports) {
+	      exports = module.exports = randomColor;
+	    }
+
+	    // Support CommonJS 1.1.1 spec
+	    exports.randomColor = randomColor;
+
+	  // Support vanilla script loading
+	  } else {
+	    root.randomColor = factory();
+	  }
+
+	}(this, function() {
+
+	  // Seed to get repeatable colors
+	  var seed = null;
+
+	  // Shared color dictionary
+	  var colorDictionary = {};
+
+	  // Populate the color dictionary
+	  loadColorBounds();
+
+	  var randomColor = function (options) {
+
+	    options = options || {};
+
+	    // Check if there is a seed and ensure it's an
+	    // integer. Otherwise, reset the seed value.
+	    if (options.seed && options.seed === parseInt(options.seed, 10)) {
+	      seed = options.seed;
+
+	    // A string was passed as a seed
+	    } else if (typeof options.seed === 'string') {
+	      seed = stringToInteger(options.seed);
+
+	    // Something was passed as a seed but it wasn't an integer or string
+	    } else if (options.seed !== undefined && options.seed !== null) {
+	      throw new TypeError('The seed value must be an integer or string');
+
+	    // No seed, reset the value outside.
+	    } else {
+	      seed = null;
+	    }
+
+	    var H,S,B;
+
+	    // Check if we need to generate multiple colors
+	    if (options.count !== null && options.count !== undefined) {
+
+	      var totalColors = options.count,
+	          colors = [];
+
+	      options.count = null;
+
+	      while (totalColors > colors.length) {
+
+	        // Since we're generating multiple colors,
+	        // incremement the seed. Otherwise we'd just
+	        // generate the same color each time...
+	        if (seed && options.seed) options.seed += 1;
+
+	        colors.push(randomColor(options));
+	      }
+
+	      options.count = totalColors;
+
+	      return colors;
+	    }
+
+	    // First we pick a hue (H)
+	    H = pickHue(options);
+
+	    // Then use H to determine saturation (S)
+	    S = pickSaturation(H, options);
+
+	    // Then use S and H to determine brightness (B).
+	    B = pickBrightness(H, S, options);
+
+	    // Then we return the HSB color in the desired format
+	    return setFormat([H,S,B], options);
+	  };
+
+	  function pickHue (options) {
+
+	    var hueRange = getHueRange(options.hue),
+	        hue = randomWithin(hueRange);
+
+	    // Instead of storing red as two seperate ranges,
+	    // we group them, using negative numbers
+	    if (hue < 0) {hue = 360 + hue;}
+
+	    return hue;
+
+	  }
+
+	  function pickSaturation (hue, options) {
+
+	    if (options.luminosity === 'random') {
+	      return randomWithin([0,100]);
+	    }
+
+	    if (options.hue === 'monochrome') {
+	      return 0;
+	    }
+
+	    var saturationRange = getSaturationRange(hue);
+
+	    var sMin = saturationRange[0],
+	        sMax = saturationRange[1];
+
+	    switch (options.luminosity) {
+
+	      case 'bright':
+	        sMin = 55;
+	        break;
+
+	      case 'dark':
+	        sMin = sMax - 10;
+	        break;
+
+	      case 'light':
+	        sMax = 55;
+	        break;
+	   }
+
+	    return randomWithin([sMin, sMax]);
+
+	  }
+
+	  function pickBrightness (H, S, options) {
+
+	    var bMin = getMinimumBrightness(H, S),
+	        bMax = 100;
+
+	    switch (options.luminosity) {
+
+	      case 'dark':
+	        bMax = bMin + 20;
+	        break;
+
+	      case 'light':
+	        bMin = (bMax + bMin)/2;
+	        break;
+
+	      case 'random':
+	        bMin = 0;
+	        bMax = 100;
+	        break;
+	    }
+
+	    return randomWithin([bMin, bMax]);
+	  }
+
+	  function setFormat (hsv, options) {
+
+	    switch (options.format) {
+
+	      case 'hsvArray':
+	        return hsv;
+
+	      case 'hslArray':
+	        return HSVtoHSL(hsv);
+
+	      case 'hsl':
+	        var hsl = HSVtoHSL(hsv);
+	        return 'hsl('+hsl[0]+', '+hsl[1]+'%, '+hsl[2]+'%)';
+
+	      case 'hsla':
+	        var hslColor = HSVtoHSL(hsv);
+	        return 'hsla('+hslColor[0]+', '+hslColor[1]+'%, '+hslColor[2]+'%, ' + Math.random() + ')';
+
+	      case 'rgbArray':
+	        return HSVtoRGB(hsv);
+
+	      case 'rgb':
+	        var rgb = HSVtoRGB(hsv);
+	        return 'rgb(' + rgb.join(', ') + ')';
+
+	      case 'rgba':
+	        var rgbColor = HSVtoRGB(hsv);
+	        return 'rgba(' + rgbColor.join(', ') + ', ' + Math.random() + ')';
+
+	      default:
+	        return HSVtoHex(hsv);
+	    }
+
+	  }
+
+	  function getMinimumBrightness(H, S) {
+
+	    var lowerBounds = getColorInfo(H).lowerBounds;
+
+	    for (var i = 0; i < lowerBounds.length - 1; i++) {
+
+	      var s1 = lowerBounds[i][0],
+	          v1 = lowerBounds[i][1];
+
+	      var s2 = lowerBounds[i+1][0],
+	          v2 = lowerBounds[i+1][1];
+
+	      if (S >= s1 && S <= s2) {
+
+	         var m = (v2 - v1)/(s2 - s1),
+	             b = v1 - m*s1;
+
+	         return m*S + b;
+	      }
+
+	    }
+
+	    return 0;
+	  }
+
+	  function getHueRange (colorInput) {
+
+	    if (typeof parseInt(colorInput) === 'number') {
+
+	      var number = parseInt(colorInput);
+
+	      if (number < 360 && number > 0) {
+	        return [number, number];
+	      }
+
+	    }
+
+	    if (typeof colorInput === 'string') {
+
+	      if (colorDictionary[colorInput]) {
+	        var color = colorDictionary[colorInput];
+	        if (color.hueRange) {return color.hueRange;}
+	      }
+	    }
+
+	    return [0,360];
+
+	  }
+
+	  function getSaturationRange (hue) {
+	    return getColorInfo(hue).saturationRange;
+	  }
+
+	  function getColorInfo (hue) {
+
+	    // Maps red colors to make picking hue easier
+	    if (hue >= 334 && hue <= 360) {
+	      hue-= 360;
+	    }
+
+	    for (var colorName in colorDictionary) {
+	       var color = colorDictionary[colorName];
+	       if (color.hueRange &&
+	           hue >= color.hueRange[0] &&
+	           hue <= color.hueRange[1]) {
+	          return colorDictionary[colorName];
+	       }
+	    } return 'Color not found';
+	  }
+
+	  function randomWithin (range) {
+	    if (seed === null) {
+	      return Math.floor(range[0] + Math.random()*(range[1] + 1 - range[0]));
+	    } else {
+	      //Seeded random algorithm from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+	      var max = range[1] || 1;
+	      var min = range[0] || 0;
+	      seed = (seed * 9301 + 49297) % 233280;
+	      var rnd = seed / 233280.0;
+	      return Math.floor(min + rnd * (max - min));
+	    }
+	  }
+
+	  function HSVtoHex (hsv){
+
+	    var rgb = HSVtoRGB(hsv);
+
+	    function componentToHex(c) {
+	        var hex = c.toString(16);
+	        return hex.length == 1 ? '0' + hex : hex;
+	    }
+
+	    var hex = '#' + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+
+	    return hex;
+
+	  }
+
+	  function defineColor (name, hueRange, lowerBounds) {
+
+	    var sMin = lowerBounds[0][0],
+	        sMax = lowerBounds[lowerBounds.length - 1][0],
+
+	        bMin = lowerBounds[lowerBounds.length - 1][1],
+	        bMax = lowerBounds[0][1];
+
+	    colorDictionary[name] = {
+	      hueRange: hueRange,
+	      lowerBounds: lowerBounds,
+	      saturationRange: [sMin, sMax],
+	      brightnessRange: [bMin, bMax]
+	    };
+
+	  }
+
+	  function loadColorBounds () {
+
+	    defineColor(
+	      'monochrome',
+	      null,
+	      [[0,0],[100,0]]
+	    );
+
+	    defineColor(
+	      'red',
+	      [-26,18],
+	      [[20,100],[30,92],[40,89],[50,85],[60,78],[70,70],[80,60],[90,55],[100,50]]
+	    );
+
+	    defineColor(
+	      'orange',
+	      [19,46],
+	      [[20,100],[30,93],[40,88],[50,86],[60,85],[70,70],[100,70]]
+	    );
+
+	    defineColor(
+	      'yellow',
+	      [47,62],
+	      [[25,100],[40,94],[50,89],[60,86],[70,84],[80,82],[90,80],[100,75]]
+	    );
+
+	    defineColor(
+	      'green',
+	      [63,178],
+	      [[30,100],[40,90],[50,85],[60,81],[70,74],[80,64],[90,50],[100,40]]
+	    );
+
+	    defineColor(
+	      'blue',
+	      [179, 257],
+	      [[20,100],[30,86],[40,80],[50,74],[60,60],[70,52],[80,44],[90,39],[100,35]]
+	    );
+
+	    defineColor(
+	      'purple',
+	      [258, 282],
+	      [[20,100],[30,87],[40,79],[50,70],[60,65],[70,59],[80,52],[90,45],[100,42]]
+	    );
+
+	    defineColor(
+	      'pink',
+	      [283, 334],
+	      [[20,100],[30,90],[40,86],[60,84],[80,80],[90,75],[100,73]]
+	    );
+
+	  }
+
+	  function HSVtoRGB (hsv) {
+
+	    // this doesn't work for the values of 0 and 360
+	    // here's the hacky fix
+	    var h = hsv[0];
+	    if (h === 0) {h = 1;}
+	    if (h === 360) {h = 359;}
+
+	    // Rebase the h,s,v values
+	    h = h/360;
+	    var s = hsv[1]/100,
+	        v = hsv[2]/100;
+
+	    var h_i = Math.floor(h*6),
+	      f = h * 6 - h_i,
+	      p = v * (1 - s),
+	      q = v * (1 - f*s),
+	      t = v * (1 - (1 - f)*s),
+	      r = 256,
+	      g = 256,
+	      b = 256;
+
+	    switch(h_i) {
+	      case 0: r = v; g = t; b = p;  break;
+	      case 1: r = q; g = v; b = p;  break;
+	      case 2: r = p; g = v; b = t;  break;
+	      case 3: r = p; g = q; b = v;  break;
+	      case 4: r = t; g = p; b = v;  break;
+	      case 5: r = v; g = p; b = q;  break;
+	    }
+
+	    var result = [Math.floor(r*255), Math.floor(g*255), Math.floor(b*255)];
+	    return result;
+	  }
+
+	  function HSVtoHSL (hsv) {
+	    var h = hsv[0],
+	      s = hsv[1]/100,
+	      v = hsv[2]/100,
+	      k = (2-s)*v;
+
+	    return [
+	      h,
+	      Math.round(s*v / (k<1 ? k : 2-k) * 10000) / 100,
+	      k/2 * 100
+	    ];
+	  }
+
+	  function stringToInteger (string) {
+	    var total = 0
+	    for (var i = 0; i !== string.length; i++) {
+	      if (total >= Number.MAX_SAFE_INTEGER) break;
+	      total += string.charCodeAt(i)
+	    }
+	    return total
+	  }
+
+	  return randomColor;
+	}));
+
+
+/***/ },
+/* 285 */,
+/* 286 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ValueBox = function (_React$Component) {
+	   _inherits(ValueBox, _React$Component);
+
+	   function ValueBox() {
+	      _classCallCheck(this, ValueBox);
+
+	      return _possibleConstructorReturn(this, Object.getPrototypeOf(ValueBox).apply(this, arguments));
+	   }
+
+	   _createClass(ValueBox, [{
+	      key: "render",
+	      value: function render() {
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "col-md-2" },
+	            _react2.default.createElement(
+	               "div",
+	               { className: "input-group" },
+	               _react2.default.createElement(
+	                  "span",
+	                  { className: "input-group-addon" },
+	                  this.props.label
+	               ),
+	               _react2.default.createElement("input", { className: "form-control", type: "text", value: this.props.data, disabled: true })
+	            )
+	         );
+	      }
+	   }]);
+
+	   return ValueBox;
+	}(_react2.default.Component);
+
+	exports.default = ValueBox;
 
 /***/ }
 /******/ ]);

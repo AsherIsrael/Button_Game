@@ -3,12 +3,12 @@ var Visit = mongoose.model("Visit");
 
 module.exports = (function(){
    return{
-      index: function(callback){
+      index: function(req,res){
          Visit.find({}, function(err, result){
             if(err){
                console.log(err);
             }else{
-               callback(result);
+               res.json(result);
             }
          })
       },
