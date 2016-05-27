@@ -161,7 +161,6 @@ export default class Elimination extends React.Component{
 					<ValueBox label="Current Leader:" data={this.state.topScore}/>
 					<div className="col-md-2"></div>
 					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
-					{/*<div className="col-md-1"><button className="btn" type="button" onClick={() => this.reset()}>Reset</button></div>*/}
 				</div>
 				<div className="row grid gameBoard">
 					{displayBoard}
