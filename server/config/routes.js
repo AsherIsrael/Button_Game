@@ -1,4 +1,3 @@
-// var users = require("./../controllers/users.js");
 var visits = require("./../controllers/visits.js");
 
 

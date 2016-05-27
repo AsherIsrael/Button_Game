@@ -17,4 +17,3 @@ require("./socketing.js")(io);
 http.listen(6174, function(){
 	console.log("SERVER LISTENING");
 });
-console.log("does this happen")

@@ -4,7 +4,7 @@ var Visit = mongoose.model("Visit");
 module.exports = (function(){
    return{
       index: function(req,res){
-         Visit.find({}, function(err, result){
+         Visit.find({}).populate("_user").exec(function(err, result){
             if(err){
                console.log(err);
             }else{
@@ -13,7 +13,6 @@ module.exports = (function(){
          })
       },
       create: function(req){
-         console.log("saving log")
          var visit = new Visit({
             _user: req.user,
             activities: req.activities

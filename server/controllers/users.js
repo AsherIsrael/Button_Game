@@ -6,7 +6,6 @@ module.exports = (function(){
       login: function(req,callback){
          User.findOne({name: req.name}, function(err, user){
             if(user){
-               console.log("found user");
                user.visits += 1;
                user.save(function(err){
                   callback(user);
@@ -19,7 +18,6 @@ module.exports = (function(){
                   }else{
                      user.visits += 1;
                      user.save();
-                     console.log("new user");
                      callback(user);
                   }
                })
