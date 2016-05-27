@@ -66,15 +66,15 @@
 
 	var _Elimination2 = _interopRequireDefault(_Elimination);
 
-	var _Selector = __webpack_require__(233);
+	var _Selector = __webpack_require__(235);
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _socket = __webpack_require__(236);
+	var _socket = __webpack_require__(238);
 
 	var _socket2 = _interopRequireDefault(_socket);
 
-	var _Guessing = __webpack_require__(283);
+	var _Guessing = __webpack_require__(285);
 
 	var _Guessing2 = _interopRequireDefault(_Guessing);
 
@@ -20218,15 +20218,15 @@
 
 	var _Elimination2 = _interopRequireDefault(_Elimination);
 
-	var _Selector = __webpack_require__(233);
+	var _Selector = __webpack_require__(235);
 
 	var _Selector2 = _interopRequireDefault(_Selector);
 
-	var _Display = __webpack_require__(235);
+	var _Display = __webpack_require__(237);
 
 	var _Display2 = _interopRequireDefault(_Display);
 
-	var _socket = __webpack_require__(236);
+	var _socket = __webpack_require__(238);
 
 	var _socket2 = _interopRequireDefault(_socket);
 
@@ -20278,10 +20278,14 @@
 				var that = this;
 				this.state.socket.on("logged_in", function (data) {
 					that.setState({ username: data.name });
+					var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+					var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 					var activity = {
 						type: "login",
 						data: {
-							time: Date.now()
+							time: Date.now(),
+							windowWidth: width,
+							windowHeight: height
 						}
 					};
 					that.setState({ activities: [activity] });
@@ -20394,7 +20398,7 @@
 					});
 					this.state.socket.on("game_over", function (winningScore) {
 						console.log("game over");
-						elimination.setState({ score: 0 });
+						that.setState({ elimScore: 0 });
 						// this.state.socket.emit("check_score", 0);
 						var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 5 seconds.");
 						if (replay) {
@@ -26152,13 +26156,13 @@
 
 	var _GameButton2 = _interopRequireDefault(_GameButton);
 
-	var _ValueBox = __webpack_require__(286);
+	var _ValueBox = __webpack_require__(233);
 
 	var _ValueBox2 = _interopRequireDefault(_ValueBox);
 
 	var _reactRouter = __webpack_require__(170);
 
-	var _randomcolor = __webpack_require__(284);
+	var _randomcolor = __webpack_require__(234);
 
 	var _randomcolor2 = _interopRequireDefault(_randomcolor);
 
@@ -26213,16 +26217,16 @@
 				this.props.passUpLog([activity]);
 				console.log("enter game");
 				this.state.socket.emit("elimination_game");
+				// var elem = document.querySelector('.grid');
+				// var pckry = new Packery( elem, {
+				//   itemSelector: '.grid-item',
+				//   percentPosition: true
+				// });
 			}
 		}, {
 			key: "componentWillMount",
 			value: function componentWillMount() {}
 			// 	var that = this;
-			// 	// var elem = document.querySelector('.grid');
-			// 	// var pckry = new Packery( elem, {
-			// 	//   itemSelector: '.grid-item',
-			// 	//   percentPosition: true
-			// 	// });
 			//
 			// 	// window.addEventListener("beforeunload", function(event){
 			// 	// 	 console.log("player left the site");
@@ -26338,6 +26342,8 @@
 			value: function record(buttonPressed) {
 				this.state.socket.emit("button_pressed", buttonPressed.index);
 				var size = buttonPressed.height * buttonPressed.width;
+				var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+				var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 				var activity = {
 					type: "buttonPress",
 					data: {
@@ -26345,9 +26351,12 @@
 						color: buttonPressed.color,
 						time: Date.now(),
 						x: buttonPressed.x,
-						y: buttonPressed.y
+						y: buttonPressed.y,
+						windowWidth: width,
+						windowHeight: height
 					}
 				};
+				console.log("activity ", activity);
 				// var activities = this.state.activities.slice();
 				// activities.push(activity);
 				// this.setState({activities: activities});
@@ -26600,7 +26609,500 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _SelectIcon = __webpack_require__(234);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ValueBox = function (_React$Component) {
+	   _inherits(ValueBox, _React$Component);
+
+	   function ValueBox() {
+	      _classCallCheck(this, ValueBox);
+
+	      return _possibleConstructorReturn(this, Object.getPrototypeOf(ValueBox).apply(this, arguments));
+	   }
+
+	   _createClass(ValueBox, [{
+	      key: "render",
+	      value: function render() {
+	         return _react2.default.createElement(
+	            "div",
+	            { className: "col-md-2" },
+	            _react2.default.createElement(
+	               "div",
+	               { className: "input-group" },
+	               _react2.default.createElement(
+	                  "span",
+	                  { className: "input-group-addon" },
+	                  this.props.label
+	               ),
+	               _react2.default.createElement("input", { className: "form-control", type: "text", value: this.props.data, disabled: true })
+	            )
+	         );
+	      }
+	   }]);
+
+	   return ValueBox;
+	}(_react2.default.Component);
+
+	exports.default = ValueBox;
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the CC0 license
+	// https://github.com/davidmerfield/randomColor/
+
+	;(function(root, factory) {
+
+	  // Support AMD
+	  if (true) {
+	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+
+	  // Support CommonJS
+	  } else if (typeof exports === 'object') {
+	    var randomColor = factory();
+
+	    // Support NodeJS & Component, which allow module.exports to be a function
+	    if (typeof module === 'object' && module && module.exports) {
+	      exports = module.exports = randomColor;
+	    }
+
+	    // Support CommonJS 1.1.1 spec
+	    exports.randomColor = randomColor;
+
+	  // Support vanilla script loading
+	  } else {
+	    root.randomColor = factory();
+	  }
+
+	}(this, function() {
+
+	  // Seed to get repeatable colors
+	  var seed = null;
+
+	  // Shared color dictionary
+	  var colorDictionary = {};
+
+	  // Populate the color dictionary
+	  loadColorBounds();
+
+	  var randomColor = function (options) {
+
+	    options = options || {};
+
+	    // Check if there is a seed and ensure it's an
+	    // integer. Otherwise, reset the seed value.
+	    if (options.seed && options.seed === parseInt(options.seed, 10)) {
+	      seed = options.seed;
+
+	    // A string was passed as a seed
+	    } else if (typeof options.seed === 'string') {
+	      seed = stringToInteger(options.seed);
+
+	    // Something was passed as a seed but it wasn't an integer or string
+	    } else if (options.seed !== undefined && options.seed !== null) {
+	      throw new TypeError('The seed value must be an integer or string');
+
+	    // No seed, reset the value outside.
+	    } else {
+	      seed = null;
+	    }
+
+	    var H,S,B;
+
+	    // Check if we need to generate multiple colors
+	    if (options.count !== null && options.count !== undefined) {
+
+	      var totalColors = options.count,
+	          colors = [];
+
+	      options.count = null;
+
+	      while (totalColors > colors.length) {
+
+	        // Since we're generating multiple colors,
+	        // incremement the seed. Otherwise we'd just
+	        // generate the same color each time...
+	        if (seed && options.seed) options.seed += 1;
+
+	        colors.push(randomColor(options));
+	      }
+
+	      options.count = totalColors;
+
+	      return colors;
+	    }
+
+	    // First we pick a hue (H)
+	    H = pickHue(options);
+
+	    // Then use H to determine saturation (S)
+	    S = pickSaturation(H, options);
+
+	    // Then use S and H to determine brightness (B).
+	    B = pickBrightness(H, S, options);
+
+	    // Then we return the HSB color in the desired format
+	    return setFormat([H,S,B], options);
+	  };
+
+	  function pickHue (options) {
+
+	    var hueRange = getHueRange(options.hue),
+	        hue = randomWithin(hueRange);
+
+	    // Instead of storing red as two seperate ranges,
+	    // we group them, using negative numbers
+	    if (hue < 0) {hue = 360 + hue;}
+
+	    return hue;
+
+	  }
+
+	  function pickSaturation (hue, options) {
+
+	    if (options.luminosity === 'random') {
+	      return randomWithin([0,100]);
+	    }
+
+	    if (options.hue === 'monochrome') {
+	      return 0;
+	    }
+
+	    var saturationRange = getSaturationRange(hue);
+
+	    var sMin = saturationRange[0],
+	        sMax = saturationRange[1];
+
+	    switch (options.luminosity) {
+
+	      case 'bright':
+	        sMin = 55;
+	        break;
+
+	      case 'dark':
+	        sMin = sMax - 10;
+	        break;
+
+	      case 'light':
+	        sMax = 55;
+	        break;
+	   }
+
+	    return randomWithin([sMin, sMax]);
+
+	  }
+
+	  function pickBrightness (H, S, options) {
+
+	    var bMin = getMinimumBrightness(H, S),
+	        bMax = 100;
+
+	    switch (options.luminosity) {
+
+	      case 'dark':
+	        bMax = bMin + 20;
+	        break;
+
+	      case 'light':
+	        bMin = (bMax + bMin)/2;
+	        break;
+
+	      case 'random':
+	        bMin = 0;
+	        bMax = 100;
+	        break;
+	    }
+
+	    return randomWithin([bMin, bMax]);
+	  }
+
+	  function setFormat (hsv, options) {
+
+	    switch (options.format) {
+
+	      case 'hsvArray':
+	        return hsv;
+
+	      case 'hslArray':
+	        return HSVtoHSL(hsv);
+
+	      case 'hsl':
+	        var hsl = HSVtoHSL(hsv);
+	        return 'hsl('+hsl[0]+', '+hsl[1]+'%, '+hsl[2]+'%)';
+
+	      case 'hsla':
+	        var hslColor = HSVtoHSL(hsv);
+	        return 'hsla('+hslColor[0]+', '+hslColor[1]+'%, '+hslColor[2]+'%, ' + Math.random() + ')';
+
+	      case 'rgbArray':
+	        return HSVtoRGB(hsv);
+
+	      case 'rgb':
+	        var rgb = HSVtoRGB(hsv);
+	        return 'rgb(' + rgb.join(', ') + ')';
+
+	      case 'rgba':
+	        var rgbColor = HSVtoRGB(hsv);
+	        return 'rgba(' + rgbColor.join(', ') + ', ' + Math.random() + ')';
+
+	      default:
+	        return HSVtoHex(hsv);
+	    }
+
+	  }
+
+	  function getMinimumBrightness(H, S) {
+
+	    var lowerBounds = getColorInfo(H).lowerBounds;
+
+	    for (var i = 0; i < lowerBounds.length - 1; i++) {
+
+	      var s1 = lowerBounds[i][0],
+	          v1 = lowerBounds[i][1];
+
+	      var s2 = lowerBounds[i+1][0],
+	          v2 = lowerBounds[i+1][1];
+
+	      if (S >= s1 && S <= s2) {
+
+	         var m = (v2 - v1)/(s2 - s1),
+	             b = v1 - m*s1;
+
+	         return m*S + b;
+	      }
+
+	    }
+
+	    return 0;
+	  }
+
+	  function getHueRange (colorInput) {
+
+	    if (typeof parseInt(colorInput) === 'number') {
+
+	      var number = parseInt(colorInput);
+
+	      if (number < 360 && number > 0) {
+	        return [number, number];
+	      }
+
+	    }
+
+	    if (typeof colorInput === 'string') {
+
+	      if (colorDictionary[colorInput]) {
+	        var color = colorDictionary[colorInput];
+	        if (color.hueRange) {return color.hueRange;}
+	      }
+	    }
+
+	    return [0,360];
+
+	  }
+
+	  function getSaturationRange (hue) {
+	    return getColorInfo(hue).saturationRange;
+	  }
+
+	  function getColorInfo (hue) {
+
+	    // Maps red colors to make picking hue easier
+	    if (hue >= 334 && hue <= 360) {
+	      hue-= 360;
+	    }
+
+	    for (var colorName in colorDictionary) {
+	       var color = colorDictionary[colorName];
+	       if (color.hueRange &&
+	           hue >= color.hueRange[0] &&
+	           hue <= color.hueRange[1]) {
+	          return colorDictionary[colorName];
+	       }
+	    } return 'Color not found';
+	  }
+
+	  function randomWithin (range) {
+	    if (seed === null) {
+	      return Math.floor(range[0] + Math.random()*(range[1] + 1 - range[0]));
+	    } else {
+	      //Seeded random algorithm from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+	      var max = range[1] || 1;
+	      var min = range[0] || 0;
+	      seed = (seed * 9301 + 49297) % 233280;
+	      var rnd = seed / 233280.0;
+	      return Math.floor(min + rnd * (max - min));
+	    }
+	  }
+
+	  function HSVtoHex (hsv){
+
+	    var rgb = HSVtoRGB(hsv);
+
+	    function componentToHex(c) {
+	        var hex = c.toString(16);
+	        return hex.length == 1 ? '0' + hex : hex;
+	    }
+
+	    var hex = '#' + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
+
+	    return hex;
+
+	  }
+
+	  function defineColor (name, hueRange, lowerBounds) {
+
+	    var sMin = lowerBounds[0][0],
+	        sMax = lowerBounds[lowerBounds.length - 1][0],
+
+	        bMin = lowerBounds[lowerBounds.length - 1][1],
+	        bMax = lowerBounds[0][1];
+
+	    colorDictionary[name] = {
+	      hueRange: hueRange,
+	      lowerBounds: lowerBounds,
+	      saturationRange: [sMin, sMax],
+	      brightnessRange: [bMin, bMax]
+	    };
+
+	  }
+
+	  function loadColorBounds () {
+
+	    defineColor(
+	      'monochrome',
+	      null,
+	      [[0,0],[100,0]]
+	    );
+
+	    defineColor(
+	      'red',
+	      [-26,18],
+	      [[20,100],[30,92],[40,89],[50,85],[60,78],[70,70],[80,60],[90,55],[100,50]]
+	    );
+
+	    defineColor(
+	      'orange',
+	      [19,46],
+	      [[20,100],[30,93],[40,88],[50,86],[60,85],[70,70],[100,70]]
+	    );
+
+	    defineColor(
+	      'yellow',
+	      [47,62],
+	      [[25,100],[40,94],[50,89],[60,86],[70,84],[80,82],[90,80],[100,75]]
+	    );
+
+	    defineColor(
+	      'green',
+	      [63,178],
+	      [[30,100],[40,90],[50,85],[60,81],[70,74],[80,64],[90,50],[100,40]]
+	    );
+
+	    defineColor(
+	      'blue',
+	      [179, 257],
+	      [[20,100],[30,86],[40,80],[50,74],[60,60],[70,52],[80,44],[90,39],[100,35]]
+	    );
+
+	    defineColor(
+	      'purple',
+	      [258, 282],
+	      [[20,100],[30,87],[40,79],[50,70],[60,65],[70,59],[80,52],[90,45],[100,42]]
+	    );
+
+	    defineColor(
+	      'pink',
+	      [283, 334],
+	      [[20,100],[30,90],[40,86],[60,84],[80,80],[90,75],[100,73]]
+	    );
+
+	  }
+
+	  function HSVtoRGB (hsv) {
+
+	    // this doesn't work for the values of 0 and 360
+	    // here's the hacky fix
+	    var h = hsv[0];
+	    if (h === 0) {h = 1;}
+	    if (h === 360) {h = 359;}
+
+	    // Rebase the h,s,v values
+	    h = h/360;
+	    var s = hsv[1]/100,
+	        v = hsv[2]/100;
+
+	    var h_i = Math.floor(h*6),
+	      f = h * 6 - h_i,
+	      p = v * (1 - s),
+	      q = v * (1 - f*s),
+	      t = v * (1 - (1 - f)*s),
+	      r = 256,
+	      g = 256,
+	      b = 256;
+
+	    switch(h_i) {
+	      case 0: r = v; g = t; b = p;  break;
+	      case 1: r = q; g = v; b = p;  break;
+	      case 2: r = p; g = v; b = t;  break;
+	      case 3: r = p; g = q; b = v;  break;
+	      case 4: r = t; g = p; b = v;  break;
+	      case 5: r = v; g = p; b = q;  break;
+	    }
+
+	    var result = [Math.floor(r*255), Math.floor(g*255), Math.floor(b*255)];
+	    return result;
+	  }
+
+	  function HSVtoHSL (hsv) {
+	    var h = hsv[0],
+	      s = hsv[1]/100,
+	      v = hsv[2]/100,
+	      k = (2-s)*v;
+
+	    return [
+	      h,
+	      Math.round(s*v / (k<1 ? k : 2-k) * 10000) / 100,
+	      k/2 * 100
+	    ];
+	  }
+
+	  function stringToInteger (string) {
+	    var total = 0
+	    for (var i = 0; i !== string.length; i++) {
+	      if (total >= Number.MAX_SAFE_INTEGER) break;
+	      total += string.charCodeAt(i)
+	    }
+	    return total
+	  }
+
+	  return randomColor;
+	}));
+
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	   value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _SelectIcon = __webpack_require__(236);
 
 	var _SelectIcon2 = _interopRequireDefault(_SelectIcon);
 
@@ -26692,17 +27194,17 @@
 	               { className: "row" },
 	               _react2.default.createElement(
 	                  "h1",
-	                  { className: "col-md-1" },
+	                  { className: "col-md-4" },
+	                  "Welcome: ",
 	                  this.props.username
 	               ),
-	               _react2.default.createElement("div", { className: "col-md-11" })
+	               _react2.default.createElement("div", { className: "col-md-8" })
 	            ),
 	            _react2.default.createElement(
 	               "div",
 	               { className: "row" },
 	               games
 	            ),
-	            _react2.default.createElement("br", null),
 	            _react2.default.createElement("br", null),
 	            _react2.default.createElement("br", null),
 	            _react2.default.createElement("br", null),
@@ -26737,7 +27239,7 @@
 	exports.default = Selector;
 
 /***/ },
-/* 234 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -26803,7 +27305,7 @@
 	               { className: "col-md-8 center-block" },
 	               _react2.default.createElement(
 	                  "button",
-	                  { className: "btn selectButton", onClick: function onClick() {
+	                  { className: "btn btn-secondary selectButton", onClick: function onClick() {
 	                        return _this2.redirect();
 	                     } },
 	                  _react2.default.createElement("img", { className: "selectButton", src: source, alt: this.state.component })
@@ -26836,7 +27338,7 @@
 	// export default withRouter(SelectIcon)
 
 /***/ },
-/* 235 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -26851,7 +27353,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _socket = __webpack_require__(236);
+	var _socket = __webpack_require__(238);
 
 	var _socket2 = _interopRequireDefault(_socket);
 
@@ -26908,7 +27410,7 @@
 	exports.default = Display;
 
 /***/ },
-/* 236 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -26916,10 +27418,10 @@
 	 * Module dependencies.
 	 */
 
-	var url = __webpack_require__(237);
-	var parser = __webpack_require__(242);
-	var Manager = __webpack_require__(250);
-	var debug = __webpack_require__(239)('socket.io-client');
+	var url = __webpack_require__(239);
+	var parser = __webpack_require__(244);
+	var Manager = __webpack_require__(252);
+	var debug = __webpack_require__(241)('socket.io-client');
 
 	/**
 	 * Module exports.
@@ -27001,12 +27503,12 @@
 	 * @api public
 	 */
 
-	exports.Manager = __webpack_require__(250);
-	exports.Socket = __webpack_require__(276);
+	exports.Manager = __webpack_require__(252);
+	exports.Socket = __webpack_require__(278);
 
 
 /***/ },
-/* 237 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -27014,8 +27516,8 @@
 	 * Module dependencies.
 	 */
 
-	var parseuri = __webpack_require__(238);
-	var debug = __webpack_require__(239)('socket.io-client:url');
+	var parseuri = __webpack_require__(240);
+	var debug = __webpack_require__(241)('socket.io-client:url');
 
 	/**
 	 * Module exports.
@@ -27089,7 +27591,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 238 */
+/* 240 */
 /***/ function(module, exports) {
 
 	/**
@@ -27134,7 +27636,7 @@
 
 
 /***/ },
-/* 239 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -27144,7 +27646,7 @@
 	 * Expose `debug()` as the module.
 	 */
 
-	exports = module.exports = __webpack_require__(240);
+	exports = module.exports = __webpack_require__(242);
 	exports.log = log;
 	exports.formatArgs = formatArgs;
 	exports.save = save;
@@ -27308,7 +27810,7 @@
 
 
 /***/ },
-/* 240 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -27324,7 +27826,7 @@
 	exports.disable = disable;
 	exports.enable = enable;
 	exports.enabled = enabled;
-	exports.humanize = __webpack_require__(241);
+	exports.humanize = __webpack_require__(243);
 
 	/**
 	 * The currently active debug mode names, and names to skip.
@@ -27511,7 +28013,7 @@
 
 
 /***/ },
-/* 241 */
+/* 243 */
 /***/ function(module, exports) {
 
 	/**
@@ -27642,7 +28144,7 @@
 
 
 /***/ },
-/* 242 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -27650,12 +28152,12 @@
 	 * Module dependencies.
 	 */
 
-	var debug = __webpack_require__(239)('socket.io-parser');
-	var json = __webpack_require__(243);
-	var isArray = __webpack_require__(246);
-	var Emitter = __webpack_require__(247);
-	var binary = __webpack_require__(248);
-	var isBuf = __webpack_require__(249);
+	var debug = __webpack_require__(241)('socket.io-parser');
+	var json = __webpack_require__(245);
+	var isArray = __webpack_require__(248);
+	var Emitter = __webpack_require__(249);
+	var binary = __webpack_require__(250);
+	var isBuf = __webpack_require__(251);
 
 	/**
 	 * Protocol version.
@@ -28048,14 +28550,14 @@
 
 
 /***/ },
-/* 243 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
 	;(function () {
 	  // Detect the `define` function exposed by asynchronous module loaders. The
 	  // strict `define` check is necessary for compatibility with `r.js`.
-	  var isLoader = "function" === "function" && __webpack_require__(245);
+	  var isLoader = "function" === "function" && __webpack_require__(247);
 
 	  // A set of types used to distinguish objects from primitives.
 	  var objectTypes = {
@@ -28954,10 +29456,10 @@
 	  }
 	}).call(this);
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(244)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(246)(module), (function() { return this; }())))
 
 /***/ },
-/* 244 */
+/* 246 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
@@ -28973,7 +29475,7 @@
 
 
 /***/ },
-/* 245 */
+/* 247 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -28981,7 +29483,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 246 */
+/* 248 */
 /***/ function(module, exports) {
 
 	module.exports = Array.isArray || function (arr) {
@@ -28990,7 +29492,7 @@
 
 
 /***/ },
-/* 247 */
+/* 249 */
 /***/ function(module, exports) {
 
 	
@@ -29160,7 +29662,7 @@
 
 
 /***/ },
-/* 248 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/*global Blob,File*/
@@ -29169,8 +29671,8 @@
 	 * Module requirements
 	 */
 
-	var isArray = __webpack_require__(246);
-	var isBuf = __webpack_require__(249);
+	var isArray = __webpack_require__(248);
+	var isBuf = __webpack_require__(251);
 
 	/**
 	 * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
@@ -29308,7 +29810,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 249 */
+/* 251 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -29328,7 +29830,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 250 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -29336,15 +29838,15 @@
 	 * Module dependencies.
 	 */
 
-	var eio = __webpack_require__(251);
-	var Socket = __webpack_require__(276);
-	var Emitter = __webpack_require__(277);
-	var parser = __webpack_require__(242);
-	var on = __webpack_require__(279);
-	var bind = __webpack_require__(280);
-	var debug = __webpack_require__(239)('socket.io-client:manager');
-	var indexOf = __webpack_require__(274);
-	var Backoff = __webpack_require__(282);
+	var eio = __webpack_require__(253);
+	var Socket = __webpack_require__(278);
+	var Emitter = __webpack_require__(279);
+	var parser = __webpack_require__(244);
+	var on = __webpack_require__(281);
+	var bind = __webpack_require__(282);
+	var debug = __webpack_require__(241)('socket.io-client:manager');
+	var indexOf = __webpack_require__(276);
+	var Backoff = __webpack_require__(284);
 
 	/**
 	 * IE6+ hasOwnProperty
@@ -29891,19 +30393,19 @@
 
 
 /***/ },
-/* 251 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	module.exports =  __webpack_require__(252);
+	module.exports =  __webpack_require__(254);
 
 
 /***/ },
-/* 252 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
-	module.exports = __webpack_require__(253);
+	module.exports = __webpack_require__(255);
 
 	/**
 	 * Exports parser
@@ -29911,25 +30413,25 @@
 	 * @api public
 	 *
 	 */
-	module.exports.parser = __webpack_require__(260);
+	module.exports.parser = __webpack_require__(262);
 
 
 /***/ },
-/* 253 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var transports = __webpack_require__(254);
-	var Emitter = __webpack_require__(247);
-	var debug = __webpack_require__(239)('engine.io-client:socket');
-	var index = __webpack_require__(274);
-	var parser = __webpack_require__(260);
-	var parseuri = __webpack_require__(238);
-	var parsejson = __webpack_require__(275);
-	var parseqs = __webpack_require__(268);
+	var transports = __webpack_require__(256);
+	var Emitter = __webpack_require__(249);
+	var debug = __webpack_require__(241)('engine.io-client:socket');
+	var index = __webpack_require__(276);
+	var parser = __webpack_require__(262);
+	var parseuri = __webpack_require__(240);
+	var parsejson = __webpack_require__(277);
+	var parseqs = __webpack_require__(270);
 
 	/**
 	 * Module exports.
@@ -30053,9 +30555,9 @@
 	 */
 
 	Socket.Socket = Socket;
-	Socket.Transport = __webpack_require__(259);
-	Socket.transports = __webpack_require__(254);
-	Socket.parser = __webpack_require__(260);
+	Socket.Transport = __webpack_require__(261);
+	Socket.transports = __webpack_require__(256);
+	Socket.parser = __webpack_require__(262);
 
 	/**
 	 * Creates transport of the given type.
@@ -30650,17 +31152,17 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 254 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies
 	 */
 
-	var XMLHttpRequest = __webpack_require__(255);
-	var XHR = __webpack_require__(257);
-	var JSONP = __webpack_require__(271);
-	var websocket = __webpack_require__(272);
+	var XMLHttpRequest = __webpack_require__(257);
+	var XHR = __webpack_require__(259);
+	var JSONP = __webpack_require__(273);
+	var websocket = __webpack_require__(274);
 
 	/**
 	 * Export transports.
@@ -30710,11 +31212,11 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 255 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// browser shim for xmlhttprequest module
-	var hasCORS = __webpack_require__(256);
+	var hasCORS = __webpack_require__(258);
 
 	module.exports = function(opts) {
 	  var xdomain = opts.xdomain;
@@ -30752,7 +31254,7 @@
 
 
 /***/ },
-/* 256 */
+/* 258 */
 /***/ function(module, exports) {
 
 	
@@ -30775,18 +31277,18 @@
 
 
 /***/ },
-/* 257 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module requirements.
 	 */
 
-	var XMLHttpRequest = __webpack_require__(255);
-	var Polling = __webpack_require__(258);
-	var Emitter = __webpack_require__(247);
-	var inherit = __webpack_require__(269);
-	var debug = __webpack_require__(239)('engine.io-client:polling-xhr');
+	var XMLHttpRequest = __webpack_require__(257);
+	var Polling = __webpack_require__(260);
+	var Emitter = __webpack_require__(249);
+	var inherit = __webpack_require__(271);
+	var debug = __webpack_require__(241)('engine.io-client:polling-xhr');
 
 	/**
 	 * Module exports.
@@ -31194,19 +31696,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 258 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(259);
-	var parseqs = __webpack_require__(268);
-	var parser = __webpack_require__(260);
-	var inherit = __webpack_require__(269);
-	var yeast = __webpack_require__(270);
-	var debug = __webpack_require__(239)('engine.io-client:polling');
+	var Transport = __webpack_require__(261);
+	var parseqs = __webpack_require__(270);
+	var parser = __webpack_require__(262);
+	var inherit = __webpack_require__(271);
+	var yeast = __webpack_require__(272);
+	var debug = __webpack_require__(241)('engine.io-client:polling');
 
 	/**
 	 * Module exports.
@@ -31219,7 +31721,7 @@
 	 */
 
 	var hasXHR2 = (function() {
-	  var XMLHttpRequest = __webpack_require__(255);
+	  var XMLHttpRequest = __webpack_require__(257);
 	  var xhr = new XMLHttpRequest({ xdomain: false });
 	  return null != xhr.responseType;
 	})();
@@ -31447,15 +31949,15 @@
 
 
 /***/ },
-/* 259 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Module dependencies.
 	 */
 
-	var parser = __webpack_require__(260);
-	var Emitter = __webpack_require__(247);
+	var parser = __webpack_require__(262);
+	var Emitter = __webpack_require__(249);
 
 	/**
 	 * Module exports.
@@ -31608,19 +32110,19 @@
 
 
 /***/ },
-/* 260 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var keys = __webpack_require__(261);
-	var hasBinary = __webpack_require__(262);
-	var sliceBuffer = __webpack_require__(263);
-	var base64encoder = __webpack_require__(264);
-	var after = __webpack_require__(265);
-	var utf8 = __webpack_require__(266);
+	var keys = __webpack_require__(263);
+	var hasBinary = __webpack_require__(264);
+	var sliceBuffer = __webpack_require__(265);
+	var base64encoder = __webpack_require__(266);
+	var after = __webpack_require__(267);
+	var utf8 = __webpack_require__(268);
 
 	/**
 	 * Check if we are running an android browser. That requires us to use
@@ -31677,7 +32179,7 @@
 	 * Create a blob api even for blob builder when vendor prefixes exist
 	 */
 
-	var Blob = __webpack_require__(267);
+	var Blob = __webpack_require__(269);
 
 	/**
 	 * Encodes a packet.
@@ -32209,7 +32711,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 261 */
+/* 263 */
 /***/ function(module, exports) {
 
 	
@@ -32234,7 +32736,7 @@
 
 
 /***/ },
-/* 262 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -32242,7 +32744,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(246);
+	var isArray = __webpack_require__(248);
 
 	/**
 	 * Module exports.
@@ -32299,7 +32801,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 263 */
+/* 265 */
 /***/ function(module, exports) {
 
 	/**
@@ -32334,7 +32836,7 @@
 
 
 /***/ },
-/* 264 */
+/* 266 */
 /***/ function(module, exports) {
 
 	/*
@@ -32399,7 +32901,7 @@
 
 
 /***/ },
-/* 265 */
+/* 267 */
 /***/ function(module, exports) {
 
 	module.exports = after
@@ -32433,7 +32935,7 @@
 
 
 /***/ },
-/* 266 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! https://mths.be/utf8js v2.0.0 by @mathias */
@@ -32679,10 +33181,10 @@
 
 	}(this));
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(244)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(246)(module), (function() { return this; }())))
 
 /***/ },
-/* 267 */
+/* 269 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -32785,7 +33287,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 268 */
+/* 270 */
 /***/ function(module, exports) {
 
 	/**
@@ -32828,7 +33330,7 @@
 
 
 /***/ },
-/* 269 */
+/* 271 */
 /***/ function(module, exports) {
 
 	
@@ -32840,7 +33342,7 @@
 	};
 
 /***/ },
-/* 270 */
+/* 272 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -32914,7 +33416,7 @@
 
 
 /***/ },
-/* 271 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -32922,8 +33424,8 @@
 	 * Module requirements.
 	 */
 
-	var Polling = __webpack_require__(258);
-	var inherit = __webpack_require__(269);
+	var Polling = __webpack_require__(260);
+	var inherit = __webpack_require__(271);
 
 	/**
 	 * Module exports.
@@ -33159,19 +33661,19 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 272 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
 	 * Module dependencies.
 	 */
 
-	var Transport = __webpack_require__(259);
-	var parser = __webpack_require__(260);
-	var parseqs = __webpack_require__(268);
-	var inherit = __webpack_require__(269);
-	var yeast = __webpack_require__(270);
-	var debug = __webpack_require__(239)('engine.io-client:websocket');
+	var Transport = __webpack_require__(261);
+	var parser = __webpack_require__(262);
+	var parseqs = __webpack_require__(270);
+	var inherit = __webpack_require__(271);
+	var yeast = __webpack_require__(272);
+	var debug = __webpack_require__(241)('engine.io-client:websocket');
 	var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
 
 	/**
@@ -33183,7 +33685,7 @@
 	var WebSocket = BrowserWebSocket;
 	if (!WebSocket && typeof window === 'undefined') {
 	  try {
-	    WebSocket = __webpack_require__(273);
+	    WebSocket = __webpack_require__(275);
 	  } catch (e) { }
 	}
 
@@ -33454,14 +33956,14 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 273 */
+/* 275 */
 /***/ function(module, exports) {
 
 	if(typeof ws === 'undefined') {var e = new Error("Cannot find module \"ws\""); e.code = 'MODULE_NOT_FOUND'; throw e;}
 	module.exports = ws;
 
 /***/ },
-/* 274 */
+/* 276 */
 /***/ function(module, exports) {
 
 	
@@ -33476,7 +33978,7 @@
 	};
 
 /***/ },
-/* 275 */
+/* 277 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {/**
@@ -33514,7 +34016,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 276 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	
@@ -33522,13 +34024,13 @@
 	 * Module dependencies.
 	 */
 
-	var parser = __webpack_require__(242);
-	var Emitter = __webpack_require__(277);
-	var toArray = __webpack_require__(278);
-	var on = __webpack_require__(279);
-	var bind = __webpack_require__(280);
-	var debug = __webpack_require__(239)('socket.io-client:socket');
-	var hasBin = __webpack_require__(281);
+	var parser = __webpack_require__(244);
+	var Emitter = __webpack_require__(279);
+	var toArray = __webpack_require__(280);
+	var on = __webpack_require__(281);
+	var bind = __webpack_require__(282);
+	var debug = __webpack_require__(241)('socket.io-client:socket');
+	var hasBin = __webpack_require__(283);
 
 	/**
 	 * Module exports.
@@ -33932,7 +34434,7 @@
 
 
 /***/ },
-/* 277 */
+/* 279 */
 /***/ function(module, exports) {
 
 	
@@ -34099,7 +34601,7 @@
 
 
 /***/ },
-/* 278 */
+/* 280 */
 /***/ function(module, exports) {
 
 	module.exports = toArray
@@ -34118,7 +34620,7 @@
 
 
 /***/ },
-/* 279 */
+/* 281 */
 /***/ function(module, exports) {
 
 	
@@ -34148,7 +34650,7 @@
 
 
 /***/ },
-/* 280 */
+/* 282 */
 /***/ function(module, exports) {
 
 	/**
@@ -34177,7 +34679,7 @@
 
 
 /***/ },
-/* 281 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {
@@ -34185,7 +34687,7 @@
 	 * Module requirements.
 	 */
 
-	var isArray = __webpack_require__(246);
+	var isArray = __webpack_require__(248);
 
 	/**
 	 * Module exports.
@@ -34243,7 +34745,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 282 */
+/* 284 */
 /***/ function(module, exports) {
 
 	
@@ -34334,7 +34836,7 @@
 
 
 /***/ },
-/* 283 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34353,13 +34855,13 @@
 
 	var _GameButton2 = _interopRequireDefault(_GameButton);
 
-	var _ValueBox = __webpack_require__(286);
+	var _ValueBox = __webpack_require__(233);
 
 	var _ValueBox2 = _interopRequireDefault(_ValueBox);
 
 	var _reactRouter = __webpack_require__(170);
 
-	var _randomcolor = __webpack_require__(284);
+	var _randomcolor = __webpack_require__(234);
 
 	var _randomcolor2 = _interopRequireDefault(_randomcolor);
 
@@ -34596,12 +35098,12 @@
 						{ className: "row" },
 						_react2.default.createElement(
 							"h1",
-							{ className: "col-md-1" },
+							{ className: "col-md-4" },
+							"Now Playing: ",
 							this.state.username
 						),
-						_react2.default.createElement("div", { className: "col-md-1" }),
 						_react2.default.createElement(_ValueBox2.default, { label: "guesses:", data: this.state.guesses }),
-						_react2.default.createElement("div", { className: "col-md-7" }),
+						_react2.default.createElement("div", { className: "col-md-5" }),
 						_react2.default.createElement(
 							"div",
 							{ className: "col-md-1" },
@@ -34634,500 +35136,6 @@
 		router: _react2.default.PropTypes.object.isRequired
 	};
 	exports.default = (0, _reactRouter.withRouter)(Guessing);
-
-/***/ },
-/* 284 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// randomColor by David Merfield under the CC0 license
-	// https://github.com/davidmerfield/randomColor/
-
-	;(function(root, factory) {
-
-	  // Support AMD
-	  if (true) {
-	    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-	  // Support CommonJS
-	  } else if (typeof exports === 'object') {
-	    var randomColor = factory();
-
-	    // Support NodeJS & Component, which allow module.exports to be a function
-	    if (typeof module === 'object' && module && module.exports) {
-	      exports = module.exports = randomColor;
-	    }
-
-	    // Support CommonJS 1.1.1 spec
-	    exports.randomColor = randomColor;
-
-	  // Support vanilla script loading
-	  } else {
-	    root.randomColor = factory();
-	  }
-
-	}(this, function() {
-
-	  // Seed to get repeatable colors
-	  var seed = null;
-
-	  // Shared color dictionary
-	  var colorDictionary = {};
-
-	  // Populate the color dictionary
-	  loadColorBounds();
-
-	  var randomColor = function (options) {
-
-	    options = options || {};
-
-	    // Check if there is a seed and ensure it's an
-	    // integer. Otherwise, reset the seed value.
-	    if (options.seed && options.seed === parseInt(options.seed, 10)) {
-	      seed = options.seed;
-
-	    // A string was passed as a seed
-	    } else if (typeof options.seed === 'string') {
-	      seed = stringToInteger(options.seed);
-
-	    // Something was passed as a seed but it wasn't an integer or string
-	    } else if (options.seed !== undefined && options.seed !== null) {
-	      throw new TypeError('The seed value must be an integer or string');
-
-	    // No seed, reset the value outside.
-	    } else {
-	      seed = null;
-	    }
-
-	    var H,S,B;
-
-	    // Check if we need to generate multiple colors
-	    if (options.count !== null && options.count !== undefined) {
-
-	      var totalColors = options.count,
-	          colors = [];
-
-	      options.count = null;
-
-	      while (totalColors > colors.length) {
-
-	        // Since we're generating multiple colors,
-	        // incremement the seed. Otherwise we'd just
-	        // generate the same color each time...
-	        if (seed && options.seed) options.seed += 1;
-
-	        colors.push(randomColor(options));
-	      }
-
-	      options.count = totalColors;
-
-	      return colors;
-	    }
-
-	    // First we pick a hue (H)
-	    H = pickHue(options);
-
-	    // Then use H to determine saturation (S)
-	    S = pickSaturation(H, options);
-
-	    // Then use S and H to determine brightness (B).
-	    B = pickBrightness(H, S, options);
-
-	    // Then we return the HSB color in the desired format
-	    return setFormat([H,S,B], options);
-	  };
-
-	  function pickHue (options) {
-
-	    var hueRange = getHueRange(options.hue),
-	        hue = randomWithin(hueRange);
-
-	    // Instead of storing red as two seperate ranges,
-	    // we group them, using negative numbers
-	    if (hue < 0) {hue = 360 + hue;}
-
-	    return hue;
-
-	  }
-
-	  function pickSaturation (hue, options) {
-
-	    if (options.luminosity === 'random') {
-	      return randomWithin([0,100]);
-	    }
-
-	    if (options.hue === 'monochrome') {
-	      return 0;
-	    }
-
-	    var saturationRange = getSaturationRange(hue);
-
-	    var sMin = saturationRange[0],
-	        sMax = saturationRange[1];
-
-	    switch (options.luminosity) {
-
-	      case 'bright':
-	        sMin = 55;
-	        break;
-
-	      case 'dark':
-	        sMin = sMax - 10;
-	        break;
-
-	      case 'light':
-	        sMax = 55;
-	        break;
-	   }
-
-	    return randomWithin([sMin, sMax]);
-
-	  }
-
-	  function pickBrightness (H, S, options) {
-
-	    var bMin = getMinimumBrightness(H, S),
-	        bMax = 100;
-
-	    switch (options.luminosity) {
-
-	      case 'dark':
-	        bMax = bMin + 20;
-	        break;
-
-	      case 'light':
-	        bMin = (bMax + bMin)/2;
-	        break;
-
-	      case 'random':
-	        bMin = 0;
-	        bMax = 100;
-	        break;
-	    }
-
-	    return randomWithin([bMin, bMax]);
-	  }
-
-	  function setFormat (hsv, options) {
-
-	    switch (options.format) {
-
-	      case 'hsvArray':
-	        return hsv;
-
-	      case 'hslArray':
-	        return HSVtoHSL(hsv);
-
-	      case 'hsl':
-	        var hsl = HSVtoHSL(hsv);
-	        return 'hsl('+hsl[0]+', '+hsl[1]+'%, '+hsl[2]+'%)';
-
-	      case 'hsla':
-	        var hslColor = HSVtoHSL(hsv);
-	        return 'hsla('+hslColor[0]+', '+hslColor[1]+'%, '+hslColor[2]+'%, ' + Math.random() + ')';
-
-	      case 'rgbArray':
-	        return HSVtoRGB(hsv);
-
-	      case 'rgb':
-	        var rgb = HSVtoRGB(hsv);
-	        return 'rgb(' + rgb.join(', ') + ')';
-
-	      case 'rgba':
-	        var rgbColor = HSVtoRGB(hsv);
-	        return 'rgba(' + rgbColor.join(', ') + ', ' + Math.random() + ')';
-
-	      default:
-	        return HSVtoHex(hsv);
-	    }
-
-	  }
-
-	  function getMinimumBrightness(H, S) {
-
-	    var lowerBounds = getColorInfo(H).lowerBounds;
-
-	    for (var i = 0; i < lowerBounds.length - 1; i++) {
-
-	      var s1 = lowerBounds[i][0],
-	          v1 = lowerBounds[i][1];
-
-	      var s2 = lowerBounds[i+1][0],
-	          v2 = lowerBounds[i+1][1];
-
-	      if (S >= s1 && S <= s2) {
-
-	         var m = (v2 - v1)/(s2 - s1),
-	             b = v1 - m*s1;
-
-	         return m*S + b;
-	      }
-
-	    }
-
-	    return 0;
-	  }
-
-	  function getHueRange (colorInput) {
-
-	    if (typeof parseInt(colorInput) === 'number') {
-
-	      var number = parseInt(colorInput);
-
-	      if (number < 360 && number > 0) {
-	        return [number, number];
-	      }
-
-	    }
-
-	    if (typeof colorInput === 'string') {
-
-	      if (colorDictionary[colorInput]) {
-	        var color = colorDictionary[colorInput];
-	        if (color.hueRange) {return color.hueRange;}
-	      }
-	    }
-
-	    return [0,360];
-
-	  }
-
-	  function getSaturationRange (hue) {
-	    return getColorInfo(hue).saturationRange;
-	  }
-
-	  function getColorInfo (hue) {
-
-	    // Maps red colors to make picking hue easier
-	    if (hue >= 334 && hue <= 360) {
-	      hue-= 360;
-	    }
-
-	    for (var colorName in colorDictionary) {
-	       var color = colorDictionary[colorName];
-	       if (color.hueRange &&
-	           hue >= color.hueRange[0] &&
-	           hue <= color.hueRange[1]) {
-	          return colorDictionary[colorName];
-	       }
-	    } return 'Color not found';
-	  }
-
-	  function randomWithin (range) {
-	    if (seed === null) {
-	      return Math.floor(range[0] + Math.random()*(range[1] + 1 - range[0]));
-	    } else {
-	      //Seeded random algorithm from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
-	      var max = range[1] || 1;
-	      var min = range[0] || 0;
-	      seed = (seed * 9301 + 49297) % 233280;
-	      var rnd = seed / 233280.0;
-	      return Math.floor(min + rnd * (max - min));
-	    }
-	  }
-
-	  function HSVtoHex (hsv){
-
-	    var rgb = HSVtoRGB(hsv);
-
-	    function componentToHex(c) {
-	        var hex = c.toString(16);
-	        return hex.length == 1 ? '0' + hex : hex;
-	    }
-
-	    var hex = '#' + componentToHex(rgb[0]) + componentToHex(rgb[1]) + componentToHex(rgb[2]);
-
-	    return hex;
-
-	  }
-
-	  function defineColor (name, hueRange, lowerBounds) {
-
-	    var sMin = lowerBounds[0][0],
-	        sMax = lowerBounds[lowerBounds.length - 1][0],
-
-	        bMin = lowerBounds[lowerBounds.length - 1][1],
-	        bMax = lowerBounds[0][1];
-
-	    colorDictionary[name] = {
-	      hueRange: hueRange,
-	      lowerBounds: lowerBounds,
-	      saturationRange: [sMin, sMax],
-	      brightnessRange: [bMin, bMax]
-	    };
-
-	  }
-
-	  function loadColorBounds () {
-
-	    defineColor(
-	      'monochrome',
-	      null,
-	      [[0,0],[100,0]]
-	    );
-
-	    defineColor(
-	      'red',
-	      [-26,18],
-	      [[20,100],[30,92],[40,89],[50,85],[60,78],[70,70],[80,60],[90,55],[100,50]]
-	    );
-
-	    defineColor(
-	      'orange',
-	      [19,46],
-	      [[20,100],[30,93],[40,88],[50,86],[60,85],[70,70],[100,70]]
-	    );
-
-	    defineColor(
-	      'yellow',
-	      [47,62],
-	      [[25,100],[40,94],[50,89],[60,86],[70,84],[80,82],[90,80],[100,75]]
-	    );
-
-	    defineColor(
-	      'green',
-	      [63,178],
-	      [[30,100],[40,90],[50,85],[60,81],[70,74],[80,64],[90,50],[100,40]]
-	    );
-
-	    defineColor(
-	      'blue',
-	      [179, 257],
-	      [[20,100],[30,86],[40,80],[50,74],[60,60],[70,52],[80,44],[90,39],[100,35]]
-	    );
-
-	    defineColor(
-	      'purple',
-	      [258, 282],
-	      [[20,100],[30,87],[40,79],[50,70],[60,65],[70,59],[80,52],[90,45],[100,42]]
-	    );
-
-	    defineColor(
-	      'pink',
-	      [283, 334],
-	      [[20,100],[30,90],[40,86],[60,84],[80,80],[90,75],[100,73]]
-	    );
-
-	  }
-
-	  function HSVtoRGB (hsv) {
-
-	    // this doesn't work for the values of 0 and 360
-	    // here's the hacky fix
-	    var h = hsv[0];
-	    if (h === 0) {h = 1;}
-	    if (h === 360) {h = 359;}
-
-	    // Rebase the h,s,v values
-	    h = h/360;
-	    var s = hsv[1]/100,
-	        v = hsv[2]/100;
-
-	    var h_i = Math.floor(h*6),
-	      f = h * 6 - h_i,
-	      p = v * (1 - s),
-	      q = v * (1 - f*s),
-	      t = v * (1 - (1 - f)*s),
-	      r = 256,
-	      g = 256,
-	      b = 256;
-
-	    switch(h_i) {
-	      case 0: r = v; g = t; b = p;  break;
-	      case 1: r = q; g = v; b = p;  break;
-	      case 2: r = p; g = v; b = t;  break;
-	      case 3: r = p; g = q; b = v;  break;
-	      case 4: r = t; g = p; b = v;  break;
-	      case 5: r = v; g = p; b = q;  break;
-	    }
-
-	    var result = [Math.floor(r*255), Math.floor(g*255), Math.floor(b*255)];
-	    return result;
-	  }
-
-	  function HSVtoHSL (hsv) {
-	    var h = hsv[0],
-	      s = hsv[1]/100,
-	      v = hsv[2]/100,
-	      k = (2-s)*v;
-
-	    return [
-	      h,
-	      Math.round(s*v / (k<1 ? k : 2-k) * 10000) / 100,
-	      k/2 * 100
-	    ];
-	  }
-
-	  function stringToInteger (string) {
-	    var total = 0
-	    for (var i = 0; i !== string.length; i++) {
-	      if (total >= Number.MAX_SAFE_INTEGER) break;
-	      total += string.charCodeAt(i)
-	    }
-	    return total
-	  }
-
-	  return randomColor;
-	}));
-
-
-/***/ },
-/* 285 */,
-/* 286 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	   value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var ValueBox = function (_React$Component) {
-	   _inherits(ValueBox, _React$Component);
-
-	   function ValueBox() {
-	      _classCallCheck(this, ValueBox);
-
-	      return _possibleConstructorReturn(this, Object.getPrototypeOf(ValueBox).apply(this, arguments));
-	   }
-
-	   _createClass(ValueBox, [{
-	      key: "render",
-	      value: function render() {
-	         return _react2.default.createElement(
-	            "div",
-	            { className: "col-md-2" },
-	            _react2.default.createElement(
-	               "div",
-	               { className: "input-group" },
-	               _react2.default.createElement(
-	                  "span",
-	                  { className: "input-group-addon" },
-	                  this.props.label
-	               ),
-	               _react2.default.createElement("input", { className: "form-control", type: "text", value: this.props.data, disabled: true })
-	            )
-	         );
-	      }
-	   }]);
-
-	   return ValueBox;
-	}(_react2.default.Component);
-
-	exports.default = ValueBox;
 
 /***/ }
 /******/ ]);

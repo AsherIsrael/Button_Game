@@ -35,10 +35,14 @@ export default class App extends React.Component{
 		var that = this;
 		this.state.socket.on("logged_in", function(data){
 			that.setState({username: data.name});
+			var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+			var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 			var activity = {
             type: "login",
             data: {
-               time: Date.now()
+               time: Date.now(),
+					windowWidth: width,
+					windowHeight: height
             }
          }
          that.setState({activities: [activity]});
@@ -162,7 +166,7 @@ export default class App extends React.Component{
 			});
 			this.state.socket.on("game_over", function(winningScore){
 				console.log("game over")
-				elimination.setState({score: 0});
+				that.setState({elimScore: 0});
 				// this.state.socket.emit("check_score", 0);
 				let replay = confirm("GAME OVER! Highest score: "+winningScore+". Would you like to join the new round? Game begins in 5 seconds.")
 				if(replay){

@@ -28,6 +28,17 @@ module.exports = function(io){
 			console.log("hello?")
 			if(inElimination){
 				eliminationPlayers--;
+				if(eliminationPlayers<0){
+					eliminationPlayers = 0;
+				}
+				if(eliminationPlayers === 0){
+					eliminationBoard = [];
+					eliminationScore = 0;
+					eliminationButtonsPressed = 0;
+				}
+				console.log("players left:", eliminationPlayers)
+				console.log("board size:", eliminationBoard.length)
+				console.log("top score:", eliminationScore)
 			}
 		})
 
@@ -120,6 +131,7 @@ module.exports = function(io){
 			if(eliminationPlayers === 0){
 				eliminationBoard = [];
 				eliminationScore = 0;
+				eliminationButtonsPressed = 0;
 			}
 			console.log("players left:", eliminationPlayers)
 			console.log("board size:", eliminationBoard.length)

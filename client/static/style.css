@@ -1,7 +1,7 @@
 .gameBoard{
    width: 100%;
    min-height: 100%;
-   border: 1px red dotted;
+   /*border: 1px red dotted;*/
    /*line-height: 0;
    /*-webkit-column-count: 5;*/
    /*-webkit-column-gap: 0px;*/

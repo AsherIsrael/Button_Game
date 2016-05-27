@@ -38,15 +38,15 @@ export default class Elimination extends React.Component{
 		this.props.passUpLog([activity])
 		console.log("enter game")
 		this.state.socket.emit("elimination_game");
+		// var elem = document.querySelector('.grid');
+		// var pckry = new Packery( elem, {
+		//   itemSelector: '.grid-item',
+		//   percentPosition: true
+		// });
 	}
 
 	componentWillMount(){
 	// 	var that = this;
-	// 	// var elem = document.querySelector('.grid');
-	// 	// var pckry = new Packery( elem, {
-	// 	//   itemSelector: '.grid-item',
-	// 	//   percentPosition: true
-	// 	// });
 	//
 	// 	// window.addEventListener("beforeunload", function(event){
 	// 	// 	 console.log("player left the site");
@@ -154,6 +154,8 @@ export default class Elimination extends React.Component{
 	record(buttonPressed){
 		this.state.socket.emit("button_pressed", buttonPressed.index);
 		var size = buttonPressed.height*buttonPressed.width
+		var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 		var activity = {
 			type: "buttonPress",
 			data: {
@@ -161,9 +163,12 @@ export default class Elimination extends React.Component{
 				color: buttonPressed.color,
 				time: Date.now(),
 				x: buttonPressed.x,
-				y: buttonPressed.y
+				y: buttonPressed.y,
+				windowWidth: width,
+				windowHeight: height
 			}
 		}
+		console.log("activity ",activity)
 		// var activities = this.state.activities.slice();
 		// activities.push(activity);
 		// this.setState({activities: activities});

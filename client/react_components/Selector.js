@@ -65,13 +65,13 @@ export default class Selector extends React.Component{
       return(
          <div className="container-fluid">
             <div className="row">
-               <h1 className="col-md-1">{this.props.username}</h1>
-               <div className="col-md-11"></div>
+               <h1 className="col-md-4">Welcome: {this.props.username}</h1>
+               <div className="col-md-8"></div>
             </div>
             <div className="row">
                {games}
             </div>
-            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+            <br/><br/><br/><br/><br/><br/><br/><br/><br/>
             <p>Icons made by FreePik from <a href="/www.flaticon.com">www.flaticon.com</a></p>
          </div>
       );

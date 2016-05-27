@@ -25,7 +25,7 @@ export default class SelectIcon extends React.Component{
          <div className="col-md-5">
             <div className="col-md-2"></div>
             <div className="col-md-8 center-block">
-               <button className="btn selectButton" onClick={() => this.redirect()}>
+               <button className="btn btn-secondary selectButton" onClick={() => this.redirect()}>
                <img className="selectButton" src={source} alt={this.state.component}/>
                </button>
                <h4>{this.state.name}</h4>

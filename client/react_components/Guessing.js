@@ -201,10 +201,9 @@ export default class Guessing extends React.Component{
 		return(
 			<div className="container-fluid">
 				<div className="row">
-					<h1 className="col-md-1">{this.state.username}</h1>
-               <div className="col-md-1"></div>
+					<h1 className="col-md-4">Now Playing: {this.state.username}</h1>
                <ValueBox label="guesses:" data={this.state.guesses}/>
-					<div className="col-md-7"></div>
+					<div className="col-md-5"></div>
 					<div className="col-md-1"><Link to="/modes"><button className="btn" type="button">End Game</button></Link></div>
 				</div>
 				<div className="row grid gameBoard">
