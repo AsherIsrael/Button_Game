@@ -6,6 +6,7 @@ import Elimination from "./Elimination.js";
 import Selector from "./Selector.js"
 import Guessing from "./Guessing.js"
 import { Router, Route, browserHistory, IndexRoute } from "react-router";
+// import "./Store.js"
 
 var Routes = (
    <Router history={browserHistory}>

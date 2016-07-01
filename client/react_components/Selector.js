@@ -34,7 +34,8 @@ export default class Selector extends React.Component{
             time: Date.now()
          }
       }
-      this.props.passUpLog([activity]);
+      this.state.socket.emit("log_activity", activity);
+      // this.props.passUpLog([activity]);
    }
    render(){
       var that = this;

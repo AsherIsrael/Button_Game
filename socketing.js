@@ -8,7 +8,9 @@ module.exports = function(io){
 	var eliminationButtonsPressed = 0;
 	var inElimination = false;
 	var currentUser;
+	var activities = [];
 	io.on("connection", function(socket){
+
 		socket.on("user_login", function(username){
 			var data = {
 				name: username
@@ -33,6 +35,16 @@ module.exports = function(io){
 					eliminationButtonsPressed = 0;
 				}
 			}
+
+			var data = {
+				user: currentUser,
+				activities: activities
+			}
+			visits.create(data);
+		})
+
+		socket.on("log_activity", function(activity){
+			activities.push(activity);
 		})
 
 		socket.on("elimination_game", function(){
@@ -97,15 +109,6 @@ module.exports = function(io){
 				eliminationScore = 0;
 				eliminationButtonsPressed = 0;
 			}
-		})
-
-
-		socket.on("finish_session", function(log){
-			var data = {
-				user: currentUser,
-				activities: log
-			}
-			visits.create(data);
 		})
 
 		function startGame(){
