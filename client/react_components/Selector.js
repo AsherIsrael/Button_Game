@@ -4,19 +4,14 @@ import { Link } from "react-router";
 
 
 export default class Selector extends React.Component{
-   constructor(props){
-      super(props);
-      this.setState = this.setState.bind(this);
-      this.handleClick = this.handleClick.bind(this);
-
+   constructor(){
+      super();
       this.state = {
-         username: props.username,
-         socket: props.socket,
          modes: [
             {
                name: "Elimination",
                component: "elimination",
-               description: "Compete with other players to earn the most points! The bigger the button, the more points it's worth!"
+               description: "Compete with other players to click 10 buttons first!"
             },
             {
                name: "Guessing",
@@ -26,21 +21,14 @@ export default class Selector extends React.Component{
          ]
       }
    }
-   handleClick(name){
-      var activity = {
-         type: "choseGame",
-         data: {
-            name: name,
-            time: Date.now()
-         }
-      }
-      this.state.socket.emit("log_activity", activity);
-      // this.props.passUpLog([activity]);
+   componentWillMount(){
+      if(!this.props.username){
+			this.context.router.push("");
+		}
    }
    render(){
-      var that = this;
-      var games = this.state.modes.map(function(mode, idx){
-         return <SelectIcon key={idx} name={mode.name} component={mode.component} description={mode.description} logIt={that.handleClick}/>
+      var games = this.state.modes.map((mode, idx) => {
+         return <SelectIcon key={idx} name={mode.name} component={mode.component} description={mode.description}/>
       })
       return(
          <div className="container-fluid">
@@ -51,9 +39,12 @@ export default class Selector extends React.Component{
             <div className="row">
                {games}
             </div>
-            <br/><br/><br/><br/><br/><br/><br/><br/><br/>
+            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
             <p>Icons made by FreePik from <a href="/www.flaticon.com">www.flaticon.com</a></p>
          </div>
       );
    }
 }
+Selector.contextTypes = {
+   router: React.PropTypes.object.isRequired
+};

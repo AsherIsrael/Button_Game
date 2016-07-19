@@ -1,16 +1,7 @@
 import React from "react";
 
 export default class SelectIcon extends React.Component{
-   // constructor(props){
-   //    super(props);
-   //    this.state = {
-   //       name: props.name,
-   //       component: props.component,
-   //       description: props.description
-   //    }
-   // }
    redirect(){
-      this.props.logIt(this.props.name);
       this.context.router.push(this.props.component)
    }
 

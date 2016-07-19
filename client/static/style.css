@@ -1,10 +1,11 @@
 .gameBoard{
-   width: 100%;
    min-height: 100%;
+   /*box-sizing: padding-box;*/
 }
 
 html, #content, .container-fluid{
    height: 100vh;
+   /*box-sizing: border-box;*/
 }
 
 body{
@@ -24,15 +25,16 @@ body{
 
 .grid-item {
    width: 10%;
-   height: 13%;
+   height: 13.5%;
   float: left;
 }
 
-.grid-item--width2 { width:  20%; }
+.grid-item--width2 { width: 20%; }
+.grid-item--width3 { width: 30%; }
 
 .grid-item--height2 {
-   height: 26%;
+   height: 27%;
 }
 .grid-item--height3 {
-   height: 39%;
+   height: 40.5%;
 }

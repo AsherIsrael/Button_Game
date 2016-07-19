@@ -9,7 +9,9 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "./client")));
 require("./server/config/mongoose.js");
 require("./server/config/routes.js")(app);
-
+app.get('*', function(req, res){
+	res.sendFile(path.resolve(__dirname, 'client', 'index.html'))
+})
 
 var io = require("socket.io")(http);
 require("./socketing.js")(io);

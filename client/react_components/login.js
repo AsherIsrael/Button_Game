@@ -2,12 +2,11 @@ import React from "react";
 
 
 export default class Login extends React.Component{
-   constructor(props){
-      super(props);
+   constructor(){
+      super();
       this.setState = this.setState.bind(this);
       this.login = this.login.bind(this);
       this.state = {
-         socket: props.socket,
          valid: false,
          username: ""
       }
@@ -16,8 +15,7 @@ export default class Login extends React.Component{
       e.preventDefault();
       var user = this.refs['username'].value;
       if(this.state.valid){
-         this.state.socket.emit("user_login", this.state.username)
-         this.context.router.push("modes")
+         this.props.socket.emit("user_login", this.state.username)
       }
    }
    isValid(){
@@ -63,6 +61,3 @@ export default class Login extends React.Component{
       )
    }
 }
-Login.contextTypes = {
-   router: React.PropTypes.any.isRequired
-};

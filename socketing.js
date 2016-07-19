@@ -4,12 +4,12 @@ var visits = require("./server/controllers/visits.js");
 module.exports = function(io){
 	var eliminationBoard = [];
 	var eliminationPlayers = 0;
-	var eliminationScore = 0;
+	var currentTopScore = 0;
 	var eliminationButtonsPressed = 0;
-	var inElimination = false;
-	var currentUser;
-	var activities = [];
 	io.on("connection", function(socket){
+		var currentUser;
+		var activities = [];
+		var inElimination = false;
 
 		socket.on("user_login", function(username){
 			var data = {
@@ -31,7 +31,7 @@ module.exports = function(io){
 				}
 				if(eliminationPlayers === 0){
 					eliminationBoard = [];
-					eliminationScore = 0;
+					currentTopScore = 0;
 					eliminationButtonsPressed = 0;
 				}
 			}
@@ -57,7 +57,7 @@ module.exports = function(io){
 			eliminationBoard = newBoard;
 			var data = {
 				board: eliminationBoard,
-				topScore: eliminationScore
+				topScore: currentTopScore
 			}
 			io.emit("make_eliminationBoard", data);
 		})
@@ -69,29 +69,29 @@ module.exports = function(io){
 				eliminationBoard[index].color = "#000000";
 				var data = {
 					board: eliminationBoard,
-					topScore: eliminationScore
+					topScore: currentTopScore
 				}
 				io.emit("make_eliminationBoard", data);
-				var points = eliminationBoard[index].width*eliminationBoard[index].height;
-				socket.emit("you_scored", points)
+				socket.emit("you_scored", 1)
 			}
 		})
 
 		socket.on("check_score", function(score){
-			if(score>eliminationScore){
-				eliminationScore = score;
-				io.emit("top_score", eliminationScore);
+			if(score>currentTopScore){
+				currentTopScore = score;
+				io.emit("top_score", currentTopScore);
 			}
-			if(eliminationButtonsPressed >= eliminationBoard.length){
+
+			if(eliminationButtonsPressed >= eliminationBoard.length || currentTopScore >= 10){
 				eliminationBoard = [];
 				eliminationPlayers = 0;
-				io.emit("game_over", eliminationScore);
-				eliminationScore = 0;
+				io.emit("game_over", currentTopScore);
+				currentTopScore = 0;
 				eliminationButtonsPressed = 0;
 				if(eliminationBoard.length === 0){
 					setTimeout(function(){
 						startGame();
-					}, 5000)
+					}, 4000)
 				}else{
 					startGame();
 				}
@@ -106,7 +106,7 @@ module.exports = function(io){
 			}
 			if(eliminationPlayers === 0){
 				eliminationBoard = [];
-				eliminationScore = 0;
+				currentTopScore = 0;
 				eliminationButtonsPressed = 0;
 			}
 		})
@@ -117,7 +117,7 @@ module.exports = function(io){
 			}else{
 					var data = {
 						board: eliminationBoard,
-						topScore: eliminationScore
+						topScore: currentTopScore
 					}
 					socket.emit("make_eliminationBoard", data);
 				// }
