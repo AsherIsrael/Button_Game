@@ -24,18 +24,7 @@ module.exports = function(io){
 		})
 
 		socket.on("disconnect", function(){
-			if(inElimination){
-				eliminationPlayers--;
-				if(eliminationPlayers<0){
-					eliminationPlayers = 0;
-				}
-				if(eliminationPlayers === 0){
-					eliminationBoard = [];
-					currentTopScore = 0;
-					eliminationButtonsPressed = 0;
-				}
-			}
-
+			ifGameOver();
 			var data = {
 				user: currentUser,
 				activities: activities
@@ -49,6 +38,7 @@ module.exports = function(io){
 
 		socket.on("elimination_game", function(){
 			inElimination = true;
+			console.log("player joined, total players: ", eliminationPlayers);
 			eliminationPlayers++;
 			startGame();
 		})
@@ -84,7 +74,7 @@ module.exports = function(io){
 
 			if(eliminationButtonsPressed >= eliminationBoard.length || currentTopScore >= 10){
 				eliminationBoard = [];
-				eliminationPlayers = 0;
+				// eliminationPlayers = 0;
 				io.emit("game_over", currentTopScore);
 				currentTopScore = 0;
 				eliminationButtonsPressed = 0;
@@ -99,16 +89,9 @@ module.exports = function(io){
 		})
 
 		socket.on("elimination_player_left", function(){
+			ifGameOver();
 			inElimination = false;
-			eliminationPlayers--;
-			if(eliminationPlayers<0){
-				eliminationPlayers = 0;
-			}
-			if(eliminationPlayers === 0){
-				eliminationBoard = [];
-				currentTopScore = 0;
-				eliminationButtonsPressed = 0;
-			}
+			console.log("player left, total players: ", eliminationPlayers);
 		})
 
 		function startGame(){
@@ -121,6 +104,18 @@ module.exports = function(io){
 					}
 					socket.emit("make_eliminationBoard", data);
 				// }
+			}
+		}
+
+		function ifGameOver(){
+			if(inElimination){
+				eliminationPlayers--;
+				if(eliminationPlayers <= 0){
+					eliminationBoard = [];
+					currentTopScore = 0;
+					eliminationButtonsPressed = 0;
+					eliminationPlayers = 0;
+				}
 			}
 		}
 	})

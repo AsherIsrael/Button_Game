@@ -55,6 +55,11 @@ export default class App extends React.Component{
 		});
 		this.state.socket.on("game_over", (winningScore) => {
 			this.setState({elimScore: 0});
+			let board = this.state.elimBoard;
+			for(let button of board){
+				button.pressed = true;
+			}
+			this.setState({elimBoard: board});
 			let replay = confirm(`GAME OVER! Highest score: ${winningScore}. Would you like to join the new round? Game begins in 4 seconds.`)
 			if(replay){
 				let activity = {
@@ -77,8 +82,6 @@ export default class App extends React.Component{
 				this.context.router.push("/modes");
 			}
 		})
-
-
 
 		var that = this;
 		window.addEventListener("beforeunload", function(){

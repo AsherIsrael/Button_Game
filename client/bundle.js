@@ -20304,6 +20304,33 @@
 				});
 				this.state.socket.on("game_over", function (winningScore) {
 					_this2.setState({ elimScore: 0 });
+					var board = _this2.state.elimBoard;
+					var _iteratorNormalCompletion = true;
+					var _didIteratorError = false;
+					var _iteratorError = undefined;
+
+					try {
+						for (var _iterator = board[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+							var button = _step.value;
+
+							button.pressed = true;
+						}
+					} catch (err) {
+						_didIteratorError = true;
+						_iteratorError = err;
+					} finally {
+						try {
+							if (!_iteratorNormalCompletion && _iterator.return) {
+								_iterator.return();
+							}
+						} finally {
+							if (_didIteratorError) {
+								throw _iteratorError;
+							}
+						}
+					}
+
+					_this2.setState({ elimBoard: board });
 					var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 4 seconds.");
 					if (replay) {
 						var activity = {
