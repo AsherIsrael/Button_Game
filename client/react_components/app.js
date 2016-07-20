@@ -5,8 +5,6 @@ import io from "socket.io-client";
 export default class App extends React.Component{
 	constructor(){
 		super();
-		// this.makeBoard = this.makeBoard.bind(this);
-		// this.clearElimScore = this.clearElimScore.bind(this);
 		this.setState = this.setState.bind(this)
 		var socket = io.connect();
 		this.state = {
@@ -84,7 +82,7 @@ export default class App extends React.Component{
 		})
 
 		var that = this;
-		window.addEventListener("beforeunload", function(){
+		window.addEventListener("beforeunload", () => {
 			let activity = {
 				type: "logout",
 				data: {

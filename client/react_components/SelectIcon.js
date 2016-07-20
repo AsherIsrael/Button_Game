@@ -6,7 +6,7 @@ export default class SelectIcon extends React.Component{
    }
 
    render(){
-      var source = "../static/images/"+ this.props.component +".png";
+      var source = `../static/images/${this.props.component}.png`;
 
       return(
          <div className="col-md-5">

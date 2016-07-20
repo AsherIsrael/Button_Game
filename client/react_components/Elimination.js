@@ -69,12 +69,12 @@ export default class Elimination extends React.Component{
 		return(
 			<div className="container-fluid">
 				<div className="row">
-					<h1 className="col-md-4">Now playing: {this.props.username}</h1>
+					<h1 className="col-md-4 col-xs-12">Now playing: {this.props.username}</h1>
 					<ValueBox label="Buttons:" data={this.props.elimScore}/>
-					<div className="col-md-1"></div>
+					<div className="col-md-1 col-xs-0"></div>
 					<ValueBox label="Current Leader:" data={this.props.elimTopScore}/>
-					<div className="col-md-2"></div>
-					<div className="col-md-1"><Link to="modes"><button className="btn" type="button">End Game</button></Link></div>
+					<div className="col-md-2 col-xs-0"></div>
+					<div className="col-md-1 col-xs-4"><Link className="endButton" to="modes"><button className="btn endButton" type="button">End Game</button></Link></div>
 				</div>
 				<div className="row grid gameBoard">
 					{displayBoard}

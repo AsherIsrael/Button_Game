@@ -34,7 +34,7 @@
 /******/ 	__webpack_require__.c = installedModules;
 
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/ 	__webpack_require__.p = "/client/";
 
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
@@ -20247,9 +20247,6 @@
 		function App() {
 			_classCallCheck(this, App);
 
-			// this.makeBoard = this.makeBoard.bind(this);
-			// this.clearElimScore = this.clearElimScore.bind(this);
-
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this));
 
 			_this.setState = _this.setState.bind(_this);
@@ -28393,7 +28390,6 @@
 	      key: "login",
 	      value: function login(e) {
 	         e.preventDefault();
-	         var user = this.refs['username'].value;
 	         if (this.state.valid) {
 	            this.props.socket.emit("user_login", this.state.username);
 	         }
@@ -28414,65 +28410,76 @@
 	      value: function render() {
 	         var _this2 = this;
 
-	         var errorClass = "text-hide";
+	         var errorClass = "invisible";
 	         var inputClass = "form-control";
 	         var btnClass = "btn btn-primary";
-	         var formClass = "input-group col-md-6";
+	         var formClass = "input-group";
 	         if (!this.state.valid && this.state.username.length > 0) {
 	            errorClass = "";
 	            inputClass = "form-control form-control-danger";
 	            btnClass = "btn btn-danger";
-	            formClass = "input-group has-danger col-md-6";
+	            formClass = "input-group has-danger";
 	         } else if (this.state.valid) {
 	            inputClass = "form-control form-control-success";
 	            btnClass = "btn btn-success";
-	            formClass = "input-group has-success col-md-6";
+	            formClass = "input-group has-success";
 	         }
 	         return _react2.default.createElement(
 	            "div",
-	            { className: "container" },
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement("br", null),
+	            { className: "container-fluid", id: "loginPage" },
+	            _react2.default.createElement("div", { className: "col-md-3" }),
 	            _react2.default.createElement(
-	               "h2",
-	               null,
-	               "Login"
-	            ),
-	            _react2.default.createElement("br", null),
-	            _react2.default.createElement(
-	               "span",
-	               { ref: "error", className: errorClass },
-	               "Name must be at least 4 characters"
-	            ),
-	            _react2.default.createElement(
-	               "form",
-	               { name: "form", onSubmit: this.login },
+	               "div",
+	               { className: "contentBox col-md-6" },
+	               _react2.default.createElement(
+	                  "h1",
+	                  { className: "jukeBox" },
+	                  "|Color Clickers¬"
+	               ),
+	               _react2.default.createElement("br", null),
+	               _react2.default.createElement("br", null),
 	               _react2.default.createElement(
 	                  "div",
 	                  { className: "row" },
+	                  _react2.default.createElement("div", { className: "col-md-1" }),
 	                  _react2.default.createElement(
 	                     "div",
-	                     { className: formClass },
-	                     _react2.default.createElement("input", { className: inputClass, type: "text", value: this.state.username, onChange: function onChange() {
-	                           return _this2.isValid();
-	                        }, ref: "username" }),
+	                     { className: "col-md-10" },
+	                     _react2.default.createElement(
+	                        "h2",
+	                        null,
+	                        "Login"
+	                     ),
 	                     _react2.default.createElement(
 	                        "span",
-	                        { className: "input-group-btn" },
+	                        { ref: "error", className: errorClass },
+	                        "Name must be at least 4 characters"
+	                     ),
+	                     _react2.default.createElement(
+	                        "form",
+	                        { name: "form", onSubmit: this.login },
 	                        _react2.default.createElement(
-	                           "button",
-	                           { type: "submit", className: btnClass },
-	                           "Enter"
+	                           "div",
+	                           { className: formClass },
+	                           _react2.default.createElement("input", { className: inputClass, type: "text", value: this.state.username, onChange: function onChange() {
+	                                 return _this2.isValid();
+	                              }, ref: "username" }),
+	                           _react2.default.createElement(
+	                              "span",
+	                              { className: "input-group-btn" },
+	                              _react2.default.createElement(
+	                                 "button",
+	                                 { type: "submit", className: btnClass },
+	                                 "Enter"
+	                              )
+	                           )
 	                        )
 	                     )
 	                  ),
-	                  _react2.default.createElement("div", { className: "col-md-6" })
+	                  _react2.default.createElement("div", { className: "col-md-1" })
 	               )
-	            )
+	            ),
+	            _react2.default.createElement("div", { className: "col-md-3" })
 	         );
 	      }
 	   }]);
@@ -28611,23 +28618,23 @@
 						{ className: "row" },
 						_react2.default.createElement(
 							"h1",
-							{ className: "col-md-4" },
+							{ className: "col-md-4 col-xs-12" },
 							"Now playing: ",
 							this.props.username
 						),
 						_react2.default.createElement(_ValueBox2.default, { label: "Buttons:", data: this.props.elimScore }),
-						_react2.default.createElement("div", { className: "col-md-1" }),
+						_react2.default.createElement("div", { className: "col-md-1 col-xs-0" }),
 						_react2.default.createElement(_ValueBox2.default, { label: "Current Leader:", data: this.props.elimTopScore }),
-						_react2.default.createElement("div", { className: "col-md-2" }),
+						_react2.default.createElement("div", { className: "col-md-2 col-xs-0" }),
 						_react2.default.createElement(
 							"div",
-							{ className: "col-md-1" },
+							{ className: "col-md-1 col-xs-4" },
 							_react2.default.createElement(
 								_reactRouter.Link,
-								{ to: "modes" },
+								{ className: "endButton", to: "modes" },
 								_react2.default.createElement(
 									"button",
-									{ className: "btn", type: "button" },
+									{ className: "btn endButton", type: "button" },
 									"End Game"
 								)
 							)
@@ -28761,7 +28768,7 @@
 	      value: function render() {
 	         return _react2.default.createElement(
 	            "div",
-	            { className: "col-md-2" },
+	            { className: "col-md-2 col-xs-4" },
 	            _react2.default.createElement(
 	               "div",
 	               { className: "input-group" },
@@ -28770,7 +28777,7 @@
 	                  { className: "input-group-addon" },
 	                  this.props.label
 	               ),
-	               _react2.default.createElement("input", { className: "form-control", type: "text", value: this.props.data, disabled: true })
+	               _react2.default.createElement("input", { className: "value-display form-control pull-left", type: "text", value: this.props.data, disabled: true })
 	            )
 	         );
 	      }

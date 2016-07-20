@@ -38,18 +38,21 @@ module.exports = function(io){
 
 		socket.on("elimination_game", function(){
 			inElimination = true;
-			console.log("player joined, total players: ", eliminationPlayers);
 			eliminationPlayers++;
+			socket.join('elimination')
+			console.log("player joined, total players: ", eliminationPlayers);
 			startGame();
 		})
 
 		socket.on("new_eliminationBoard", function(newBoard){
-			eliminationBoard = newBoard;
-			var data = {
-				board: eliminationBoard,
-				topScore: currentTopScore
+			if(eliminationBoard.length === 0){
+				eliminationBoard = newBoard;
+				var data = {
+					board: eliminationBoard,
+					topScore: currentTopScore
+				}
+				io.to('elimination').emit("make_eliminationBoard", data);
 			}
-			io.emit("make_eliminationBoard", data);
 		})
 
 		socket.on("button_pressed", function(index){
@@ -61,7 +64,7 @@ module.exports = function(io){
 					board: eliminationBoard,
 					topScore: currentTopScore
 				}
-				io.emit("make_eliminationBoard", data);
+				io.to('elimination').emit("make_eliminationBoard", data);
 				socket.emit("you_scored", 1)
 			}
 		})
@@ -69,41 +72,37 @@ module.exports = function(io){
 		socket.on("check_score", function(score){
 			if(score>currentTopScore){
 				currentTopScore = score;
-				io.emit("top_score", currentTopScore);
+				io.to('elimination').emit("top_score", currentTopScore);
 			}
 
 			if(eliminationButtonsPressed >= eliminationBoard.length || currentTopScore >= 10){
 				eliminationBoard = [];
-				// eliminationPlayers = 0;
-				io.emit("game_over", currentTopScore);
+				io.to('elimination').emit("game_over", currentTopScore);
 				currentTopScore = 0;
 				eliminationButtonsPressed = 0;
-				if(eliminationBoard.length === 0){
-					setTimeout(function(){
-						startGame();
-					}, 4000)
-				}else{
+				setTimeout(function(){
+					console.log("starting game");
 					startGame();
-				}
+				}, 4000)
 			}
 		})
 
 		socket.on("elimination_player_left", function(){
 			ifGameOver();
 			inElimination = false;
+			socket.leave('elimination')
 			console.log("player left, total players: ", eliminationPlayers);
 		})
 
 		function startGame(){
 			if(eliminationBoard.length === 0){
-				socket.emit("need_eliminationBoard");
+				io.to('elimination').emit("need_eliminationBoard");
 			}else{
 					var data = {
 						board: eliminationBoard,
 						topScore: currentTopScore
 					}
 					socket.emit("make_eliminationBoard", data);
-				// }
 			}
 		}
 

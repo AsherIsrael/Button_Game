@@ -1,16 +1,56 @@
 .gameBoard{
    min-height: 100%;
-   /*box-sizing: padding-box;*/
 }
 
 html, #content, .container-fluid{
    height: 100vh;
-   /*box-sizing: border-box;*/
 }
 
 body{
    height: 100vh;
    overflow: hidden;
+}
+
+@font-face{
+    font-family: "TheJukeBox";
+    /*src: url('./the_juke_box/The_Juke_Box-FFP.eot');*/
+    src: url('./the_juke_box/The_Juke_Box-FFP.woff') format('woff'),
+        url("./the_juke_box/The_Juke_Box-FFP.ttf") format('truetype');
+}
+
+.jukeBox{
+    font-family: "TheJukeBox";
+    font-size: 8.2em;
+}
+
+#loginPage{
+    background-image: url("./images/button_background.jpg");
+    background-repeat: no-repeat;
+    background-size: 100vw, 100vh;
+}
+
+.contentBox{
+    width: 50%;
+    height: 60vh;
+    background-color: white;
+    border-radius: 10px;
+    opacity: 0.9;
+    box-shadow: 2px 2px 2px lightgrey;
+    padding: 50px 200px 50px 200px;
+    margin-top: 25vh;
+}
+
+.input-group-addon{
+    width: 20px !important;
+    text-align: left;
+}
+
+.value-display{
+    min-width: 3em;
+}
+
+.endButton{
+    min-width: 100% !important;
 }
 
 .selectButton{
