@@ -25,6 +25,7 @@ export default class Selector extends React.Component{
       if(!this.props.username){
 			this.context.router.push("");
 		}
+      this.props.reset();
    }
    render(){
       var games = this.state.modes.map((mode, idx) => {

@@ -4,39 +4,94 @@
 
 html, #content, .container-fluid{
    height: 100vh;
+   padding: 0px;
 }
 
 body{
    height: 100vh;
-   overflow: hidden;
+}
+
+#noOverflow{
+    height: 100vh;
+    overflow: hidden;
 }
 
 @font-face{
     font-family: "TheJukeBox";
-    /*src: url('./the_juke_box/The_Juke_Box-FFP.eot');*/
+    src: url('./the_juke_box/The_Juke_Box-FFP.eot');
     src: url('./the_juke_box/The_Juke_Box-FFP.woff') format('woff'),
         url("./the_juke_box/The_Juke_Box-FFP.ttf") format('truetype');
 }
 
+
 .jukeBox{
     font-family: "TheJukeBox";
-    font-size: 8.2em;
+    font-size: 7vw;
+    white-space: nowrap;
+}
+
+.visualizationBox{
+    min-height: 100%;
+    width: 100%;
+    display: inline-block;
+}
+
+.dataDisplay{
+    text-align: center;
+    height: 11%;
+    width: 24vw;
+    background-color: grey;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding-top: .6%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .dataDisplay *{
+        font-family: "helvetica";
+    }
+
+.dataComponent{
+    display: block;
+}
+
+.visualComponent{
+    vertical-align: top;
+    display: inline-block;
+    background-color: #8EB5E2;
+    margin-top: 10px;
+}
+
+.centerBlock{
+    margin: auto;
+    width: 70%;
+}
+
+.spacer{
+    width: 9.5%;
+    height: 20px;
+    display: inline-block;
+}
+
+.dataContent{
+    width: 100%;
 }
 
 #loginPage{
     background-image: url("./images/button_background.jpg");
     background-repeat: no-repeat;
-    background-size: 100vw, 100vh;
+    background-size: cover;
 }
 
 .contentBox{
-    width: 50%;
-    height: 60vh;
+    /*width: 50%;*/
+    height: 50vh;
     background-color: white;
     border-radius: 10px;
     opacity: 0.9;
     box-shadow: 2px 2px 2px lightgrey;
-    padding: 50px 200px 50px 200px;
+    padding: 2% 10% 2% 10%;
     margin-top: 25vh;
 }
 
@@ -61,20 +116,46 @@ body{
 .gameButton{
    width: 100% !important;
    min-height: 100% !important;
+   margin: 0 0 0 0;
 }
 
-.grid-item {
-   width: 10%;
-   height: 13.5%;
-  float: left;
+@media(min-width: 768px){
+    .headbar{
+        height: 9vh;
+    }
+
+    .grid-item {
+        width: 10%;
+        height: 13%;
+        float: left;
+    }
+
+    .grid-item--height2 {
+       height: 26%;
+    }
+    .grid-item--height3 {
+       height: 39%;
+    }
+}
+
+@media(max-width: 767px){
+    .headbar{
+        height: 20%;
+    }
+
+    .grid-item {
+        width: 10%;
+        height: 11.4%;
+        float: left;
+    }
+
+    .grid-item--height2 {
+       height: 22.8%;
+    }
+    .grid-item--height3 {
+       height: 34.2%;
+    }
 }
 
 .grid-item--width2 { width: 20%; }
 .grid-item--width3 { width: 30%; }
-
-.grid-item--height2 {
-   height: 27%;
-}
-.grid-item--height3 {
-   height: 40.5%;
-}

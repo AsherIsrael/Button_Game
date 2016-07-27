@@ -5,6 +5,7 @@ import io from "socket.io-client";
 export default class App extends React.Component{
 	constructor(){
 		super();
+		console.log("app initialized");
 		this.setState = this.setState.bind(this)
 		var socket = io.connect();
 		this.state = {
@@ -83,14 +84,19 @@ export default class App extends React.Component{
 
 		var that = this;
 		window.addEventListener("beforeunload", () => {
-			let activity = {
-				type: "logout",
-				data: {
-					time: Date.now()
+			if(this.state.username){
+				let activity = {
+					type: "logout",
+					data: {
+						time: Date.now()
+					}
 				}
+				that.logActivity(activity)
 			}
-			that.logActivity(activity)
 		})
+	}
+	reset(){
+		this.setState({elimTopScore: 0, elimScore: 0});
 	}
 	makeElimBoard(callback){
 		callback(this.makeBoard());
@@ -176,11 +182,12 @@ export default class App extends React.Component{
 				elimBoard: this.state.elimBoard,
 				elimTopScore: this.state.elimTopScore,
 				elimScore: this.state.elimScore,
-				makeBoard: () => this.makeBoard()
+				makeBoard: () => this.makeBoard(),
+				reset: () => this.reset()
 			})
 		})
 		return(
-			<div>
+			<div id="noOverflow">
 				{children}
 			</div>
 		)

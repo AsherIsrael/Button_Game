@@ -68,7 +68,7 @@ export default class Elimination extends React.Component{
 		})
 		return(
 			<div className="container-fluid">
-				<div className="row">
+				<div className="headbar">
 					<h1 className="col-md-4 col-xs-12">Now playing: {this.props.username}</h1>
 					<ValueBox label="Buttons:" data={this.props.elimScore}/>
 					<div className="col-md-1 col-xs-0"></div>

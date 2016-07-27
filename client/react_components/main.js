@@ -5,6 +5,7 @@ import Login from "./login.js";
 import Elimination from "./Elimination.js";
 import Selector from "./Selector.js"
 import Guessing from "./Guessing.js"
+import VisualLogic from "./VisualLogic.js"
 import { Router, Route, browserHistory, IndexRoute } from "react-router";
 
 var Routes = (
@@ -15,6 +16,7 @@ var Routes = (
          <Route path="modes" component={Selector}/>
          <Route path="guessing" component={Guessing}/>
       </Route>
+      <Route path="/visualize" component={VisualLogic}/>
    </Router>
 )
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router"
 
 
 export default class Login extends React.Component{
@@ -43,11 +44,11 @@ export default class Login extends React.Component{
       }
       return(
          <div className="container-fluid" id="loginPage">
-            <div className="col-md-3"></div>
-            <div className="contentBox col-md-6">
-               <h1 className="jukeBox">|Color Clickers¬</h1>
-               <br/>
-               <br/>
+            <div className="col-md-3 col-xs-1"></div>
+            <div className="contentBox col-md-6 col-xs-10">
+               <div className="col-md-1"></div>
+               <span className="jukeBox">|Color Clickers¬</span>
+               <div className="col-md-1"></div>
                <div className="row">
                   <div className="col-md-1"></div>
                   <div className="col-md-10">
@@ -62,9 +63,19 @@ export default class Login extends React.Component{
                   </div>
                   <div className="col-md-1"></div>
                </div>
+               <div className="row">
+                  <div className="col-md-10"></div>
+                  <div className="col-md-2">
+                     <Link to="/visualize"><button className="btn">Data Analysis</button></Link>
+                  </div>
+               </div>
             </div>
-            <div className="col-md-3"></div>
+            <div className="col-md-3 col-xs-1"></div>
          </div>
       )
    }
 }
+
+Login.contextTypes = {
+   router: React.PropTypes.object.isRequired
+};

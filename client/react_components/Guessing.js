@@ -60,10 +60,12 @@ class Guessing extends React.Component{
 		});
 	}
    record(buttonPressed){
-      var guess = this.state.guesses+1
-      this.setState({guesses: guess})
-      var size = buttonPressed.height*buttonPressed.width;
-      if(buttonPressed.number==this.state.correctButton){
+      let guesses = this.state.guesses+1
+      this.setState({guesses: guesses})
+      let size = buttonPressed.height*buttonPressed.width;
+      var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+		var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      if(buttonPressed.number == this.state.correctButton){
          let activity = {
             type: "buttonPress",
             data: {
@@ -72,11 +74,21 @@ class Guessing extends React.Component{
                color: buttonPressed.color,
                time: Date.now(),
                x: buttonPressed.x,
-               y: buttonPressed.y
+               y: buttonPressed.y,
+               windowWidth: width,
+   				windowHeight: height
             }
          }
          this.props.socket.emit("log_activity", activity);
-         var replay = confirm(`You got it in ${this.state.guesses} guesses! Would you like to play again?`);
+         let replay = confirm(`You got it in ${this.state.guesses} guesses! Would you like to play again?`);
+         activity = {
+   			type: "gameEnd",
+   			data: {
+   				name: "guessing",
+   				time: Date.now()
+   			}
+   		}
+   		this.props.socket.emit("log_activity", activity);
          if(replay){
             let activity = {
                type: "gameStart",
@@ -103,12 +115,15 @@ class Guessing extends React.Component{
                color: buttonPressed.color,
                time: Date.now(),
                x: buttonPressed.x,
-               y: buttonPressed.y
+               y: buttonPressed.y,
+               windowWidth: width,
+   				windowHeight: height
             }
          }
          this.props.socket.emit("log_activity", activity);
          var board = this.state.board.slice();
          board[buttonPressed.number-1].display = "X";
+         board[buttonPressed.number-1].pressed = true;
          this.setState({board: board});
       }
 
@@ -116,11 +131,11 @@ class Guessing extends React.Component{
    render(){
 		// var that = this;
 		var displayBoard = this.state.board.map((item) => {
-			return <GameButton key={item.number} number={item.number} display={item.display} color={item.color} width={item.width} height={item.height} recordAct={this.record}/>
+			return <GameButton key={item.number} number={item.number} display={item.display} pressed={item.pressed} color={item.color} width={item.width} height={item.height} recordAct={this.record}/>
 		})
 		return(
 			<div className="container-fluid">
-				<div className="row">
+				<div className="headbar">
 					<h1 className="col-md-4">Now Playing: {this.props.username}</h1>
                <ValueBox label="guesses:" data={this.state.guesses}/>
 					<div className="col-md-5"></div>

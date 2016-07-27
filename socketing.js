@@ -18,19 +18,10 @@ module.exports = function(io){
 			users.login(data,function(result){
 				currentUser = result;
 				socket.emit("logged_in", result);
-
 			})
 
 		})
 
-		socket.on("disconnect", function(){
-			ifGameOver();
-			var data = {
-				user: currentUser,
-				activities: activities
-			}
-			visits.create(data);
-		})
 
 		socket.on("log_activity", function(activity){
 			activities.push(activity);
@@ -90,8 +81,18 @@ module.exports = function(io){
 		socket.on("elimination_player_left", function(){
 			ifGameOver();
 			inElimination = false;
-			socket.leave('elimination')
-			console.log("player left, total players: ", eliminationPlayers);
+			socket.leave('elimination');
+		})
+
+		socket.on("disconnect", function(){
+			ifGameOver();
+			if(activities.length > 0){
+				var data = {
+					user: currentUser,
+					activities: activities
+				}
+				visits.create(data);
+			}
 		})
 
 		function startGame(){
@@ -109,6 +110,7 @@ module.exports = function(io){
 		function ifGameOver(){
 			if(inElimination){
 				eliminationPlayers--;
+				console.log("player left, total players: ", eliminationPlayers);
 				if(eliminationPlayers <= 0){
 					eliminationBoard = [];
 					currentTopScore = 0;
