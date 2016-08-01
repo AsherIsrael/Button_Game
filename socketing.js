@@ -7,11 +7,13 @@ module.exports = function(io){
 	var currentTopScore = 0;
 	var eliminationButtonsPressed = 0;
 	io.on("connection", function(socket){
+		console.log("socket connected");
 		var currentUser;
 		var activities = [];
 		var inElimination = false;
 
 		socket.on("user_login", function(username){
+			console.log("user has logged in");
 			var data = {
 				name: username
 			}
@@ -19,8 +21,9 @@ module.exports = function(io){
 				currentUser = result;
 				socket.emit("logged_in", result);
 			})
-			
+
 			socket.on("disconnect", function(){
+				console.log("user has disconnected");
 				ifGameOver();
 				if(activities.length > 0){
 					console.log();

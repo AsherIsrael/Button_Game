@@ -17,6 +17,7 @@ module.exports = (function(){
             _user: req.user,
             activities: req.activities
          })
+         console.log("saving a visit");
          visit.save( (err) => {
             console.log(err);
          });
