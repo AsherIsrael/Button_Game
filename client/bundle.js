@@ -20334,16 +20334,16 @@
 					}
 
 					_this2.setState({ elimBoard: board });
+					var activity = {
+						type: "gameEnd",
+						data: {
+							name: "elimination",
+							time: Date.now()
+						}
+					};
+					_this2.logActivity(activity);
 					var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 4 seconds.");
 					if (replay) {
-						var activity = {
-							type: "gameEnd",
-							data: {
-								name: "elimination",
-								time: Date.now()
-							}
-						};
-						_this2.logActivity(activity);
 						activity = {
 							type: "gameStart",
 							data: {
@@ -28397,9 +28397,9 @@
 	      var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Login).call(this));
 
 	      _this.setState = _this.setState.bind(_this);
-	      _this.login = _this.login.bind(_this);
+	      // this.login = this.login.bind(this);
 	      _this.state = {
-	         valid: false,
+	         // valid: false,
 	         username: ""
 	      };
 	      return _this;
@@ -28409,19 +28409,19 @@
 	      key: "login",
 	      value: function login(e) {
 	         e.preventDefault();
-	         if (this.state.valid) {
+	         if (this.state.username.langth > 3) {
 	            this.props.socket.emit("user_login", this.state.username);
 	         }
 	      }
 	   }, {
-	      key: "isValid",
-	      value: function isValid() {
+	      key: "handleChange",
+	      value: function handleChange() {
 	         var user = this.refs['username'].value;
-	         if (user.length < 4) {
-	            this.setState({ valid: false });
-	         } else {
-	            this.setState({ valid: true });
-	         }
+	         // if(user.length < 4){
+	         //    this.setState({valid: false});
+	         // }else{
+	         //    this.setState({valid: true});
+	         // }
 	         this.setState({ username: user });
 	      }
 	   }, {
@@ -28433,12 +28433,12 @@
 	         var inputClass = "form-control";
 	         var btnClass = "btn btn-primary";
 	         var formClass = "input-group";
-	         if (!this.state.valid && this.state.username.length > 0) {
+	         if (this.state.username.length < 4 && this.state.username.length > 0) {
 	            errorClass = "";
 	            inputClass = "form-control form-control-danger";
 	            btnClass = "btn btn-danger";
 	            formClass = "input-group has-danger";
-	         } else if (this.state.valid) {
+	         } else if (this.state.username.length >= 4) {
 	            inputClass = "form-control form-control-success";
 	            btnClass = "btn btn-success";
 	            formClass = "input-group has-success";
@@ -28476,12 +28476,14 @@
 	                     ),
 	                     _react2.default.createElement(
 	                        "form",
-	                        { name: "form", onSubmit: this.login },
+	                        { name: "form", onSubmit: function onSubmit() {
+	                              return _this2.login();
+	                           } },
 	                        _react2.default.createElement(
 	                           "div",
 	                           { className: formClass },
 	                           _react2.default.createElement("input", { className: inputClass, type: "text", value: this.state.username, onChange: function onChange() {
-	                                 return _this2.isValid();
+	                                 return _this2.handleChange();
 	                              }, ref: "username" }),
 	                           _react2.default.createElement(
 	                              "span",

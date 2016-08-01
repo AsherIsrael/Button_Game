@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
 
 var VisitSchema = new mongoose.Schema({
-   _user: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
+   _user: {type: mongoose.Schema.Types.ObjectId, ref: "User", required: true},
    activities: {type: Array,
       validate: {
          validator: (activities) => {

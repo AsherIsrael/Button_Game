@@ -6,25 +6,25 @@ export default class Login extends React.Component{
    constructor(){
       super();
       this.setState = this.setState.bind(this);
-      this.login = this.login.bind(this);
+      // this.login = this.login.bind(this);
       this.state = {
-         valid: false,
+         // valid: false,
          username: ""
       }
    }
    login(e){
       e.preventDefault();
-      if(this.state.valid){
+      if(this.state.username.langth > 3){
          this.props.socket.emit("user_login", this.state.username)
       }
    }
-   isValid(){
+   handleChange(){
       var user = this.refs['username'].value;
-      if(user.length < 4){
-         this.setState({valid: false});
-      }else{
-         this.setState({valid: true});
-      }
+      // if(user.length < 4){
+      //    this.setState({valid: false});
+      // }else{
+      //    this.setState({valid: true});
+      // }
       this.setState({username: user})
    }
    render(){
@@ -32,12 +32,12 @@ export default class Login extends React.Component{
       var inputClass = "form-control";
       var btnClass = "btn btn-primary";
       var formClass = "input-group";
-      if(!this.state.valid && this.state.username.length > 0){
+      if(this.state.username.length < 4 && this.state.username.length > 0){
          errorClass = "";
          inputClass = "form-control form-control-danger";
          btnClass = "btn btn-danger";
          formClass = "input-group has-danger";
-      }else if(this.state.valid){
+      }else if(this.state.username.length >= 4){
          inputClass = "form-control form-control-success";
          btnClass = "btn btn-success";
          formClass = "input-group has-success";
@@ -54,9 +54,9 @@ export default class Login extends React.Component{
                   <div className="col-md-10">
                      <h2>Login</h2>
                      <span ref="error" className={errorClass}>Name must be at least 4 characters</span>
-                     <form name="form" onSubmit={this.login}>
+                     <form name="form" onSubmit={() => this.login()}>
                            <div className={formClass}>
-                              <input className={inputClass} type="text" value={this.state.username} onChange={() => this.isValid()} ref="username"/>
+                              <input className={inputClass} type="text" value={this.state.username} onChange={() => this.handleChange()} ref="username"/>
                               <span className="input-group-btn"><button type="submit" className={btnClass}>Enter</button></span>
                            </div>
                      </form>
