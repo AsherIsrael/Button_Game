@@ -19,3 +19,7 @@ require("./socketing.js")(io);
 http.listen(6174, function(){
 	console.log("SERVER LISTENING");
 });
+
+http.listen(8000, function(){
+	console.log("LISTENING ON 8000")
+})
