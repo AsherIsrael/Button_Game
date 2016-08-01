@@ -87,6 +87,7 @@ module.exports = function(io){
 		socket.on("disconnect", function(){
 			ifGameOver();
 			if(activities.length > 0){
+				console.log("did something");
 				var data = {
 					user: currentUser,
 					activities: activities

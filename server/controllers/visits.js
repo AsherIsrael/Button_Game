@@ -17,7 +17,9 @@ module.exports = (function(){
             _user: req.user,
             activities: req.activities
          })
-         visit.save();
+         visit.save( (err) => {
+            console.log(err);
+         });
       }
    }
 })();

@@ -20,13 +20,22 @@ export default class VisualLogic extends React.Component{
       }
    }
    componentWillMount(){
-      axios.get('/display')
-      .then( (res) => {
-         // this.setState({data: res.data})
-         this.processData(res.data)
+      axios.get('/display').then( (res) => {
+                  console.log("Got this: ", res);
+                  this.processData(res.data)
       })
+      // fetch('http://localhost:6174/display', {method: 'get', origin: 'localhost:6174', mode: 'no-cors', 'content-type': 'json'})
+      //    .then( (res) => {
+      //          // this.setState({data: res.data})
+      //    })
+
+
+
+      // axios.get('colorclickers.com/display')
+
    }
    processData(data){
+      // console.log(data);
       let buttonPresses = [];
       let gamesPlayed = 0;
       let firstButtonsPressed = [];
@@ -180,7 +189,7 @@ export default class VisualLogic extends React.Component{
    }
    render(){
       let firstColors = this.state.firstButtonsPressed.map((item) => item.data.color );
-      console.log(this.state.firstButtonsPressed);
+      // console.log(this.state.firstButtonsPressed);
 
       return(
          <Visualization buttonPresses={this.state.buttonPresses} firstClickLocations={this.state.firstClickLocations} gamesPlayed={this.state.gamesPlayed} visits={this.state.visits} visitLengths={this.state.visitLengths} clickLocations={this.state.clickLocations} hues={this.state.hues} firstHues={this.state.firstHues}/>

@@ -186,6 +186,7 @@ export default class App extends React.Component{
 				reset: () => this.reset()
 			})
 		})
+		console.log('app rendered');
 		return(
 			<div id="noOverflow">
 				{children}
