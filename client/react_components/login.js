@@ -14,7 +14,8 @@ export default class Login extends React.Component{
    }
    login(e){
       e.preventDefault();
-      if(this.state.username.langth > 3){
+      if(this.state.username.length > 3){
+         console.log("log in");
          this.props.socket.emit("user_login", this.state.username)
       }
    }
@@ -54,7 +55,7 @@ export default class Login extends React.Component{
                   <div className="col-md-10">
                      <h2>Login</h2>
                      <span ref="error" className={errorClass}>Name must be at least 4 characters</span>
-                     <form name="form" onSubmit={() => this.login()}>
+                     <form name="form" onSubmit={(e) => this.login(e)}>
                            <div className={formClass}>
                               <input className={inputClass} type="text" value={this.state.username} onChange={() => this.handleChange()} ref="username"/>
                               <span className="input-group-btn"><button type="submit" className={btnClass}>Enter</button></span>

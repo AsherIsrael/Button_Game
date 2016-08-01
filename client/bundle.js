@@ -20334,16 +20334,16 @@
 					}
 
 					_this2.setState({ elimBoard: board });
-					var activity = {
-						type: "gameEnd",
-						data: {
-							name: "elimination",
-							time: Date.now()
-						}
-					};
-					_this2.logActivity(activity);
 					var replay = confirm("GAME OVER! Highest score: " + winningScore + ". Would you like to join the new round? Game begins in 4 seconds.");
 					if (replay) {
+						var activity = {
+							type: "gameEnd",
+							data: {
+								name: "elimination",
+								time: Date.now()
+							}
+						};
+						_this2.logActivity(activity);
 						activity = {
 							type: "gameStart",
 							data: {
@@ -20483,7 +20483,7 @@
 						}
 					});
 				});
-				console.log('app rendered');
+
 				return _react2.default.createElement(
 					"div",
 					{ id: "noOverflow" },
@@ -28409,7 +28409,8 @@
 	      key: "login",
 	      value: function login(e) {
 	         e.preventDefault();
-	         if (this.state.username.langth > 3) {
+	         if (this.state.username.length > 3) {
+	            console.log("log in");
 	            this.props.socket.emit("user_login", this.state.username);
 	         }
 	      }
@@ -28476,8 +28477,8 @@
 	                     ),
 	                     _react2.default.createElement(
 	                        "form",
-	                        { name: "form", onSubmit: function onSubmit() {
-	                              return _this2.login();
+	                        { name: "form", onSubmit: function onSubmit(e) {
+	                              return _this2.login(e);
 	                           } },
 	                        _react2.default.createElement(
 	                           "div",

@@ -19,6 +19,18 @@ module.exports = function(io){
 				currentUser = result;
 				socket.emit("logged_in", result);
 			})
+			
+			socket.on("disconnect", function(){
+				ifGameOver();
+				if(activities.length > 0){
+					console.log();
+					var data = {
+						user: currentUser,
+						activities: activities
+					}
+					visits.create(data);
+				}
+			})
 
 		})
 
@@ -84,17 +96,6 @@ module.exports = function(io){
 			socket.leave('elimination');
 		})
 
-		socket.on("disconnect", function(){
-			ifGameOver();
-			if(activities.length > 0){
-				console.log("did something");
-				var data = {
-					user: currentUser,
-					activities: activities
-				}
-				visits.create(data);
-			}
-		})
 
 		function startGame(){
 			if(eliminationBoard.length === 0){

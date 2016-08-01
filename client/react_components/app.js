@@ -59,16 +59,16 @@ export default class App extends React.Component{
 				button.pressed = true;
 			}
 			this.setState({elimBoard: board});
-			let activity = {
-				type: "gameEnd",
-				data: {
-					name: "elimination",
-					time: Date.now()
-				}
-			}
-			this.logActivity(activity);
 			let replay = confirm(`GAME OVER! Highest score: ${winningScore}. Would you like to join the new round? Game begins in 4 seconds.`)
 			if(replay){
+				let activity = {
+					type: "gameEnd",
+					data: {
+						name: "elimination",
+						time: Date.now()
+					}
+				}
+				this.logActivity(activity);
 				activity = {
 					type: "gameStart",
 					data: {
@@ -186,7 +186,7 @@ export default class App extends React.Component{
 				reset: () => this.reset()
 			})
 		})
-		console.log('app rendered');
+
 		return(
 			<div id="noOverflow">
 				{children}
